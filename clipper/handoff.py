@@ -7,7 +7,9 @@ import os
 import re
 from urllib.request import Request, urlopen
 
-CATALOG_COMMIT = re.compile(r"Publish GTA VI catalog for Shorts run ([1-9][0-9]*) attempt ([1-9][0-9]*)")
+CATALOG_COMMIT = re.compile(
+    r"Publish GTA VI catalog for Shorts run ([1-9][0-9]*) attempt ([1-9][0-9]*)( including November 18)?"
+)
 
 
 def api(path: str, token: str, *, payload: dict | None = None):
@@ -42,7 +44,7 @@ def follow_shorts(engine: str, repository: str, branch: str, token: str, catalog
         print("This editor already has a production run queued or running.")
         return
     started = {run["display_title"] for run in runs}
-    for revision, run_id, attempt in catalogs:
+    for revision, run_id, attempt, include_nov18 in catalogs:
         batch = f"{run_id}.{attempt}"
         if f"Shorts batch {batch}" in started:
             continue
@@ -50,10 +52,10 @@ def follow_shorts(engine: str, repository: str, branch: str, token: str, catalog
         if (run["status"] != "completed" or run["conclusion"] not in {"success", "failure"}
                 or run["path"] != ".github/workflows/produce.yml"):
             continue
-        api(f"{editor}/dispatches", token, payload={
-            "ref": branch,
-            "inputs": {"shorts_run": batch, "catalog_ref": revision},
-        })
+        inputs = {"shorts_run": batch, "catalog_ref": revision}
+        if include_nov18:
+            inputs["include_nov18"] = "true"
+        api(f"{editor}/dispatches", token, payload={"ref": branch, "inputs": inputs})
         print(f"Started production from Shorts run {run_id}, attempt {attempt}, catalog {revision}.")
         return
     print("No finished Shorts run has a catalog waiting for this editor.")

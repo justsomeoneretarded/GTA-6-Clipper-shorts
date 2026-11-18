@@ -35,6 +35,18 @@ class HandoffTests(unittest.TestCase):
         self.assertEqual(api.call_count, 3)
 
     @patch("clipper.handoff.api")
+    def test_dispatch_passes_the_november_18_allowance_only_for_that_batch(self, api):
+        marker = CATALOG["commit"]["message"] + " including November 18"
+        api.side_effect = [[{**CATALOG, "commit": {"message": marker}}], {"workflow_runs": []},
+                           {"status": "completed", "conclusion": "success", "path": ".github/workflows/produce.yml"},
+                           None]
+        follow_shorts(ENGINE, EDITOR, "main", "local-token")
+        api.assert_called_with(f"{PRODUCE}/dispatches", "local-token", payload={
+            "ref": "main",
+            "inputs": {"shorts_run": "123.2", "catalog_ref": CATALOG["sha"], "include_nov18": "true"},
+        })
+
+    @patch("clipper.handoff.api")
     def test_started_batches_are_not_dispatched_again(self, api):
         api.side_effect = [[CATALOG], {"workflow_runs": [{"status": "completed", "display_title": "Shorts batch 123.2"}]}]
         follow_shorts(ENGINE, EDITOR, "main", "local-token")

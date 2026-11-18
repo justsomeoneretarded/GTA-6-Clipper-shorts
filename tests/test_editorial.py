@@ -3,7 +3,7 @@ from dataclasses import asdict
 from datetime import UTC, datetime
 from unittest.mock import Mock, patch
 
-from clipper.core import GTA_VI_PUBLICATION_CUTOFF, Moment, Range, Source, WEIGHTS, dated, duplicate, source_url
+from clipper.core import GTA_VI_PUBLICATION_CUTOFF, Moment, Range, Source, WEIGHTS, dated, duplicate, source_cutoff, source_url
 from clipper.discovery import (
     SEARCH_TERMS, discover, grounding_source, listed_twitch_source, tavily_discovery, twitch_search_channels,
 )
@@ -118,6 +118,15 @@ class EditorialTests(unittest.TestCase):
     def test_discovery_waits_until_november_19_in_nairobi(self, twitch, clock):
         self.assertEqual(discover(Mock(), Mock(), []), {})
         twitch.assert_not_called()
+
+    @patch("clipper.core.now", return_value=datetime(2026, 11, 18, 19, tzinfo=UTC))
+    @patch.dict("os.environ", {}, clear=True)
+    def test_manual_november_18_allowance_moves_the_cutoff_for_the_batch(self, clock):
+        self.assertEqual(source_cutoff(7), GTA_VI_PUBLICATION_CUTOFF)
+        with patch.dict("os.environ", {"INCLUDE_NOV18": "true"}):
+            self.assertEqual(source_cutoff(7), "2026-11-17T21:00:00Z")
+            self.assertEqual(source_cutoff(21), "2026-11-17T21:00:00Z")
+        self.assertEqual(source_cutoff(7), GTA_VI_PUBLICATION_CUTOFF)
 
     @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
     @patch.dict("os.environ", {}, clear=True)

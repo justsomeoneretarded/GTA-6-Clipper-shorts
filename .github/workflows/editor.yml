@@ -12,6 +12,9 @@ on:
       catalog_ref:
         type: string
         required: false
+      include_nov18:
+        type: boolean
+        default: false
     secrets:
       GEMINI_API_KEY:
         required: false
@@ -41,6 +44,7 @@ jobs:
     timeout-minutes: 150
     env:
       MODE: ${{ inputs.mode }}
+      INCLUDE_NOV18: ${{ inputs.include_nov18 && 'true' || 'false' }}
       PROJECT_DIR: ${{ github.workspace }}/project
       ENGINE_DIR: ${{ github.workspace }}/engine
       STATE_DIR: ${{ github.workspace }}/state

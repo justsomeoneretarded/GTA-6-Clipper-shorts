@@ -17,6 +17,8 @@ Each editor searches YouTube and Twitch for `GTA 6`, `GTA VI`, `GTA`, `GTA strea
 
 For broader web discovery, add a [Tavily Researcher key](https://app.tavily.com/) as the `TAVILY_API_KEY` secret in the Shorts repo. Each run makes two basic searches. The Shorts repo also accepts optional `YOUTUBE_API_KEY`, `TWITCH_CLIENT_ID`, and `TWITCH_CLIENT_SECRET` secrets for direct platform discovery. The three editing repos only need the Gemini key. Set the `GEMINI_SEARCH_ENABLED` Actions variable to `true` to opt in to Gemini's Google Search with an API project that has billing enabled.
 
+The manual Shorts workflow can include November 18 footage for a batch. The three automatic follow-up runs use that batch's date setting.
+
 The optional `YOUTUBE_COOKIES` Actions secret accepts the exported Netscape-format YouTube `cookies.txt` text or its base64 encoding. The workflow gives yt-dlp a private temporary cookie file for YouTube search, metadata, and media downloads. If FFmpeg cannot fetch a selected range, videos within the full-download time limit can be downloaded with yt-dlp and trimmed locally. An editor that fetches YouTube footage can use its own repository's `YOUTUBE_COOKIES` secret.
 
 The free path defaults to Gemini 3.5 Flash-Lite. The optional Gemini Search path defaults to Gemini 3.8 Flash. Set the Actions variable `GEMINI_MODEL` to choose a specific model. By default the free path can scout 16 excerpts and audition 20 moments per run, giving the ten-Short batch room to recover from rejected candidates. Set `SCOUT_WINDOWS` and `AUDITION_MOMENTS` to tune batch depth to your [project quota](https://aistudio.google.com/rate-limit). The catalog saves unused candidates for later runs. `MIN_MOMENT_SCORE` sets the quality floor.

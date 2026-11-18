@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime, timedelta
@@ -11,6 +12,7 @@ from urllib.parse import parse_qs, urlsplit
 VERSION = 1
 # November 19, 2026 at 00:00 in Africa/Nairobi.
 GTA_VI_PUBLICATION_CUTOFF = "2026-11-18T21:00:00Z"
+NOVEMBER_18_CUTOFF = "2026-11-17T21:00:00Z"
 WEIGHTS = {"hook": .25, "payoff": .25, "context": .20, "specificity": .15, "pace": .10, "readability": .05}
 THEMES = ("chase", "driving", "stunt", "mission", "party", "radio", "podcast", "theory", "discovery", "comedy", "other")
 
@@ -24,7 +26,8 @@ def dated(days_ago: int = 0) -> str:
 
 
 def source_cutoff(days: int) -> str:
-    return max(GTA_VI_PUBLICATION_CUTOFF, dated(days))
+    earliest = NOVEMBER_18_CUTOFF if os.getenv("INCLUDE_NOV18") == "true" else GTA_VI_PUBLICATION_CUTOFF
+    return max(earliest, dated(days))
 
 
 def digest(*pieces: object) -> str:

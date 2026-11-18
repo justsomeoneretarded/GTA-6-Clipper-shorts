@@ -1,7 +1,13 @@
 name: Produce GTA VI Shorts
+run-name: ${{ inputs.include_nov18 && 'GTA VI Shorts including November 18' || 'Produce GTA VI Shorts' }}
 
 on:
   workflow_dispatch:
+    inputs:
+      include_nov18:
+        description: Include footage published November 18 Nairobi time in this batch
+        type: boolean
+        default: false
   schedule:
     - cron: '23 5,17 * * *'
 
@@ -14,6 +20,7 @@ jobs:
     with:
       mode: shorts
       engine: ${{ github.repository }}
+      include_nov18: ${{ inputs.include_nov18 == true }}
     secrets:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
