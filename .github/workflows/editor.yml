@@ -16,6 +16,8 @@ on:
         required: false
       YOUTUBE_API_KEY:
         required: false
+      YOUTUBE_COOKIES:
+        required: false
       TWITCH_CLIENT_ID:
         required: false
       TWITCH_CLIENT_SECRET:
@@ -112,6 +114,8 @@ jobs:
 
       - name: Discover footage and audition cuts
         if: inputs.mode == 'shorts'
+        env:
+          YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
         working-directory: engine
         run: python -m clipper discover --state "$STATE_DIR" --work "$WORK_DIR" --output "$OUTPUT_DIR"
 
@@ -122,6 +126,7 @@ jobs:
       - name: Render and review the videos
         env:
           HF_HOME: ${{ runner.temp }}/whisper
+          YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
         working-directory: engine
         run: |
           python -m clipper render --mode "$MODE" --state "$STATE_DIR" --work "$WORK_DIR" --output "$OUTPUT_DIR"

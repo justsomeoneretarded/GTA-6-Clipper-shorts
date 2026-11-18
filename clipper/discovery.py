@@ -177,7 +177,7 @@ def grounding_source(link: str) -> Source | None:
 
 
 def youtube_fallback(downloads: Downloads, topic: str) -> list[Source]:
-    response = run(downloads.ytdlp(f"ytsearch15:{topic}", ["--flat-playlist", "--dump-single-json"]), timeout=55)
+    response = downloads.ytdlp(f"ytsearch15:{topic}", ["--flat-playlist", "--dump-single-json"], timeout=55)
     rows = json.loads(response).get("entries", [])
     return [item for row in rows if row and (item := source_url(f"https://www.youtube.com/watch?v={row.get('id', '')}"))]
 

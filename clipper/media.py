@@ -1,18 +1,56 @@
 from __future__ import annotations
 
+import base64
+import binascii
 import json
 import os
 import shutil
 import subprocess
 import tempfile
 import textwrap
+from contextlib import contextmanager
 from pathlib import Path
 
-from .core import Range, Source, digest, timestamp
+from .core import Range, Source, digest, source_url, timestamp
 
 
 class MediaError(RuntimeError):
     pass
+
+
+@contextmanager
+def youtube_cookie_file(secret: str, report: list[str]):
+    """Keep a scoped Netscape cookie jar outside the media and artifact directories."""
+    if not secret.strip():
+        yield None
+        return
+
+    headers = ("# Netscape HTTP Cookie File", "# HTTP Cookie File")
+    contents = secret.lstrip("\ufeff").strip()
+    if not contents.startswith(headers):
+        try:
+            contents = base64.b64decode("".join(contents.split()), validate=True).decode("utf-8-sig").strip()
+        except (binascii.Error, UnicodeError):
+            contents = ""
+    rows = []
+    if contents.startswith(headers):
+        for line in contents.splitlines()[1:]:
+            fields = line.split("\t")
+            domain = fields[0].removeprefix("#HttpOnly_").lstrip(".").casefold()
+            if len(fields) == 7 and (domain == "youtube.com" or domain.endswith(".youtube.com")):
+                rows.append(line)
+    if not rows:
+        report.append("The YouTube secret needs a Netscape-format cookies.txt export containing YouTube cookies.")
+        yield None
+        return
+
+    with tempfile.TemporaryDirectory(prefix="gta6-youtube-") as directory:
+        cookie_file = Path(directory) / "cookies.txt"
+        fd = os.open(cookie_file, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as file:
+            file.write("\n".join([headers[0], *rows, ""]))
+        report.append("YouTube cookies were enabled for yt-dlp.")
+        yield cookie_file
 
 
 def run(args: list[str], *, timeout: int = 240, cwd: Path | None = None) -> str:
@@ -45,21 +83,44 @@ def video_duration(path: Path) -> float:
 
 
 class Downloads:
-    def __init__(self, directory: Path, fixtures: dict[str, Path] | None = None):
+    def __init__(self, directory: Path, fixtures: dict[str, Path] | None = None,
+                 *, youtube_cookies: Path | None = None):
         self.directory = directory.resolve()
         self.directory.mkdir(parents=True, exist_ok=True)
         self.windows: dict[str, list[tuple[Range, Path]]] = {}
         self.fixtures = fixtures or {}
         self.unreachable: dict[str, str] = {}
+        self.youtube_cookies = youtube_cookies
         self.full_limit = int(os.getenv("FULL_DOWNLOAD_MAX_SECONDS") or 3600)
         self.format = "bv*[height<=1080][ext=mp4]+ba[ext=m4a]/b[height<=1080][ext=mp4]/b[height<=1080]/b"
 
-    def ytdlp(self, url: str, extra: list[str]) -> list[str]:
-        return ["yt-dlp", "--ignore-config", "--no-playlist", "--no-progress", "--no-warnings",
-                "--socket-timeout", "20", "--retries", "2", "--js-runtimes", "node", *extra, url]
+    def ytdlp(self, url: str, extra: list[str], *, timeout: int) -> str:
+        source = source_url(url)
+        authenticated = self.youtube_cookies and (url.startswith("ytsearch") or source and source.platform == "youtube")
+        args = ["yt-dlp", "--ignore-config", "--no-playlist", "--no-progress", "--no-warnings",
+                "--socket-timeout", "20", "--retries", "2", "--js-runtimes", "node"]
+        if authenticated:
+            args.extend(["--cookies", str(self.youtube_cookies)])
+        try:
+            return run([*args, *extra, url], timeout=timeout)
+        except MediaError as error:
+            if not authenticated:
+                raise
+            detail = str(error).casefold()
+            for fragment, reason in (
+                ("sign in to confirm", "YouTube asked to sign in to confirm this request."),
+                ("cookies are no longer valid", "YouTube rejected the saved session cookies."),
+                ("timed out", "The authenticated YouTube request timed out."),
+                ("403", "YouTube denied the authenticated request (HTTP 403)."),
+                ("429", "YouTube limited the authenticated request (HTTP 429)."),
+                ("not available", "This YouTube video is not available to the runner."),
+            ):
+                if fragment in detail:
+                    raise MediaError(reason) from None
+            raise MediaError("The authenticated YouTube request failed.") from None
 
     def metadata(self, source: Source) -> None:
-        result = json.loads(run(self.ytdlp(source.url, ["--dump-single-json", "--skip-download"]), timeout=65))
+        result = json.loads(self.ytdlp(source.url, ["--dump-single-json", "--skip-download"], timeout=65))
         if result.get("is_live") or result.get("live_status") in {"is_live", "is_upcoming", "post_live"}:
             raise MediaError("The broadcast archive is still being prepared.")
         source.duration = float(result.get("duration") or 0)
@@ -85,7 +146,7 @@ class Downloads:
                 options += ["--download-sections", f"*{span.start:.3f}-{span.end:.3f}", "--force-keyframes-at-cuts"]
             timeout = 75 if source.platform == "twitch-clip" else (420 if whole else 180)
             try:
-                run(self.ytdlp(source.url, options), timeout=timeout)
+                self.ytdlp(source.url, options, timeout=timeout)
             except MediaError:
                 if source.platform != "twitch-clip" or not shutil.which("twitch-dl"):
                     raise
