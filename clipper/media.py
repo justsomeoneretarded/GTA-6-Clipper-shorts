@@ -186,14 +186,13 @@ def render_piece(media: Path, offset: float, length: float, destination: Path,
                    f"force_divisible_by=2,pad={width}:{height}:(ow-iw)/2:(oh-ih)/2")
     framing += ",setsar=1,fps=30"
     if rank or label:
-        textfile = destination.with_suffix(".rank")
-        wrapping = "\n".join(textwrap.wrap(label[:45], 27))
-        textfile.write_text((f"#{rank}  " if rank else "") + wrapping, encoding="utf-8")
-        framing += (f",drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:"
-                    f"textfile={textfile.name}:expansion=none:fontcolor=white:fontsize={max(18, width // 24)}:"
-                    "box=1:boxcolor=black@0.7:boxborderw=16:x=(w-tw)/2:y=h*0.12")
-        if rank is None:
-            framing += ":enable='lt(t,3.2)'"
+        textfile = destination.with_suffix(".label.srt")
+        label = label.translate(str.maketrans("", "", r"\{}<>"))
+        wrapping = "\n".join(textwrap.wrap((f"#{rank}  " if rank else "") + label[:45], 28))
+        end = length if rank else min(length, 3.2)
+        textfile.write_text(f"1\n00:00:00,000 --> {srt_time(end)}\n{wrapping}\n\n", encoding="utf-8")
+        framing += (f",subtitles={textfile.name}:force_style='FontName=DejaVu Sans,FontSize=17,"
+                    "Bold=1,BorderStyle=3,Outline=5,BackColour=&H78000000,Alignment=8,MarginV=40'")
     framing += "[video]"
     ffmpeg(*inputs, "-t", f"{length:.3f}", "-filter_complex", framing, "-map", "[video]", *audio,
            "-c:v", "libx264", "-threads", "3", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",

@@ -29,7 +29,7 @@ Each video folder contains `video.mp4`, `thumbnail.jpg`, `captions.srt`, `metada
 
 ## Local verification
 
-Use Python 3.12 and FFmpeg with libass, libx264, and drawtext. The live path also uses Node.js 24 for yt-dlp's YouTube extraction.
+Use Python 3.12 and FFmpeg with libass and libx264. The live path also uses Node.js 24 for yt-dlp's YouTube extraction.
 
 ```bash
 python -m pip install -r requirements.txt

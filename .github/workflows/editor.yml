@@ -86,10 +86,7 @@ jobs:
 
       - name: Install media tools
         run: |
-          if ! command -v ffmpeg >/dev/null || ! test -r /usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf; then
-            sudo apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 -qq update
-            sudo apt-get install -qq -y ffmpeg fonts-dejavu-core
-          fi
+          bash "$ENGINE_DIR/scripts/setup-media.sh"
           python -m pip install -r "$ENGINE_DIR/requirements.txt"
 
       - name: Load this editor's state

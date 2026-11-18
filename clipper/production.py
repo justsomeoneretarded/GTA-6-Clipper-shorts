@@ -119,6 +119,8 @@ def render_edit(edit: Edit, mode: str, title: str, downloads: Downloads, sources
         transcript = captions.make(draft, subtitle)
         finish_video(draft, subtitle, finished, vertical)
         length = verify_video(finished, edit.seconds, size)
+        if mode == "condensed" and length < 240:
+            raise MediaError("Finished horizontal edit is shorter than four minutes.")
         result = approved_package(gemini, edit, finished, length, transcript, mode, credits)
         ffmpeg("-ss", f"{result['thumbnail_seconds']:.3f}", "-i", str(finished), "-frames:v", "1", "-q:v", "2",
                str(staging / "thumbnail.jpg"))

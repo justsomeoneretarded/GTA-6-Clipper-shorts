@@ -57,9 +57,9 @@ def smoke(output: Path) -> None:
                "-t", "310", "-c:v", "libx264", "-threads", "2", "-preset", "ultrafast", "-c:a", "aac", str(input_path))
         item = Source("youtube:TestGTA0001", "https://www.youtube.com/watch?v=TestGTA0001", "youtube",
                       "Synthetic source", "Fixture creator", 310)
-        moments = [Moment(Range(item.key, start, start + 19), "chase", f"Opening {i}",
+        moments = [Moment(Range(item.key, start, start + 13), "chase", f"Opening {i}",
                           "Setup", "Payoff", "Synthetic evidence", 92 - i)
-                   for i, start in enumerate((10, 70, 140, 218), 1)]
+                   for i, start in enumerate(range(12, 289, 24), 1)]
         sequence = Sequence(Range(item.key, 0, 310), "chase", "Synthetic sequence", 90)
         catalog = {"version": VERSION, "moments": [obj.to_dict() for obj in moments],
                    "sequences": [sequence.to_dict()], "sources": {item.key: asdict(item)}}
@@ -70,7 +70,7 @@ def smoke(output: Path) -> None:
             report: list[str] = []
             ledger = render_batch(mode, model, downloads, catalog, {}, work, out, report,
                                   captions=FixtureCaptions(), small=True)
-            expected = 4 if mode == "shorts" else 1
+            expected = 10 if mode == "shorts" else 1
             assert len(ledger.get("edits", [])) == expected, (mode, report)
             for result in out.glob("*/video.mp4"):
                 info = probe(result)

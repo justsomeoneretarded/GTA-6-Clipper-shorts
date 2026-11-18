@@ -19,10 +19,7 @@ jobs:
           python-version: '3.12'
       - name: Install fixture dependencies
         run: |
-          if ! command -v ffmpeg >/dev/null || ! test -r /usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf; then
-            sudo apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 -qq update
-            sudo apt-get install -qq -y ffmpeg fonts-dejavu-core
-          fi
+          bash scripts/setup-media.sh
           python -m pip install 'requests>=2.32,<3'
       - name: Check selection rules and render every editor
         run: |
