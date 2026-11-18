@@ -48,6 +48,16 @@ jobs:
       AUDITION_MOMENTS: ${{ vars.AUDITION_MOMENTS }}
       MIN_MOMENT_SCORE: ${{ vars.MIN_MOMENT_SCORE }}
     steps:
+      - name: Validate the Gemini secret
+        run: |
+          if [[ -z "$GEMINI_API_KEY" ]]; then
+            mkdir -p "$OUTPUT_DIR"
+            printf '# Configuration required\n\nAdd GEMINI_API_KEY under Settings → Secrets and variables → Actions.\n' \
+              > "$OUTPUT_DIR/configuration.md"
+            echo '::error::GEMINI_API_KEY is missing from this repository.'
+            exit 1
+          fi
+
       - name: Check out the editor repository
         uses: actions/checkout@v7
         with:
@@ -76,8 +86,10 @@ jobs:
 
       - name: Install media tools
         run: |
-          sudo apt-get -qq update
-          sudo apt-get install -qq -y ffmpeg fonts-dejavu-core
+          if ! command -v ffmpeg >/dev/null || ! test -r /usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf; then
+            sudo apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 -qq update
+            sudo apt-get install -qq -y ffmpeg fonts-dejavu-core
+          fi
           python -m pip install -r "$ENGINE_DIR/requirements.txt"
 
       - name: Load this editor's state
