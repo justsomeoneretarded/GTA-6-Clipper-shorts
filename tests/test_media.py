@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from clipper.core import Range, source_url
-from clipper.media import Downloads, MediaError, youtube_cookie_file
+from clipper.media import Downloads, MediaError, publication_date, youtube_cookie_file
 
 
 EXPORT = (
@@ -17,6 +17,12 @@ EXPORT = (
 
 
 class YouTubeCookieTests(unittest.TestCase):
+    def test_yt_dlp_publication_date_supports_uploads_and_streams(self):
+        self.assertEqual(publication_date({"upload_date": "20261117"}), "2026-11-17T00:00:00Z")
+        self.assertEqual(publication_date({"release_timestamp": 1700000000, "upload_date": "20190605"}),
+                         "2023-11-14T22:13:20Z")
+        self.assertEqual(publication_date({"upload_date": "20261301"}), "")
+
     def test_cookie_export_is_scoped_and_removed_after_use(self):
         for value in (EXPORT, base64.b64encode(EXPORT.encode()).decode()):
             with self.subTest(encoded=value != EXPORT):

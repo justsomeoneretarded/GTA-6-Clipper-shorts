@@ -240,6 +240,7 @@ def twitch_fallback(sources: dict[str, Source], report: list[str], days: int) ->
 
 
 def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: int = 7) -> dict[str, Source]:
+    earliest = dated(days)
     sources: dict[str, Source] = {}
     if search_enabled():
         try:
@@ -282,7 +283,7 @@ def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: i
     youtube_blocks = 0
     skipped = 0
     for item in list(sources.values()):
-        if not item.duration:
+        if not item.duration or not item.published:
             if item.platform == "youtube" and youtube_blocks >= 2:
                 skipped += 1
                 sources.pop(item.key, None)
@@ -294,13 +295,17 @@ def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: i
                     youtube_blocks += 1
                 report.append(f"{item.key} metadata: {error}")
                 sources.pop(item.key, None)
-        if 0 < item.duration < 10:
-            sources.pop(item.key, None)
     if skipped:
         report.append(f"Skipped {skipped} further YouTube metadata calls after repeated sign-in challenges.")
+    latest = dated()
+    recent = {key: item for key, item in sources.items() if item.published and earliest <= item.published <= latest}
+    stale = sum(bool(item.published and item.published < earliest) for item in sources.values())
+    undated = sum(not item.published for item in sources.values())
+    if stale or undated:
+        report.append(f"Skipped sources posted more than {days} days ago ({stale}) or with an unknown publication date ({undated}).")
     # YouTube's replay graph is optional; the API and coverage sweep supply the baseline.
-    replay_targets = sorted((item for item in sources.values() if item.platform == "youtube" and item.duration > 420
-                             and not item.anchors and item.published), key=priority, reverse=True)
+    replay_targets = sorted((item for item in recent.values() if item.platform == "youtube" and item.duration > 420
+                             and not item.anchors), key=priority, reverse=True)
     for item in replay_targets[:4]:
         try:
             duration = item.duration
@@ -308,7 +313,7 @@ def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: i
             item.duration = item.duration or duration
         except (MediaError, ValueError):
             continue
-    eligible = {key: item for key, item in sources.items() if item.duration >= 10}
+    eligible = {key: item for key, item in recent.items() if item.duration >= 10}
     if not eligible:
         try:
             gemini.check()

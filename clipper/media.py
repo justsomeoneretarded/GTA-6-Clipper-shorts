@@ -11,6 +11,7 @@ import tempfile
 import textwrap
 from collections.abc import Callable
 from contextlib import contextmanager
+from datetime import UTC, datetime
 from pathlib import Path
 
 from .core import Range, Source, digest, source_url, timestamp
@@ -111,6 +112,23 @@ def video_duration(path: Path) -> float:
     return float(info["format"].get("duration") or 0)
 
 
+def publication_date(metadata: dict) -> str:
+    for timestamp_key, date_key in (("release_timestamp", "release_date"), ("timestamp", "upload_date")):
+        value = metadata.get(timestamp_key)
+        if type(value) in (int, float) and value > 0:
+            try:
+                return datetime.fromtimestamp(value, UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+            except (OverflowError, OSError, ValueError):
+                pass
+        day = metadata.get(date_key)
+        if isinstance(day, str) and len(day) == 8 and day.isascii() and day.isdigit():
+            try:
+                return datetime.strptime(day, "%Y%m%d").strftime("%Y-%m-%dT00:00:00Z")
+            except ValueError:
+                continue
+    return ""
+
+
 class Downloads:
     def __init__(self, directory: Path, fixtures: dict[str, Path] | None = None,
                  *, youtube_cookies: Path | None = None):
@@ -140,6 +158,7 @@ class Downloads:
         source.title = source.title or str(result.get("title") or "")
         source.creator = source.creator or str(result.get("uploader") or "Unknown creator")
         source.views = source.views or int(result.get("view_count") or 0)
+        source.published = source.published or publication_date(result)
         for peak in sorted(result.get("heatmap") or [], key=lambda row: row.get("value", 0), reverse=True):
             start = float(peak.get("start_time") or 0)
             if 0 <= start < source.duration and all(abs(start - other) >= 105 for other in source.anchors):

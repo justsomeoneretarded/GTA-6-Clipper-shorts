@@ -1,7 +1,8 @@
 import unittest
+from dataclasses import asdict
 from unittest.mock import Mock, patch
 
-from clipper.core import Moment, Range, Source, WEIGHTS, duplicate, source_url
+from clipper.core import Moment, Range, Source, WEIGHTS, dated, duplicate, source_url
 from clipper.discovery import discover, grounding_source, listed_twitch_source, tavily_discovery
 from clipper.editorial import bounded, build_catalog, score_cut, scout_windows
 from clipper.gemini import QuotaError, quota_error
@@ -60,29 +61,38 @@ class EditorialTests(unittest.TestCase):
     @patch.dict("os.environ", {}, clear=True)
     @patch("clipper.discovery.youtube_fallback")
     @patch("clipper.discovery.twitch_fallback")
-    def test_twitch_results_do_not_skip_youtube_discovery(self, twitch, youtube):
+    def test_twitch_results_do_not_skip_date_filtered_youtube_discovery(self, twitch, youtube):
         def list_twitch(sources, report, days):
             for count in range(9):
                 source = source_url(f"https://clips.twitch.tv/FixtureClip{count}")
                 source.duration = 30
+                source.published = dated(1)
                 sources[source.key] = source
 
         twitch.side_effect = list_twitch
         video = source_url("https://youtu.be/TestGTA0001")
         video.duration = 60
-        youtube.return_value = [video]
+        video.published = dated(2)
+        old = source_url("https://youtu.be/TestGTA0002")
+        old.duration = 60
+        old.published = dated(100)
+        undated = source_url("https://youtu.be/TestGTA0003")
+        undated.duration = 60
+        youtube.return_value = [video, old, undated]
         report = []
         sources = discover(Mock(), Mock(), report)
         self.assertEqual(len(sources), 10)
         self.assertIn(video.key, sources)
         self.assertEqual(youtube.call_count, 2)
-        self.assertIn("YouTube discovery collected 1 video link.", report)
+        self.assertIn("YouTube discovery collected 3 video links.", report)
+        self.assertIn("Skipped sources posted more than 7 days ago (1) or with an unknown publication date (1).", report)
 
     @patch("clipper.editorial.audition", side_effect=QuotaError("quota"))
     @patch("clipper.editorial.scout")
     def test_quota_pause_preserves_the_scouted_moment(self, scout, audition):
         source = source_url("https://www.youtube.com/watch?v=TestGTA0001")
         source.duration = 310
+        source.published = dated(1)
         scout.return_value = {"subject": "gameplay", "sequences": [], "moments": [
             {"start": 15, "end": 45, "theme": "chase", "hook": "Roadblock", "setup": "Escape route",
              "payoff": "Gets away", "evidence": "Police car passes", "potential": 90},
@@ -91,6 +101,22 @@ class EditorialTests(unittest.TestCase):
         self.assertEqual(len(result["pending"]), 1)
         self.assertEqual(result["moments"], [])
         self.assertIn(source.key, result["sources"])
+
+    def test_catalog_drops_expired_and_undated_sources(self):
+        old = source_url("https://youtu.be/TestGTA0001")
+        old.published = dated(40)
+        undated = source_url("https://youtu.be/TestGTA0002")
+        saved = source_url("https://youtu.be/TestGTA0003")
+        saved.published = dated(15)
+        items = (old, undated, saved)
+        previous = {
+            "sources": {item.key: asdict(item) for item in items},
+            "moments": [Moment(Range(item.key, 0, 20), "chase", "Opening", "Setup", "Payoff", "Evidence", 85).to_dict()
+                        for item in items],
+        }
+        result = build_catalog(Mock(), Mock(), {}, previous, [])
+        self.assertEqual(set(result["sources"]), {saved.key})
+        self.assertEqual([row["span"]["source"] for row in result["moments"]], [saved.key])
 
     def test_strong_scores_cannot_mask_a_weak_hook(self):
         row = {"scores": dict.fromkeys(WEIGHTS, 9), "confidence": .93, "time_to_hook": 2}

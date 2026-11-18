@@ -221,7 +221,8 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
     for key, row in current.items():
         if row.published or key not in sources or not sources[key].published:
             sources[key] = row
-    sources = {key: row for key, row in sources.items() if not row.published or row.published >= dated(21)}
+    oldest_source = dated(21)
+    sources = {key: row for key, row in sources.items() if row.published and row.published >= oldest_source}
     scanned = {key: value for key, value in previous.get("scanned", {}).items() if value >= dated(10)}
     leads = [Moment.from_dict(row) for row in previous.get("pending", []) if row["span"]["source"] in sources]
     new_sequences: list[Sequence] = []

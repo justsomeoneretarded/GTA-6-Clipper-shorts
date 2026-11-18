@@ -13,7 +13,7 @@ A scheduled GitHub Actions workflow scouts public GTA VI streams and videos, aud
 
 In each repo, go to **Settings → Secrets and variables → Actions** and add the repository secret `GEMINI_API_KEY`. Run **Actions → Produce GTA VI Shorts → Run workflow** first to populate the catalog. The four workflows run on daily schedules. You can run them again from the Actions tab without entering URLs or timestamps.
 
-The Shorts discovery workflow checks both YouTube and Twitch. The default path checks public Twitch listings and tries YouTube search when other discovery providers supply zero YouTube links. Gemini reviews footage and writes the upload package. YouTube may challenge hosted media fetches even when a video appears in search.
+The Shorts discovery workflow checks both YouTube and Twitch. The default path checks public Twitch listings and tries YouTube search when other discovery providers supply zero YouTube links. Discovery considers sources published within the past seven days and checks publication dates before scouting. Each catalog refresh can keep unused, dated candidates for up to 21 days. Gemini reviews footage and writes the upload package. YouTube may challenge hosted media fetches even when a video appears in search.
 
 For broader web discovery, add a [Tavily Researcher key](https://app.tavily.com/) as the `TAVILY_API_KEY` secret in the Shorts repo. Each run makes two basic searches. The Shorts repo also accepts optional `YOUTUBE_API_KEY`, `TWITCH_CLIENT_ID`, and `TWITCH_CLIENT_SECRET` secrets for direct platform discovery. The three editing repos only need the Gemini key. Set the `GEMINI_SEARCH_ENABLED` Actions variable to `true` to opt in to Gemini's Google Search with an API project that has billing enabled.
 
