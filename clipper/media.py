@@ -4,10 +4,12 @@ import base64
 import binascii
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
 import textwrap
+from collections.abc import Callable
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -53,13 +55,40 @@ def youtube_cookie_file(secret: str, report: list[str]):
         yield cookie_file
 
 
-def run(args: list[str], *, timeout: int = 240, cwd: Path | None = None) -> str:
+def youtube_error(stderr: str) -> str:
+    detail = stderr.casefold()
+    for fragment, reason in (
+        ("sign in to confirm", "YouTube asked to sign in to confirm this request."),
+        ("cookies are no longer valid", "YouTube rejected the saved session cookies."),
+        ("requested format is not available", "YouTube did not offer the requested video format."),
+        ("no video formats found", "YouTube did not return any downloadable video formats."),
+        ("video is not available", "This YouTube video is not available to the runner."),
+        ("ffmpeg is not installed", "FFmpeg is required for this YouTube request."),
+        ("timed out", "The authenticated YouTube request timed out."),
+    ):
+        if fragment in detail:
+            return reason
+    status = re.search(r"\b(?:http(?: error)?|server returned)\s+([45]\d\d)\b", detail)
+    if status and "ffmpeg" in detail:
+        return f"FFmpeg received HTTP {status.group(1)} while reading YouTube media."
+    if status:
+        return f"YouTube returned HTTP {status.group(1)} for the authenticated request."
+    if "ffmpeg" in detail:
+        return "FFmpeg could not read the YouTube media."
+    return "The authenticated YouTube request failed."
+
+
+def run(args: list[str], *, timeout: int = 240, cwd: Path | None = None,
+        summarize_error: Callable[[str], str] | None = None) -> str:
     try:
         result = subprocess.run(args, cwd=cwd, check=True, capture_output=True, text=True, timeout=timeout)
     except subprocess.TimeoutExpired:
         raise MediaError(f"{args[0]} timed out after {timeout}s") from None
     except subprocess.CalledProcessError as error:
-        lines = (error.stderr or error.stdout or "").strip().splitlines()
+        detail = error.stderr or error.stdout or ""
+        if summarize_error:
+            raise MediaError(summarize_error(detail)) from None
+        lines = detail.strip().splitlines()
         raise MediaError(f"{args[0]} failed: {' '.join(lines[-2:])[:330]}") from None
     except OSError as error:
         raise MediaError(f"Could not run {args[0]}: {error.strerror}") from None
@@ -101,23 +130,7 @@ class Downloads:
                 "--socket-timeout", "20", "--retries", "2", "--js-runtimes", "node"]
         if authenticated:
             args.extend(["--cookies", str(self.youtube_cookies)])
-        try:
-            return run([*args, *extra, url], timeout=timeout)
-        except MediaError as error:
-            if not authenticated:
-                raise
-            detail = str(error).casefold()
-            for fragment, reason in (
-                ("sign in to confirm", "YouTube asked to sign in to confirm this request."),
-                ("cookies are no longer valid", "YouTube rejected the saved session cookies."),
-                ("timed out", "The authenticated YouTube request timed out."),
-                ("403", "YouTube denied the authenticated request (HTTP 403)."),
-                ("429", "YouTube limited the authenticated request (HTTP 429)."),
-                ("not available", "This YouTube video is not available to the runner."),
-            ):
-                if fragment in detail:
-                    raise MediaError(reason) from None
-            raise MediaError("The authenticated YouTube request failed.") from None
+        return run([*args, *extra, url], timeout=timeout, summarize_error=youtube_error if authenticated else None)
 
     def metadata(self, source: Source) -> None:
         result = json.loads(self.ytdlp(source.url, ["--dump-single-json", "--skip-download"], timeout=65))
@@ -140,8 +153,12 @@ class Downloads:
             return target
         with tempfile.TemporaryDirectory(dir=self.directory) as work:
             temporary = Path(work)
-            options = ["-f", self.format, "--merge-output-format", "mp4", "--remux-video", "mp4",
+            native_youtube = whole and source.platform == "youtube" and self.youtube_cookies
+            media_format = "b[height<=1080][ext=mp4]/b[ext=mp4]/b" if native_youtube else self.format
+            options = ["-f", media_format, "--merge-output-format", "mp4", "--remux-video", "mp4",
                        "-o", str(temporary / "video.%(ext)s")]
+            if native_youtube:
+                options += ["--downloader", "native"]
             if not whole:
                 options += ["--download-sections", f"*{span.start:.3f}-{span.end:.3f}", "--force-keyframes-at-cuts"]
             timeout = 75 if source.platform == "twitch-clip" else (420 if whole else 180)
@@ -179,8 +196,10 @@ class Downloads:
         try:
             file = self._fetch(source, span, whole=False)
         except MediaError as section_failure:
-            # An HTTP denial is also likely to affect a full download from this runner.
-            if source.duration > self.full_limit or any(s in str(section_failure).casefold() for s in ("403", "sign in", "bot", "not available", "private")):
+            failure = str(section_failure).casefold()
+            blocked = any(reason in failure for reason in ("403", "sign in", "bot", "not available", "private"))
+            ffmpeg_youtube = source.platform == "youtube" and self.youtube_cookies and "ffmpeg" in failure
+            if source.duration > self.full_limit or (blocked and not ffmpeg_youtube):
                 self.unreachable[source.key] = str(section_failure)
                 raise
             try:

@@ -1,9 +1,11 @@
 import base64
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from clipper.core import Range, source_url
 from clipper.media import Downloads, MediaError, youtube_cookie_file
 
 
@@ -42,10 +44,24 @@ class YouTubeCookieTests(unittest.TestCase):
             downloads.ytdlp("https://clips.twitch.tv/FixtureClip", [], timeout=20)
             self.assertNotIn("--cookies", run.call_args.args[0])
 
-    @patch("clipper.media.run", side_effect=MediaError("HTTP 403 with fixture-cookie"))
+    @patch("clipper.media.subprocess.run", side_effect=subprocess.CalledProcessError(
+        1, ["yt-dlp"], stderr="Server returned 403 Forbidden with fixture-cookie\nFFmpeg failed\n"))
     def test_cookie_error_hides_provider_details(self, run):
         with tempfile.TemporaryDirectory() as folder, youtube_cookie_file(EXPORT, []) as path:
             downloads = Downloads(Path(folder), youtube_cookies=path)
             with self.assertRaises(MediaError) as raised:
                 downloads.ytdlp("https://www.youtube.com/watch?v=TestGTA0001", [], timeout=20)
-            self.assertEqual(str(raised.exception), "YouTube denied the authenticated request (HTTP 403).")
+            self.assertEqual(str(raised.exception), "FFmpeg received HTTP 403 while reading YouTube media.")
+
+    def test_authenticated_youtube_section_failure_retries_full_download(self):
+        with tempfile.TemporaryDirectory() as folder, youtube_cookie_file(EXPORT, []) as path:
+            downloads = Downloads(Path(folder), youtube_cookies=path)
+            source = source_url("https://www.youtube.com/watch?v=TestGTA0001")
+            source.duration = 300
+            span = Range(source.key, 10, 35)
+            file = Path(folder) / "fixture.mp4"
+            with patch.object(downloads, "_fetch", side_effect=[
+                MediaError("FFmpeg received HTTP 403 while reading YouTube media."), file,
+            ]) as fetch:
+                self.assertEqual(downloads.get(source, span), (file, 10))
+            self.assertTrue(fetch.call_args.kwargs["whole"])
