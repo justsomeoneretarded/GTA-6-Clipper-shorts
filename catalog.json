@@ -1,12 +1,17 @@
 {
   "version": 1,
-  "generated_at": "2026-11-18T12:33:32Z",
+  "generated_at": "2026-11-18T15:29:45Z",
   "scanned": {
     "d66f80f00ab35d8f5532": "2026-11-18T12:29:44Z",
     "4f8b3e763c3765bfbfdf": "2026-11-18T12:29:55Z",
     "fcda21f1e35b76255518": "2026-11-18T12:30:23Z",
     "bed55f906e44109ee092": "2026-11-18T12:30:52Z",
-    "62bf1ba046d8a0d02fc2": "2026-11-18T12:31:54Z"
+    "62bf1ba046d8a0d02fc2": "2026-11-18T12:31:54Z",
+    "11b30cb83112f4b81468": "2026-11-18T15:13:31Z",
+    "7fe153019fb3f001fe77": "2026-11-18T15:14:33Z",
+    "3f9963268f73d6dd1612": "2026-11-18T15:18:33Z",
+    "fe888526818fcb645030": "2026-11-18T15:19:09Z",
+    "74d77dbf09998b2e211a": "2026-11-18T15:19:24Z"
   },
   "sources": {
     "twitch-clip:BeautifulScaryFungusFUNgineer-vOKAsBcSFLz0POLZ": {
@@ -16,7 +21,7 @@
       "title": "tgg tests how he can grab drinks from the fridge",
       "creator": "TGG_gta",
       "duration": 32.0,
-      "views": 11,
+      "views": 70,
       "published": "2026-11-18T11:53:45Z",
       "rights": "unspecified",
       "anchors": [],
@@ -32,6 +37,20 @@
       "duration": 30.0,
       "views": 1,
       "published": "2026-11-18T12:16:13Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null
+    },
+    "youtube:CB02h_-oblU": {
+      "key": "youtube:CB02h_-oblU",
+      "url": "https://www.youtube.com/watch?v=CB02h_-oblU",
+      "platform": "youtube",
+      "title": "GTA 6 - The First Early Reviews...",
+      "creator": "Open World Games",
+      "duration": 733.0,
+      "views": 772032,
+      "published": "",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
@@ -70,6 +89,37 @@
       "fingerprint": "612505072332f393.c90102264647d060.699edaaba9d45564"
     }
   ],
-  "pending": [],
+  "pending": [
+    {
+      "id": "091214ed5dac6b825100",
+      "span": {
+        "source": "youtube:CB02h_-oblU",
+        "start": 162.526,
+        "end": 193.96
+      },
+      "theme": "podcast",
+      "hook": "Examining early ratings and user scores from PlayStation users.",
+      "setup": "Reviewing initial ratings data reported from online sources.",
+      "payoff": "Observing initial sample ratings averaging 4.67 out of 5 stars.",
+      "evidence": "Reported average: 4.67/5, 12 early PlayStation ratings.",
+      "score": 82.0,
+      "fingerprint": ""
+    },
+    {
+      "id": "aa979ec5364a68ea3e3b",
+      "span": {
+        "source": "youtube:CB02h_-oblU",
+        "start": 95.093,
+        "end": 142.26
+      },
+      "theme": "discovery",
+      "hook": "Discussing opening hours and slower gameplay progression.",
+      "setup": "Video covers hands-on previews discussing GTA 6's opening hours.",
+      "payoff": "Highlighting a slower, more gradual opening than previous games.",
+      "evidence": "Opening hours: A slower start? Early reports describe a more gradual opening.",
+      "score": 78.0,
+      "fingerprint": ""
+    }
+  ],
   "sequences": []
 }
