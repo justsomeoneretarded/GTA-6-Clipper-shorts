@@ -1,0 +1,35 @@
+name: Verify all four GTA VI editors
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fixtures:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install fixture dependencies
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get install -qq -y ffmpeg fonts-dejavu-core
+          python -m pip install 'requests>=2.32,<3'
+      - name: Check selection rules and render every editor
+        run: |
+          python -m unittest discover -s tests -v
+          python -m clipper smoke --output build/fixtures
+      - name: Upload rendered fixture videos
+        uses: actions/upload-artifact@v7
+        with:
+          name: editor-fixtures
+          path: build/fixtures/
+          compression-level: 0
+          retention-days: 7

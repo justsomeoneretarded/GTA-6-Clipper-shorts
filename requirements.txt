@@ -1,0 +1,4 @@
+requests>=2.32,<3
+yt-dlp[default]==2026.10.26
+twitch-dl==3.3.2
+faster-whisper==1.2.1
