@@ -269,13 +269,16 @@ def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: i
             report.append(f"Twitch discovery: {error}")
     if not any(item.platform.startswith("twitch") and item.duration for item in sources.values()):
         twitch_fallback(sources, report, days)
-    if len(sources) < 8:
+    if not any(item.platform == "youtube" for item in sources.values()):
         for topic in (TOPICS[0], TOPICS[2]):
             try:
                 for item in youtube_fallback(downloads, topic):
                     add(sources, item)
             except (MediaError, ValueError) as error:
                 report.append(f"YouTube search fallback: {error}")
+    youtube_links = sum(item.platform == "youtube" for item in sources.values())
+    link_label = "link" if youtube_links == 1 else "links"
+    report.append(f"YouTube discovery collected {youtube_links} video {link_label}.")
     youtube_blocks = 0
     skipped = 0
     for item in list(sources.values()):

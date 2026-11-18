@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 from clipper.core import Moment, Range, Source, WEIGHTS, duplicate, source_url
-from clipper.discovery import grounding_source, listed_twitch_source, tavily_discovery
+from clipper.discovery import discover, grounding_source, listed_twitch_source, tavily_discovery
 from clipper.editorial import bounded, build_catalog, score_cut, scout_windows
 from clipper.gemini import QuotaError, quota_error
 from clipper.plans import is_new
@@ -56,6 +56,27 @@ class EditorialTests(unittest.TestCase):
         self.assertEqual({item.key for item in tavily_discovery("example")}, {"youtube:TestGTA0001"})
         self.assertEqual(post.call_count, 2)
         self.assertTrue(all(call.kwargs["json"]["search_depth"] == "basic" for call in post.call_args_list))
+
+    @patch.dict("os.environ", {}, clear=True)
+    @patch("clipper.discovery.youtube_fallback")
+    @patch("clipper.discovery.twitch_fallback")
+    def test_twitch_results_do_not_skip_youtube_discovery(self, twitch, youtube):
+        def list_twitch(sources, report, days):
+            for count in range(9):
+                source = source_url(f"https://clips.twitch.tv/FixtureClip{count}")
+                source.duration = 30
+                sources[source.key] = source
+
+        twitch.side_effect = list_twitch
+        video = source_url("https://youtu.be/TestGTA0001")
+        video.duration = 60
+        youtube.return_value = [video]
+        report = []
+        sources = discover(Mock(), Mock(), report)
+        self.assertEqual(len(sources), 10)
+        self.assertIn(video.key, sources)
+        self.assertEqual(youtube.call_count, 2)
+        self.assertIn("YouTube discovery collected 1 video link.", report)
 
     @patch("clipper.editorial.audition", side_effect=QuotaError("quota"))
     @patch("clipper.editorial.scout")
