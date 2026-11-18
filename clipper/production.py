@@ -173,6 +173,7 @@ def render_batch(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict,
         if attempt > attempt_limit:
             break
         name = f"{prefix}-{len(produced) + 1:02}"
+        print(f"Reviewing {mode} edit {attempt} (target {target})", flush=True)
         try:
             item = render_edit(edit, mode, name, downloads, sources, gemini, captions, work, out, small=small)
         except (MediaError, ValueError, TypeError, KeyError, OSError) as error:

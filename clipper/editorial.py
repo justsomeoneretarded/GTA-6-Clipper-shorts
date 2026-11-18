@@ -225,8 +225,11 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
     scanned = {key: value for key, value in previous.get("scanned", {}).items() if value >= dated(10)}
     leads: list[Moment] = []
     new_sequences: list[Sequence] = []
-    for window in width_rotation({key: sources[key] for key in current if key in sources}, scanned)[:scout_limit]:
+    windows = width_rotation({key: sources[key] for key in current if key in sources}, scanned)[:scout_limit]
+    print(f"Discovered {len(current)} sources. Checking {len(windows)} new windows.", flush=True)
+    for index, window in enumerate(windows, 1):
         item = sources[window.source]
+        print(f"Scouting {index}/{len(windows)}: {item.key} at {timestamp(window.start)}", flush=True)
         try:
             reply = scout(gemini, downloads, item, window)
             if reply["subject"] in {"gameplay", "discussion"}:
@@ -253,7 +256,9 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
     previous_moments = [Moment.from_dict(row) for row in previous.get("moments", []) if row["span"]["source"] in sources]
     verified: list[Moment] = []
     distinct_leads = [item for item in dedupe(leads, sources) if not any(duplicate(item, old, sources) for old in previous_moments)]
-    for lead in diversify(distinct_leads, sources)[:verify_limit]:
+    auditions = diversify(distinct_leads, sources)[:verify_limit]
+    for index, lead in enumerate(auditions, 1):
+        print(f"Audition {index}/{len(auditions)}: {lead.span.source} at {timestamp(lead.span.start)}", flush=True)
         try:
             checked = audition(gemini, downloads, sources[lead.span.source], lead, floor)
             if checked:

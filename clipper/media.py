@@ -219,12 +219,18 @@ class Captions:
         self.model = None
 
     def make(self, media: Path, srt: Path) -> list[dict]:
+        import numpy as np
+
         if self.model is None:
             from faster_whisper import WhisperModel
 
             self.model = WhisperModel(os.getenv("WHISPER_MODEL") or "base", device="cpu",
                                       compute_type="int8", cpu_threads=3)
-        segments, _ = self.model.transcribe(str(media), vad_filter=True, word_timestamps=True,
+        with tempfile.TemporaryDirectory(dir=media.parent) as work:
+            samples = Path(work) / "audio.f32"
+            ffmpeg("-i", str(media), "-map", "0:a:0", "-ac", "1", "-ar", "16000", "-f", "f32le", str(samples))
+            audio = np.fromfile(samples, dtype="<f4")
+        segments, _ = self.model.transcribe(audio, vad_filter=True, word_timestamps=True,
                                             beam_size=3, condition_on_previous_text=False)
         captions = []
         for segment in segments:
