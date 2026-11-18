@@ -8,12 +8,19 @@ from dataclasses import asdict
 from pathlib import Path
 
 from .core import VERSION, Edit, Source, clean, dated, number, source_cutoff, source_url, timestamp, write_json
-from .editorial import COLD_OPEN, PACKAGING, SUBJECT
+from .editorial import COLD_OPEN, HIGHLIGHT_STANDARD, PACKAGING, SUBJECT
 from .gemini import Gemini, QuotaError, ServiceError
 from .media import (Captions, Downloads, MediaError, ffmpeg, finish_video, join_pieces, proxy, render_piece, verify_video)
 from .plans import plans
 
-MODES = ("shorts", "ranked", "themed", "condensed")
+REVIEW_BY_MODE = {
+    "shorts": "The opening must give a concrete reason to stay, and the single moment must deliver a standout payoff.",
+    "ranked": "Each ranked entry must warrant inclusion, the comparisons must be clear, and the #1 result must be earned.",
+    "themed": "Each scene must add a distinct development, example, or perspective to the central premise.",
+    "condensed": "The sequence must sustain interest through setup, escalation, and resolution. "
+                 "Keep necessary connective beats and reject padding used to reach four minutes.",
+}
+MODES = tuple(REVIEW_BY_MODE)
 
 
 def sources_from(catalog: dict) -> dict[str, Source]:
@@ -38,32 +45,39 @@ def approved_package(gemini: Gemini, edit: Edit, media: Path, length: float,
         opening_verdict = gemini.json(
             "You are seeing only the opening of a vertical Short, with no title or context. "
             "What specifically makes a first-time viewer want to see the next few seconds? "
-            "Name an actual visual or line that poses a question, establishes tension, or surprises. "
-            "If no such moment is visible or audible, leave reason_to_stay empty. "
-            "Score curiosity from 0 to 10 and mark whether the focal action or dialogue is readable at phone size.",
+            "Point to the image or sound that creates tension, surprise, humor, or curiosity about a specific detail. "
+            "A vague question over routine action does not earn interest. Leave reason_to_stay empty if there is no "
+            "specific hook. Score curiosity from 0 to 10, with 7 or higher for a clear reason to stay, and mark whether "
+            "the focal action or dialogue is readable at phone size.",
             COLD_OPEN, [gemini.video(opening, fps=4)],
         )
         if (opening_verdict["readable"] is not True or not clean(opening_verdict["reason_to_stay"], 300)
-                or number(opening_verdict["curiosity"], 0, 10) < 6):
+                or number(opening_verdict["curiosity"], 0, 10) < 7):
             raise ValueError("The opening alone did not give a new viewer a reason to continue.")
     analysis = proxy(media, 0, length, media.with_name("review.mp4"), fps=10)
     brief = {
-        "mode": mode, "seconds": length, "theme": edit.theme, "editor_intent": edit.idea,
-        "scout_notes_to_check": edit.context, "creators": [source["creator"] for source in credits],
-        "transcript": captions,
+        "mode": mode, "seconds": length, "theme": edit.theme,
+        "creators": [source["creator"] for source in credits], "transcript": captions,
     }
+    if not is_short:
+        brief.update(editor_intent=edit.idea, scout_notes_to_check=edit.context)
     response = gemini.json(
         "Watch this finished edit and judge it as a new viewer. Check the actual picture and audio. "
         f"{SUBJECT} Set gta_vi true only if the finished edit meets this scope throughout. "
         "Name what proves the game or discussion topic in gta_vi_evidence. "
         "Set gta_vi false if any cut includes gameplay from another game, or if the main subject is uncertain. "
+        f"{HIGHLIGHT_STANDARD} {REVIEW_BY_MODE[mode]} "
+        "Score engagement from 0 to 10 using the actual edit. Use 5 or below for routine material, 6–7 for a mildly "
+        "interesting or incomplete cut, and 8 or above only for an edit that earns sustained interest and delivers. "
+        "Describe the observed payoff in payoff_evidence and give its time in seconds as payoff_seconds. "
+        "Apply this standard even if this is the only edit. Judge the footage before considering possible titles. "
         "Check the start quickly creates curiosity, the story works in order, captions and gameplay remain legible, "
-        "and the payoff shown supports the promise. For a countdown check that the ranks read in order with "
-        "a visible reason for the winning entry. For longer footage check that jump cuts preserve cause and effect. "
-        "Mark passes false for a broken story, missing payoff, misleading premise, or unreadable video. "
+        "and the payoff shown supports the premise. Mark passes false for filler, a broken story, missing payoff, "
+        "misleading premise, or unreadable video. "
         "Report when the opening hook appears and the exact timestamp in seconds of a strong actual thumbnail frame "
         "with one clear point of focus and legible gameplay. Draft three YouTube titles ordered by preference. "
-        "Use specific vehicles, scenes, or lines only when confirmed. Try curiosity, stakes, or a surprising turn. "
+        "Lead with specific stakes or a surprising turn that the video delivers. Use vehicles, scenes, or lines only "
+        "when confirmed. Avoid vague hype that could describe any clip. "
         "Keep titles under 75 characters where possible. Use an editorial judgment only when the footage earns it. "
         "Mark theories as theories, no invented quotes, names, game facts, track titles, or outcomes. "
         "Write two short description sentences explaining the scene and its hook. "
@@ -75,6 +89,11 @@ def approved_package(gemini: Gemini, edit: Edit, media: Path, length: float,
         raise ValueError("The finished edit lacked verifiable GTA VI evidence.")
     if response["passes"] is not True:
         raise ValueError(f"Final editorial review rejected this cut: {clean(response['reason'], 210)}")
+    engagement = number(response["engagement_score"], 0, 10)
+    payoff_evidence = clean(response["payoff_evidence"], 500)
+    if engagement < 8 or not payoff_evidence:
+        raise ValueError("The finished edit lacks a standout payoff supported by the footage.")
+    payoff = number(response["payoff_seconds"], 0, length)
     hook = number(response["hook_seconds"], 0, length)
     if hook > (3.3 if is_short else 12):
         raise ValueError("Final opening takes too long to establish the hook.")
@@ -86,7 +105,8 @@ def approved_package(gemini: Gemini, edit: Edit, media: Path, length: float,
     return {"title": titles[0], "title_alternatives": titles[1:], "description": description,
             "opening_hook_seconds": hook, "thumbnail_seconds": round(min(cover, length - .16), 3),
             "edit_review": clean(response["reason"], 450), "gta_vi_evidence": gta_vi_evidence,
-            "opening_test": opening_verdict}
+            "opening_test": opening_verdict, "engagement_score": engagement,
+            "payoff_evidence": payoff_evidence, "payoff_seconds": payoff}
 
 
 def media_size(mode: str, small: bool = False) -> tuple[int, int]:
@@ -141,12 +161,28 @@ def render_edit(edit: Edit, mode: str, title: str, downloads: Downloads, sources
             info["chapters"] = [{"start": timestamp(row["output_seconds"]), "label": row["label"]} for row in chapters]
         write_json(staging / "metadata.json", info)
         (staging / "upload-notes.md").write_text(upload_notes(info), encoding="utf-8")
+        (staging / "title.txt").write_text(info["title"] + "\n", encoding="utf-8")
+        (staging / "description.txt").write_text(upload_description(info), encoding="utf-8")
         destination = out / title
         destination.mkdir()
-        files = ["video.mp4", "thumbnail.jpg", "captions.srt", "metadata.json", "upload-notes.md"]
+        files = ["video.mp4", "thumbnail.jpg", "captions.srt", "metadata.json", "upload-notes.md",
+                 "title.txt", "description.txt"]
         for name in files:
             shutil.move(staging / name, destination / name)
         return {"directory": title, **info}
+
+
+def upload_description(info: dict) -> str:
+    sections = [info["description"]]
+    if info.get("chapters"):
+        sections.append("\n".join(f"{chapter['start']} {chapter['label']}" for chapter in info["chapters"]))
+    if info["sources"]:
+        credits = []
+        for source in info["sources"]:
+            creator = clean(source["creator"], 120)
+            credits.append(f"{creator} — {source['url']}" if creator else source["url"])
+        sections.append("Original footage\n" + "\n".join(credits))
+    return "\n\n".join(sections) + "\n"
 
 
 def upload_notes(info: dict) -> str:

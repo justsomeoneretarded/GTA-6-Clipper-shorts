@@ -94,10 +94,12 @@ def group_plans(gemini: Gemini, downloads: Downloads, moments: list[Moment], sou
         criteria = RANK_CRITERIA.get(theme, "difficulty, clarity, and memorability of the visible payoff")
         ordering = (
             f"Choose exactly 3 comparable entries and order them #3, #2, #1 using {criteria}. "
-            "The viewer should be able to see why #1 wins. Labels are short editorial captions."
+            "Each entry needs its own standout payoff. The viewer should be able to see why #1 wins. "
+            "Labels are short editorial captions."
             if ranked else
-            "Choose 4–6 entries that support one specific premise. Start with a strong scene and use a clear progression, "
-            "rather than ordering by score. Each label should name the scene in at most six words."
+            "Choose 4–6 entries that support one specific premise. Start with a strong scene and build through "
+            "distinct developments or examples. Leave out repetitive entries and return no entries if the remaining "
+            "scenes do not support the premise. Each label should name the scene in at most six words."
         )
         briefs = [{"id": item.identity, "hook": item.hook, "setup": item.setup, "payoff": item.payoff,
                    "evidence": item.evidence, "seconds": round(item.span.seconds)} for item in group]
@@ -136,7 +138,8 @@ def condensed_plan(gemini: Gemini, downloads: Downloads, sequence: Sequence, sou
         f"Edit one complete chronological GTA VI sequence within this {sequence.span.seconds:.1f}s excerpt. "
         f"The initial scout's story was {sequence.story!r}; confirm and correct it using the source. "
         "Keep a strong opening, required dialogue and cause/effect, escalation, and an ending viewers can understand. "
-        "Remove loading, idle travel, menus, repeated attempts and stretches that add nothing. "
+        "Keep transitions that explain how the next beat happens. Remove loading, idle travel, menus, routine interactions, "
+        "and repeated attempts unless a specific detail changes the stakes or advances the story. "
         "Return ordered non-overlapping ranges, at most ten, using seconds from this excerpt. "
         "Keep at least 240 seconds total with an honest payoff. Empty cuts are valid if there is too little real material. "
         "Label each kept range with its narrative beat. The edit idea should be a specific viewable premise."

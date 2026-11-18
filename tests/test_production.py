@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 from clipper.core import VERSION, Cut, Edit, Moment, Range, Sequence, source_url
+from clipper.editorial import COLD_OPEN
 from clipper.production import MODES, approved_package, render_batch
 
 
@@ -38,6 +39,7 @@ class ProductionEligibilityTests(unittest.TestCase):
         edit = Edit([Cut(Range("youtube:fixture", 0, 240))], "mission", "Title", "Context")
         response = {"gta_vi": True, "gta_vi_evidence": "Lucia drives through the pictured location.",
                     "passes": True, "reason": "Strong edit", "hook_seconds": 2, "thumbnail_seconds": 5,
+                    "engagement_score": 9, "payoff_evidence": "Lucia escapes through an alley.", "payoff_seconds": 220,
                     "titles": ["GTA VI scene"], "description": "A scene from the game."}
         for valid, evidence in ((False, "This shows GTA V"), (True, "")):
             with self.subTest(valid=valid):
@@ -47,3 +49,19 @@ class ProductionEligibilityTests(unittest.TestCase):
         gemini.json.return_value = response
         result = approved_package(gemini, edit, Path("fixture.mp4"), 240, [], "condensed", [])
         self.assertEqual(result["gta_vi_evidence"], response["gta_vi_evidence"])
+
+    @patch("clipper.production.proxy", return_value=Path("fixture-review.mp4"))
+    def test_all_editors_reject_an_ordinary_payoff_even_with_a_hook(self, proxy):
+        gemini = Mock()
+        response = {"gta_vi": True, "gta_vi_evidence": "Lucia is visible in the scene.",
+                    "passes": True, "reason": "Clear footage", "hook_seconds": 1, "thumbnail_seconds": 5,
+                    "engagement_score": 5, "payoff_evidence": "Lucia takes a drink for a normal stat gain.",
+                    "payoff_seconds": 20, "titles": ["Testing the fridge"], "description": "Lucia takes a drink."}
+        opening = {"readable": True, "reason_to_stay": "The viewer can hear the speaker.", "curiosity": 8}
+        gemini.json.side_effect = lambda prompt, schema, media: opening if schema is COLD_OPEN else response
+        for mode in MODES:
+            with self.subTest(mode=mode):
+                duration = 30 if mode in {"shorts", "ranked"} else 240
+                edit = Edit([Cut(Range("youtube:fixture", 0, duration))], "discovery", "Title", "Context")
+                with self.assertRaisesRegex(ValueError, "standout payoff"):
+                    approved_package(gemini, edit, Path("fixture.mp4"), duration, [], mode, [])

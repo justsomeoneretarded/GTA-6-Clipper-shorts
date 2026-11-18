@@ -23,12 +23,13 @@ SCOUT = object_schema({
     "sequences": array(object_schema({**TIMES, "theme": IDEA["theme"], "story": TEXT, "potential": NUM}), 2),
 })
 ALT_CUT = object_schema({**TIMES, **IDEA, "time_to_hook": NUM, "confidence": NUM, "scores": SCORES})
-AUDITION = object_schema({"genuine": BOOL, "gta_vi_evidence": TEXT, "cuts": array(ALT_CUT, 3)})
+AUDITION = object_schema({"genuine": BOOL, "gta_vi_evidence": TEXT, "standout": BOOL, "cuts": array(ALT_CUT, 3)})
 SEQUENCE_EDIT = object_schema({"idea": TEXT, "story": TEXT, "cuts": array(object_schema({**TIMES, "beat": TEXT}), 10)})
 GROUP_EDIT = object_schema({"idea": TEXT, "theme": IDEA["theme"], "context": TEXT,
                             "entries": array(object_schema({"id": TEXT, "label": TEXT}), 6)})
 COLD_OPEN = object_schema({"reason_to_stay": TEXT, "readable": BOOL, "curiosity": NUM})
 PACKAGING = object_schema({"gta_vi": BOOL, "gta_vi_evidence": TEXT, "passes": BOOL, "reason": TEXT,
+                           "engagement_score": NUM, "payoff_evidence": TEXT, "payoff_seconds": NUM,
                            "hook_seconds": NUM, "thumbnail_seconds": NUM,
                            "titles": array(TEXT, 3), "description": TEXT})
 
@@ -40,9 +41,15 @@ SUBJECT = (
 )
 HOOKS = (
     "Look for scenes with a question, surprise, tension, joke, or striking action immediately and a visible/audible payoff. "
-    "A strong quiet discovery, radio exchange, distinctive ride, funny party line or grounded theory can beat a loud chase. "
     "Quote only words you heard. Distinguish observed facts from opinions or character dialogue. "
     "Preserve the setup that explains names and stakes. Never judge by popularity, loudness, or the source title alone."
+)
+HIGHLIGHT_STANDARD = (
+    "The footage must give someone unfamiliar with the streamer a specific reason to watch. "
+    "Routine actions with expected results, such as using a menu, grabbing a drink from a fridge for a normal stat gain, "
+    "or driving without anything distinctive, are weak payoffs. A generic question or loud reaction alone is insufficient. "
+    "Look for real stakes and a turn, a sharp joke with its setup, a surprising game detail, a distinctive view or radio "
+    "moment, or a GTA VI insight backed by something specific you can see or hear."
 )
 
 
@@ -101,7 +108,7 @@ def width_rotation(sources: dict[str, Source], used: dict[str, str]) -> list[Ran
 
 def score_cut(row: dict, floor: float) -> float:
     scores = {name: number(row["scores"][name], 0, 10) for name in WEIGHTS}
-    if min(scores[name] for name in ("hook", "payoff", "context")) < 6:
+    if scores["hook"] < 7 or scores["payoff"] < 8 or scores["context"] < 6:
         raise ValueError("The opening, payoff, or viewer context is too weak.")
     if number(row["confidence"], 0, 1) < .65 or number(row["time_to_hook"], 0, 60) > 3:
         raise ValueError("The opening is too slow or the model lacks evidence.")
@@ -116,12 +123,13 @@ def scout(gemini: Gemini, downloads: Downloads, source: Source, window: Range) -
         f"Scout this {window.seconds:.1f}s excerpt at source time {timestamp(window.start)}. "
         "Every start/end you report must be seconds FROM THE START OF THIS EXCERPT (0 = first frame provided). "
         f"Source metadata, for orientation only: {source.creator!r}, {source.title[:200]!r}. "
-        f"{SUBJECT} {HOOKS} Suggest up to five different 10–58s standalone moments. "
+        f"{SUBJECT} {HOOKS} {HIGHLIGHT_STANDARD} Suggest up to five different 10–58s standalone moments. "
         "State the visual or audible GTA VI evidence in gta_vi_evidence. Use subject other if you cannot confirm it. "
         "For each cut name the opening, needed setup, payoff and an observable frame or line as evidence. "
         "Use the theme that best describes it. Potential is a 0–100 estimate. "
         "If the excerpt covers at least 4.4 minutes, also find up to two coherent sustained sequences of at least "
-        "260 seconds with enough meaningful beats for a 4-minute chronological edit. Describe the start, change and ending. "
+        "260 seconds with enough meaningful beats for a 4-minute chronological edit. Describe the setup, what changes, "
+        "and the visible or audible outcome. Omit long stretches that would rely on idle footage to make the runtime. "
         "An empty list is a valid result."
     )
     if source.platform == "youtube":
@@ -142,15 +150,19 @@ def audition(gemini: Gemini, downloads: Downloads, source: Source, lead: Moment,
         f"Independently verify the proposed highlight around {candidate:.2f}–{end:.2f} seconds in this local excerpt. "
         f"An initial scout thought this was the payoff: {lead.payoff!r}. Correct it from the evidence. "
         f"{SUBJECT} Return genuine false if GTA VI cannot be confirmed and state the evidence in gta_vi_evidence. "
-        f"{HOOKS} Find up to three alternative openings for the SAME event, for example the first action, "
+        f"{HOOKS} {HIGHLIGHT_STANDARD} Set standout true only when the event itself delivers that value. "
+        "If it is routine or the payoff is unclear, set standout false and return no cuts. "
+        "Find up to three alternative openings for the SAME event, for example the first action, "
         "a line that raises the stakes, or a quicker beginning. Each cut must contain the payoff and preserve cause and effect. "
         "Score each 0–10 on hook (reason to stay by second 3), payoff, context, specificity, pace, and readability on a phone. "
+        "A payoff of 6–7 is mildly interesting. Reserve 8 or higher for a specific, well-supported standout moment. "
         "Report actual seconds from the start of this excerpt, time_to_hook from the start of that cut, "
         "and confidence 0–1. Reject slow openings, unseen payoffs, unrelated material, and inaccurate claims."
     )
     reply = gemini.json(prompt, AUDITION, [gemini.video(media, fps=4)])
     options = []
-    if reply["genuine"] is not True or not clean(reply["gta_vi_evidence"], 500):
+    if (reply["genuine"] is not True or reply["standout"] is not True
+            or not clean(reply["gta_vi_evidence"], 500)):
         return None
     for row in reply["cuts"]:
         try:

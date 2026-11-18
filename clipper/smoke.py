@@ -6,7 +6,7 @@ import tempfile
 from dataclasses import asdict
 from pathlib import Path
 
-from .core import VERSION, Moment, Range, Sequence, Source, source_cutoff
+from .core import VERSION, Moment, Range, Sequence, Source, read_json, source_cutoff
 from .editorial import COLD_OPEN, GROUP_EDIT, PACKAGING, SEQUENCE_EDIT
 from .media import Downloads, ffmpeg, probe
 from .plans import COMPACT
@@ -27,6 +27,7 @@ class FixtureModel:
         if schema is PACKAGING:
             return {"gta_vi": True, "gta_vi_evidence": "Synthetic editorial fixture",
                     "passes": True, "reason": "Synthetic fixture", "hook_seconds": 0.5,
+                    "engagement_score": 9, "payoff_evidence": "Synthetic payoff", "payoff_seconds": 10,
                     "thumbnail_seconds": 2, "titles": ["Fixture video", "Alternate fixture"],
                     "description": "A generated test video."}
         if schema is COMPACT:
@@ -79,9 +80,12 @@ def smoke(output: Path) -> None:
                     assert float(info["format"]["duration"]) >= 240
                 assert (result.parent / "thumbnail.jpg").is_file()
                 assert (result.parent / "upload-notes.md").is_file()
+                metadata = read_json(result.parent / "metadata.json")
+                assert (result.parent / "title.txt").read_text(encoding="utf-8").strip() == metadata["title"]
+                description = (result.parent / "description.txt").read_text(encoding="utf-8")
+                assert description.startswith(metadata["description"] + "\n")
+                assert f"{item.creator} — {item.url}" in description
             if mode == "ranked":
-                from .core import read_json
-
                 metadata = read_json(out / "ranked-short-01" / "metadata.json")
                 assert [cut["rank"] for cut in metadata["timeline"]] == [3, 2, 1]
             print(f"{mode}: rendered and verified {expected} fixture video(s)", flush=True)

@@ -175,12 +175,14 @@ class EditorialTests(unittest.TestCase):
         self.assertEqual(set(result["sources"]), {saved.key})
         self.assertEqual([row["span"]["source"] for row in result["moments"]], [saved.key])
 
-    def test_strong_scores_cannot_mask_a_weak_hook(self):
+    def test_strong_scores_cannot_mask_a_weak_hook_or_payoff(self):
         row = {"scores": dict.fromkeys(WEIGHTS, 9), "confidence": .93, "time_to_hook": 2}
         self.assertEqual(score_cut(row, 70), 90)
-        row["scores"]["hook"] = 5
-        with self.assertRaises(ValueError):
-            score_cut(row, 70)
+        for metric, rating in (("hook", 6), ("payoff", 7)):
+            with self.subTest(metric=metric):
+                weak = {**row, "scores": {**row["scores"], metric: rating}}
+                with self.assertRaises(ValueError):
+                    score_cut(weak, 70)
 
     def test_twitch_clip_and_vod_are_the_same_moment(self):
         source = Source("twitch-clip:Slug", "", "twitch-clip", parent="twitch-vod:123", parent_offset=100)
