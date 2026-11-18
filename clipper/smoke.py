@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import tempfile
 from dataclasses import asdict
 from pathlib import Path
@@ -14,9 +15,6 @@ from .production import MODES, render_batch
 
 
 class FixtureModel:
-    def __init__(self, moments: list[Moment]):
-        self.moments = moments
-
     def video(self, file: Path, fps: float = 2) -> dict:
         assert file.stat().st_size > 1024
         return {"fixture": file.name}
@@ -34,9 +32,13 @@ class FixtureModel:
             return {"cuts": []}
         if schema is GROUP_EDIT:
             ranked = "#3" in prompt
+            youtube_count = 1 if ranked and "Use 1 YouTube" in prompt else 2
+            briefs = json.loads(prompt.rsplit("\n", 1)[-1])
+            youtube = [entry for entry in briefs if entry["platform"] == "youtube"]
+            twitch = [entry for entry in briefs if entry["platform"] == "twitch"]
+            chosen = youtube[:youtube_count] + twitch[:(3 if ranked else 4) - youtube_count]
             return {"idea": "Fixture sequence", "theme": "chase", "context": "Testing grouped edits.",
-                    "entries": [{"id": item.identity, "label": f"Moment {i}"} for i, item in
-                                enumerate(self.moments[:3 if ranked else 4], 1)]}
+                    "entries": [{"id": item["id"], "label": f"Moment {i}"} for i, item in enumerate(chosen, 1)]}
         if schema is SEQUENCE_EDIT:
             return {"idea": "Fixture chronology", "story": "Preserve chronological order through a synthetic edit.",
                     "cuts": [{"start": a, "end": b, "beat": f"Beat {i}"} for i, (a, b) in
@@ -59,21 +61,26 @@ def smoke(output: Path) -> None:
                "-t", "310", "-c:v", "libx264", "-threads", "2", "-preset", "ultrafast", "-c:a", "aac", str(input_path))
         item = Source("youtube:TestGTA0001", "https://www.youtube.com/watch?v=TestGTA0001", "youtube",
                       "Synthetic source", "Fixture creator", 310, published=source_cutoff(0))
-        moments = [Moment(Range(item.key, start, start + 13), "chase", f"Opening {i}",
+        twitch = Source("twitch-vod:1234567890", "https://www.twitch.tv/videos/1234567890", "twitch-vod",
+                        "Synthetic Twitch replay", "Fixture broadcaster", 310, published=source_cutoff(0))
+        moments = [Moment(Range(twitch.key if i % 2 == 0 else item.key, start, start + 13), "chase", f"Opening {i}",
                           "Setup", "Payoff", "Synthetic evidence", 92 - i)
                    for i, start in enumerate(range(12, 289, 24), 1)]
-        sequence = Sequence(Range(item.key, 0, 310), "chase", "Synthetic sequence", 90)
+        sequences = [Sequence(Range(source.key, 0, 310), "chase", "Synthetic sequence", 90) for source in (item, twitch)]
         catalog = {"version": VERSION, "moments": [obj.to_dict() for obj in moments],
-                   "sequences": [sequence.to_dict()], "sources": {item.key: asdict(item)}}
-        model = FixtureModel(moments)
-        downloads = Downloads(work / "cache", {item.key: input_path})
+                   "sequences": [obj.to_dict() for obj in sequences],
+                   "sources": {source.key: asdict(source) for source in (item, twitch)}}
+        model = FixtureModel()
+        downloads = Downloads(work / "cache", {item.key: input_path, twitch.key: input_path})
         for mode in MODES:
             out = output / mode
             report: list[str] = []
             ledger = render_batch(mode, model, downloads, catalog, {}, work, out, report,
                                   captions=FixtureCaptions(), small=True)
-            expected = 10 if mode == "shorts" else 1
+            expected = 10 if mode == "shorts" else 2
             assert len(ledger.get("edits", [])) == expected, (mode, report)
+            per_site = {"shorts": 5, "ranked": 3, "themed": 4, "condensed": 1}[mode]
+            assert read_json(out / "manifest.json")["platform_counts"] == {"youtube": per_site, "twitch": per_site}
             for result in out.glob("*/video.mp4"):
                 info = probe(result)
                 if mode == "condensed":
@@ -84,8 +91,8 @@ def smoke(output: Path) -> None:
                 assert (result.parent / "title.txt").read_text(encoding="utf-8").strip() == metadata["title"]
                 description = (result.parent / "description.txt").read_text(encoding="utf-8")
                 assert description.startswith(metadata["description"] + "\n")
-                assert f"{item.creator} — {item.url}" in description
-            if mode == "ranked":
-                metadata = read_json(out / "ranked-short-01" / "metadata.json")
-                assert [cut["rank"] for cut in metadata["timeline"]] == [3, 2, 1]
+                for source in metadata["sources"]:
+                    assert f"{source['creator']} — {source['url']}" in description
+                if mode == "ranked":
+                    assert [cut["rank"] for cut in metadata["timeline"]] == [3, 2, 1]
             print(f"{mode}: rendered and verified {expected} fixture video(s)", flush=True)

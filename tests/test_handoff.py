@@ -41,7 +41,7 @@ class HandoffTests(unittest.TestCase):
         self.assertEqual(api.call_count, 2)
 
     @patch("clipper.handoff.api")
-    def test_empty_catalog_refresh_does_not_start_production(self, api):
+    def test_unmarked_catalog_refresh_does_not_start_production(self, api):
         api.return_value = [{"sha": "c" * 40, "commit": {"message": "Refresh GTA VI catalog.json"}}]
         follow_shorts(ENGINE, EDITOR, "main", "local-token")
         api.assert_called_once_with(f"/repos/{ENGINE}/commits?sha=clipper-state&per_page=60", "")

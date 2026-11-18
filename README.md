@@ -4,16 +4,16 @@ A scheduled GitHub Actions workflow scouts public GTA VI streams and videos, aud
 
 | Repository | Output |
 |---|---|
-| [GTA-6-Clipper-shorts](https://github.com/justsomeoneretarded/GTA-6-Clipper-shorts) | Up to 10 single-moment 1080×1920 Shorts per run |
-| [GTA-6-Clipper-Ranked-Shorts](https://github.com/justsomeoneretarded/GTA-6-Clipper-Ranked-Shorts) | One 1080×1920 countdown with three ranked moments |
-| [GTA-6-Clipper-Themed](https://github.com/justsomeoneretarded/GTA-6-Clipper-Themed) | One 1920×1080 episode that develops a theme across 4–6 moments |
-| [GTA-6-Clipper-Condensed](https://github.com/justsomeoneretarded/GTA-6-Clipper-Condensed) | One chronological 1920×1080 edit of a gameplay sequence, at least four minutes |
+| [GTA-6-Clipper-shorts](https://github.com/justsomeoneretarded/GTA-6-Clipper-shorts) | Up to 10 single-moment 1080×1920 Shorts, five per platform |
+| [GTA-6-Clipper-Ranked-Shorts](https://github.com/justsomeoneretarded/GTA-6-Clipper-Ranked-Shorts) | Up to two 1080×1920 countdowns, each with three moments and an even split across the pair |
+| [GTA-6-Clipper-Themed](https://github.com/justsomeoneretarded/GTA-6-Clipper-Themed) | Up to two 1920×1080 episodes, each built from four or six evenly split moments |
+| [GTA-6-Clipper-Condensed](https://github.com/justsomeoneretarded/GTA-6-Clipper-Condensed) | Up to two chronological 1920×1080 edits of at least four minutes, one per platform |
 
 ## One-time setup
 
-In each repo, go to **Settings → Secrets and variables → Actions** and add the repository secret `GEMINI_API_KEY`. Shorts runs at 8:23 a.m. and 8:23 p.m. Nairobi time. Condensed, Themed, and Ranked Shorts check for a finished Shorts run with an eligible catalog every 20 minutes. Each starts once per published batch and reads the exact catalog from that run. You can also start any editor manually from the Actions tab without entering URLs or timestamps.
+In each repo, go to **Settings → Secrets and variables → Actions** and add the repository secret `GEMINI_API_KEY`. Shorts runs at 8:23 a.m. and 8:23 p.m. Nairobi time. Condensed, Themed, and Ranked Shorts check every 20 minutes for a finished Shorts run that published a catalog. Each starts once per batch, searches for footage for its own format, and adds the exact Shorts catalog as another source of candidates. You can also start any editor manually from the Actions tab without entering URLs or timestamps.
 
-The Shorts discovery workflow checks both YouTube and Twitch. The default path checks public Twitch listings and tries YouTube search when other discovery providers supply zero YouTube links. Discovery accepts sources published within the past seven days, starting November 19, 2026 at midnight Nairobi time. Each editor applies the publication cutoff to its saved catalog too. Unused, dated candidates can stay in the catalog for up to 21 days after publication. Gemini reviews footage and writes the upload package. YouTube may challenge hosted media fetches even when a video appears in search.
+Each editor searches YouTube and Twitch for `GTA 6`, `GTA VI`, `GTA`, `GTA stream`, `GTA game`, and `GTA live`. On Twitch it also reads public clips from the GTA VI category and gets published sections of live replays when available. Scouting and auditions alternate between platforms while both have candidates. Full batches use a 50/50 split, and the manifest reports the actual counts. Discovery accepts sources published within the past seven days, starting November 19, 2026 at midnight Nairobi time. Each editor applies the publication cutoff to its saved catalog too. Unused, dated candidates can stay in the catalog for up to 21 days after publication.
 
 For broader web discovery, add a [Tavily Researcher key](https://app.tavily.com/) as the `TAVILY_API_KEY` secret in the Shorts repo. Each run makes two basic searches. The Shorts repo also accepts optional `YOUTUBE_API_KEY`, `TWITCH_CLIENT_ID`, and `TWITCH_CLIENT_SECRET` secrets for direct platform discovery. The three editing repos only need the Gemini key. Set the `GEMINI_SEARCH_ENABLED` Actions variable to `true` to opt in to Gemini's Google Search with an API project that has billing enabled.
 
@@ -25,7 +25,7 @@ If you make the source repo private, supply a `CATALOG_TOKEN` in the consumer re
 
 ## From stream to published artifact
 
-1. Search across established GTA creators and new channels. Prioritize Twitch clip offsets and YouTube replay peaks when available. Rotate through quieter parts of longer archives.
+1. Search both platforms for GTA footage and discover creators from the results. Prioritize Twitch clip offsets and YouTube replay peaks when available. Rotate through quieter parts of longer archives.
 2. Have Gemini scout likely moments and full scenes. Download the promising windows with `yt-dlp`. For a range-specific failure, try downloading a short-enough source once and cut locally. For public Twitch clips, try `twitch-dl` if needed. Move on to reserves when the runner cannot open a source.
 3. Audition up to three different in-order openings for the same event. Require a quick hook, complete setup, and a standout payoff visible or audible in the clip. Routine actions with expected results fail the audition. Score hook 25%, payoff 25%, context 20%, specificity 15%, pacing 10%, and phone readability 5%. Compare evidence from the strongest contenders and reduce repetition using source ranges, Twitch parent timestamps, visual fingerprints, creator diversity, and the export ledger.
 4. Render with FFmpeg and transcribe using faster-whisper. The Shorts layouts center the original footage against a blurred background and burn captions into the video. The ranked editor adds countdown labels. The horizontal editors add short scene labels and include subtitle files.

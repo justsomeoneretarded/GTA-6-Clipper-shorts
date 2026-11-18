@@ -14,9 +14,7 @@ from .core import Source, dated, duration_text, source_cutoff, source_url
 from .gemini import Gemini, ServiceError, search_enabled
 from .media import Downloads, MediaError, run
 
-SEED_CHANNELS = ("DarkViperAU", "TGgta6", "TGG_", "GTASeriesVideos")
-TWITCH_CHANNELS = ("darkviperau", "tgg_gta", "gtaseriesvideos")
-TOPICS = ("GTA 6 gameplay first playthrough", "GTA VI mission driving funny reaction", "GTA VI podcast radio theories")
+SEARCH_TERMS = ("GTA 6", "GTA VI", "GTA", "GTA stream", "GTA game", "GTA live")
 YOUTUBE = "https://www.googleapis.com/youtube/v3"
 TWITCH = "https://api.twitch.tv/helix"
 GTA_VI = re.compile(r"\b(?:gta|grand theft auto)\s*(?:vi|6)\b", re.IGNORECASE)
@@ -29,7 +27,12 @@ def response_json(response: requests.Response, label: str) -> dict:
 
 
 def add(sources: dict[str, Source], item: Source | None) -> None:
-    if item and (item.key not in sources or item.duration > sources[item.key].duration):
+    if not item:
+        return
+    previous = sources.get(item.key)
+    if previous is None or item.recording or (not previous.recording and item.duration > previous.duration):
+        if previous and item.recording:
+            item.anchors.extend(anchor for anchor in previous.anchors if anchor < item.duration)
         sources[item.key] = item
 
 
@@ -43,15 +46,9 @@ def youtube_discovery(sources: dict[str, Source], api_key: str, days: int) -> No
 
     ids = [item.key.split(":", 1)[1] for item in sources.values() if item.platform == "youtube"]
     until = source_cutoff(days)
-    for topic in TOPICS:
+    for topic in SEARCH_TERMS:
         rows = api("search", part="snippet", type="video", order="date", maxResults=18, publishedAfter=until, q=topic)
         ids.extend(row["id"]["videoId"] for row in rows)
-    for handle in SEED_CHANNELS:
-        channels = api("channels", part="contentDetails", forHandle=handle)
-        for channel in channels:
-            uploads = channel["contentDetails"]["relatedPlaylists"]["uploads"]
-            rows = api("playlistItems", part="snippet", playlistId=uploads, maxResults=12)
-            ids.extend(row["snippet"]["resourceId"]["videoId"] for row in rows if row["snippet"]["publishedAt"] >= until)
     unique = list(dict.fromkeys(ids))
     for index in range(0, len(unique), 50):
         rows = api("videos", part="snippet,contentDetails,status,statistics", id=",".join(unique[index:index + 50]))
@@ -130,8 +127,8 @@ def twitch_discovery(sources: dict[str, Source], client: str, secret: str, days:
 def discovered_with_gemini(gemini: Gemini, days: int) -> list[Source]:
     answer = gemini.search(
         f"Today is {dated()[:10]}. Find actual public GTA VI gameplay archives and Twitch clip links from the past {days} days, "
-        "plus substantive GTA VI podcast or theory discussions. Search YouTube and Twitch separately. Include launch "
-        f"broadcasts from {', '.join(SEED_CHANNELS)} if already archived, as well as newly discovered creators. "
+        "plus substantive GTA VI podcast or theory discussions. Search YouTube and Twitch separately using "
+        f"these queries: {', '.join(SEARCH_TERMS)}. Include archived launches and clips from live channels. "
         "Find multiple different channels and quiet as well as action-heavy footage. Return the actual canonical direct "
         "YouTube watch, Twitch clips.twitch.tv, or Twitch /videos/ URLs from search results, one per line, up to 28. "
         "Exclude category pages, channel links, trailers, GTA V and GTA Online, teasers, and upcoming events."
@@ -149,8 +146,8 @@ def tavily_discovery(api_key: str) -> list[Source]:
     """Search public video pages using two basic searches."""
     found: list[Source] = []
     queries = (
-        ("GTA VI launch gameplay Twitch clips and stream archives first playthrough", ["twitch.tv"]),
-        ("GTA VI YouTube gameplay full stream archive funny moments playthrough", ["youtube.com", "youtu.be"]),
+        ("GTA 6 GTA VI gameplay live stream clips", ["twitch.tv"]),
+        ("GTA 6 GTA VI gameplay live stream clips", ["youtube.com", "youtu.be"]),
     )
     for query, domains in queries:
         try:
@@ -176,7 +173,7 @@ def grounding_source(link: str) -> Source | None:
         return None
 
 
-def youtube_fallback(downloads: Downloads, topic: str) -> list[Source]:
+def youtube_search(downloads: Downloads, topic: str) -> list[Source]:
     response = downloads.ytdlp(f"ytsearch15:{topic}", ["--flat-playlist", "--dump-single-json"], timeout=55)
     rows = json.loads(response).get("entries", [])
     return [item for row in rows if row and (item := source_url(f"https://www.youtube.com/watch?v={row.get('id', '')}"))]
@@ -189,7 +186,7 @@ def listed_twitch_source(row: dict, channel: str, *, clip: bool, earliest: str) 
                                    or not GTA_VI.search(title)):
         return None
     published = row.get("publishedAt") or row.get("createdAt") or ""
-    if published < earliest or row.get("status") == "RECORDING":
+    if published < earliest:
         return None
     url = (row.get("url") or "") if clip else f"https://www.twitch.tv/videos/{row.get('id', '')}"
     item = source_url(url)
@@ -201,17 +198,100 @@ def listed_twitch_source(row: dict, channel: str, *, clip: bool, earliest: str) 
     item.duration = float(row.get("durationSeconds" if clip else "lengthSeconds") or 0)
     item.views = int(row.get("viewCount") or 0)
     item.published = published
+    if not clip and row.get("status") == "RECORDING":
+        item.recording = True
+        # Give Twitch time to publish the final segments of the current replay.
+        item.duration = max(0, math.floor(item.duration) - 60)
+        item.anchors.append(max(0, item.duration - 120))
     return item if item.duration >= 10 else None
 
 
-def twitch_fallback(sources: dict[str, Source], report: list[str], days: int) -> None:
+def twitch_query(query: str) -> dict:
+    try:
+        from click import ClickException
+        from httpx import HTTPError
+        from twitchdl.twitch import gql_query
+    except ImportError:
+        raise ValueError("twitch-dl is unavailable for public Twitch search.") from None
+
+    try:
+        return gql_query(query)["data"]
+    except (ClickException, HTTPError, KeyError, TypeError, ValueError):
+        raise ValueError("Twitch did not return public search results.") from None
+
+
+def twitch_search_channels() -> list[str]:
+    fields = "channels { edges { item { ... on User { login stream { game { name } } } } } }"
+    terms = [
+        f'term{index}: searchFor(userQuery: {json.dumps(term)}, platform: "web") {{ {fields} }}'
+        for index, term in enumerate(SEARCH_TERMS)
+    ]
+    channels: list[str] = []
+    for result in twitch_query("{ " + "\n".join(terms) + " }").values():
+        selected = 0
+        for edge in result["channels"]["edges"]:
+            item = edge.get("item") or {}
+            channel = (item.get("login") or "").casefold()
+            game = (((item.get("stream") or {}).get("game") or {}).get("name") or "")
+            if GTA_VI.search(game) and re.fullmatch(r"[a-z0-9_]{2,25}", channel) and channel not in channels:
+                channels.append(channel)
+                selected += 1
+                if selected == 2:
+                    break
+    return channels
+
+
+def twitch_category() -> tuple[list[str], list[dict]]:
+    query = """
+    { game(name: "Grand Theft Auto VI") {
+        streams(first: 8) { edges { node { broadcaster { login } } } }
+        clips(first: 32, criteria: {period: LAST_DAY, sort: VIEWS_DESC}) {
+            edges { node {
+                title createdAt durationSeconds viewCount url game { name }
+                broadcaster { login displayName }
+            } }
+        }
+    } }
+    """
+    game = twitch_query(query)["game"] or {}
+    live_channels = []
+    for edge in game.get("streams", {}).get("edges", []):
+        channel = ((edge.get("node") or {}).get("broadcaster") or {}).get("login") or ""
+        if re.fullmatch(r"[a-zA-Z0-9_]{2,25}", channel):
+            live_channels.append(channel.casefold())
+    return live_channels, [edge["node"] for edge in game.get("clips", {}).get("edges", []) if edge.get("node")]
+
+
+def twitch_public_discovery(sources: dict[str, Source], report: list[str], days: int) -> None:
     earliest = source_cutoff(days)
+    search_channels = []
+    try:
+        search_channels = twitch_search_channels()
+        report.append(f"Twitch keyword searches found {len(search_channels)} live GTA VI channels.")
+    except (KeyError, TypeError, ValueError) as error:
+        report.append(f"Twitch keyword search: {error}")
+    live_channels = []
+    category_count = 0
+    try:
+        live_channels, clips = twitch_category()
+        for row in clips:
+            item = listed_twitch_source(row, "", clip=True, earliest=earliest)
+            if item:
+                add(sources, item)
+                category_count += 1
+        report.append(f"Twitch GTA VI category listed {len(live_channels)} live channels and {category_count} recent clips.")
+    except (KeyError, TypeError, ValueError) as error:
+        report.append(f"Twitch category discovery: {error}")
+    channels = list(dict.fromkeys((*search_channels, *live_channels)))
 
     def list_channel(channel: str) -> tuple[list[Source], list[str]]:
         items: list[Source] = []
         errors = []
-        lists = ((True, "clips", 24, ["--period", "last_week"]), (False, "videos", 12, ["--skip-live"]))
+        lists = ((True, "clips", 12, ["--period", "last_day"]),
+                 (True, "clips", 24, ["--period", "last_week"]), (False, "videos", 12, []))
         for clip, command, limit, args in lists:
+            if clip and any(item.platform == "twitch-clip" for item in items):
+                continue
             try:
                 cmd = ["twitch-dl", command, "--limit"]
                 try:
@@ -225,18 +305,18 @@ def twitch_fallback(sources: dict[str, Source], report: list[str], days: int) ->
                     item = listed_twitch_source(row, channel, clip=clip, earliest=earliest)
                     if item:
                         items.append(item)
-            except (KeyError, MediaError, ValueError) as error:
-                errors.append(f"Twitch watchlist {channel} {command}: {error}")
+            except (KeyError, MediaError, TypeError, ValueError) as error:
+                errors.append(f"Twitch channel {channel} {command}: {error}")
         return items, errors
 
     count = 0
-    with ThreadPoolExecutor(max_workers=len(TWITCH_CHANNELS)) as pool:
-        for items, errors in pool.map(list_channel, TWITCH_CHANNELS):
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        for items, errors in pool.map(list_channel, channels):
             report.extend(errors)
             count += len(items)
             for item in items:
                 add(sources, item)
-    report.append(f"Twitch watchlist found {count} recent GTA VI clips and archives.")
+    report.append(f"Twitch checked {len(channels)} channels and found {count} recent GTA VI clips and replays.")
 
 
 def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: int = 7) -> dict[str, Source]:
@@ -245,6 +325,7 @@ def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: i
         report.append("No sources can qualify before the GTA VI publication cutoff.")
         return {}
     sources: dict[str, Source] = {}
+    report.append("Search terms on YouTube and Twitch — " + ", ".join(SEARCH_TERMS) + ".")
     if search_enabled():
         try:
             for item in discovered_with_gemini(gemini, days):
@@ -261,25 +342,26 @@ def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: i
     youtube_key = os.getenv("YOUTUBE_API_KEY")
     twitch_client = os.getenv("TWITCH_CLIENT_ID")
     twitch_secret = os.getenv("TWITCH_CLIENT_SECRET")
+    searched_youtube = False
     if youtube_key:
         try:
             youtube_discovery(sources, youtube_key, days)
+            searched_youtube = True
         except (KeyError, ValueError) as error:
             report.append(f"YouTube discovery: {error}")
+    if not searched_youtube:
+        for term in SEARCH_TERMS:
+            try:
+                for item in youtube_search(downloads, term):
+                    add(sources, item)
+            except (MediaError, ValueError) as error:
+                report.append(f"YouTube search {term!r}: {error}")
     if twitch_client and twitch_secret:
         try:
             twitch_discovery(sources, twitch_client, twitch_secret, days)
         except (KeyError, ValueError) as error:
             report.append(f"Twitch discovery: {error}")
-    if not any(item.platform.startswith("twitch") and item.duration for item in sources.values()):
-        twitch_fallback(sources, report, days)
-    if not any(item.platform == "youtube" for item in sources.values()):
-        for topic in (TOPICS[0], TOPICS[2]):
-            try:
-                for item in youtube_fallback(downloads, topic):
-                    add(sources, item)
-            except (MediaError, ValueError) as error:
-                report.append(f"YouTube search fallback: {error}")
+    twitch_public_discovery(sources, report, days)
     youtube_links = sum(item.platform == "youtube" for item in sources.values())
     link_label = "link" if youtube_links == 1 else "links"
     report.append(f"YouTube discovery collected {youtube_links} video {link_label}.")
@@ -317,6 +399,8 @@ def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: i
         except (MediaError, ValueError):
             continue
     eligible = {key: item for key, item in recent.items() if item.duration >= 10}
+    youtube_count = sum(item.site == "youtube" for item in eligible.values())
+    report.append(f"Eligible sources by platform — YouTube {youtube_count}, Twitch {len(eligible) - youtube_count}.")
     if not eligible:
         try:
             gemini.check()
@@ -329,4 +413,4 @@ def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: i
 
 def priority(item: Source) -> float:
     # Logarithmic reach provides a lead without letting follower count dominate.
-    return math.log1p(item.views) + 3 * (item.published >= dated(2)) + 1.5 * (item.creator in SEED_CHANNELS) + bool(item.anchors)
+    return math.log1p(item.views) + 3 * (item.published >= dated(2)) + 1.5 * bool(GTA_VI.search(item.title)) + bool(item.anchors)

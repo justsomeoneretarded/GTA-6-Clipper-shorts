@@ -7,7 +7,7 @@ from pathlib import Path
 
 from .core import VERSION, read_json, write_json
 from .discovery import discover
-from .editorial import build_catalog
+from .editorial import build_catalog, merge_catalogs
 from .gemini import Gemini, ServiceError
 from .media import Downloads, youtube_cookie_file
 from .production import MODES, render_batch, sources_from
@@ -47,8 +47,14 @@ def main() -> int:
             catalog = read_json(state / "catalog.json", {"version": VERSION, "moments": [], "sequences": [], "sources": {}})
             if args.stage == "discover":
                 sources_from(catalog)
+                shared = read_json(state / "shared-catalog.json") if args.mode != "shorts" else None
+                if shared:
+                    sources_from(shared)
+                    catalog = merge_catalogs(catalog, shared)
+                    report.append(f"Shared catalog added to discovery with {len(shared['moments'])} moments "
+                                  f"and {len(shared['sequences'])} longer sequences.")
                 new_sources = discover(gemini, downloads, report)
-                catalog = build_catalog(gemini, downloads, new_sources, catalog, report)
+                catalog = build_catalog(gemini, downloads, new_sources, catalog, report, mode=args.mode)
                 write_json(state / "catalog.json", catalog)
             else:
                 ledger = read_json(state / "ledger.json", {})

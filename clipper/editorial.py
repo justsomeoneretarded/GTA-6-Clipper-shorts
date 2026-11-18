@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import json
 import os
-from collections import Counter
+from collections import Counter, deque
+from collections.abc import Callable
 from dataclasses import asdict
 from datetime import date
 
@@ -77,6 +78,20 @@ def scout_windows(source: Source) -> list[Range]:
     return windows
 
 
+def platform_rotation[T](items: list[T], sources: dict[str, Source],
+                         source_key: Callable[[T], str]) -> list[T]:
+    youtube: deque[T] = deque()
+    twitch: deque[T] = deque()
+    for item in items:
+        (youtube if sources[source_key(item)].site == "youtube" else twitch).append(item)
+    ordered = []
+    while youtube or twitch:
+        for queue in (youtube, twitch):
+            if queue:
+                ordered.append(queue.popleft())
+    return ordered
+
+
 def width_rotation(sources: dict[str, Source], used: dict[str, str]) -> list[Range]:
     counts: Counter[str] = Counter()
     lists: list[list[Range]] = []
@@ -103,7 +118,8 @@ def width_rotation(sources: dict[str, Source], used: dict[str, str]) -> list[Ran
     extra = [window for windows in lists[:12] for window in windows[1:] if window.identity not in seen]
     opening += extra[::2][:8]
     seen.update(window.identity for window in opening)
-    return opening + [window for window in result if window.identity not in seen]
+    ordered = opening + [window for window in result if window.identity not in seen]
+    return platform_rotation(ordered, sources, lambda window: window.source)
 
 
 def score_cut(row: dict, floor: float) -> float:
@@ -118,12 +134,16 @@ def score_cut(row: dict, floor: float) -> float:
     return round(score, 2)
 
 
-def scout(gemini: Gemini, downloads: Downloads, source: Source, window: Range) -> dict:
+def scout(gemini: Gemini, downloads: Downloads, source: Source, window: Range, *, sequence_only: bool = False) -> dict:
+    assignment = (
+        "Return an empty moments list and focus on sustained scenes for a chronological edit."
+        if sequence_only else "Suggest up to five different 10–58s standalone moments."
+    )
     prompt = (
         f"Scout this {window.seconds:.1f}s excerpt at source time {timestamp(window.start)}. "
         "Every start/end you report must be seconds FROM THE START OF THIS EXCERPT (0 = first frame provided). "
         f"Source metadata, for orientation only: {source.creator!r}, {source.title[:200]!r}. "
-        f"{SUBJECT} {HOOKS} {HIGHLIGHT_STANDARD} Suggest up to five different 10–58s standalone moments. "
+        f"{SUBJECT} {HOOKS} {HIGHLIGHT_STANDARD} {assignment} "
         "State the visual or audible GTA VI evidence in gta_vi_evidence. Use subject other if you cannot confirm it. "
         "For each cut name the opening, needed setup, payoff and an observable frame or line as evidence. "
         "Use the theme that best describes it. Potential is a 0–100 estimate. "
@@ -230,7 +250,22 @@ def dedupe(moments: list[Moment], sources: dict[str, Source]) -> list[Moment]:
     return mixed
 
 
-def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Source], previous: dict, report: list[str]) -> dict:
+def merge_catalogs(local: dict, shared: dict) -> dict:
+    sources = dict(local["sources"])
+    for key, source in shared["sources"].items():
+        if key not in sources or source["duration"] > sources[key]["duration"]:
+            sources[key] = source
+    scanned = dict(shared.get("scanned", {}))
+    for key, checked in local.get("scanned", {}).items():
+        scanned[key] = max(checked, scanned.get(key, ""))
+    return {"version": VERSION, "sources": sources, "scanned": scanned,
+            "moments": local["moments"] + shared["moments"],
+            "pending": local.get("pending", []) + shared.get("pending", []),
+            "sequences": local["sequences"] + shared["sequences"]}
+
+
+def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Source], previous: dict,
+                  report: list[str], *, mode: str = "shorts") -> dict:
     floor = float(os.getenv("MIN_MOMENT_SCORE") or 70)
     scout_limit = int(os.getenv("SCOUT_WINDOWS") or (28 if search_enabled() else 16))
     verify_limit = int(os.getenv("AUDITION_MOMENTS") or (34 if search_enabled() else 20))
@@ -241,18 +276,24 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
     oldest_source = source_cutoff(21)
     sources = {key: row for key, row in sources.items() if row.published and row.published >= oldest_source}
     scanned = {key: value for key, value in previous.get("scanned", {}).items() if value >= dated(10)}
-    leads = [Moment.from_dict(row) for row in previous.get("pending", []) if row["span"]["source"] in sources]
+    sequence_only = mode == "condensed"
+    leads = [] if sequence_only else [Moment.from_dict(row) for row in previous.get("pending", [])
+                                     if row["span"]["source"] in sources]
     new_sequences: list[Sequence] = []
     limited = False
-    windows = width_rotation({key: sources[key] for key in current if key in sources}, scanned)[:scout_limit]
+    scout_sources = {key: sources[key] for key in current if key in sources
+                     and (not sequence_only or sources[key].duration >= 260)}
+    windows = width_rotation(scout_sources, scanned)[:scout_limit]
+    youtube_windows = sum(sources[window.source].platform == "youtube" for window in windows)
     print(f"Discovered {len(current)} sources. Checking {len(windows)} new windows.", flush=True)
+    report.append(f"Scouting windows by platform — YouTube {youtube_windows}, Twitch {len(windows) - youtube_windows}.")
     for index, window in enumerate(windows, 1):
         item = sources[window.source]
         print(f"Scouting {index}/{len(windows)}: {item.key} at {timestamp(window.start)}", flush=True)
         try:
-            reply = scout(gemini, downloads, item, window)
+            reply = scout(gemini, downloads, item, window, sequence_only=sequence_only)
             if reply["subject"] in {"gameplay", "discussion"} and clean(reply["gta_vi_evidence"], 500):
-                for row in reply["moments"]:
+                for row in () if sequence_only else reply["moments"]:
                     try:
                         span = bounded(row, item.key, window)
                         potential = number(row["potential"], 0, 100)
@@ -276,10 +317,12 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
             break
         except (KeyError, ValueError, TypeError, MediaError) as error:
             report.append(f"{item.key} scouting {timestamp(window.start)}: {error}")
-    previous_moments = [Moment.from_dict(row) for row in previous.get("moments", []) if row["span"]["source"] in sources]
+    previous_moments = [] if sequence_only else [Moment.from_dict(row) for row in previous.get("moments", [])
+                                                if row["span"]["source"] in sources]
     verified: list[Moment] = []
     distinct_leads = [item for item in dedupe(leads, sources) if not any(duplicate(item, old, sources) for old in previous_moments)]
-    auditions = [] if limited else diversify(distinct_leads, sources)[:verify_limit]
+    auditions = [] if limited else platform_rotation(diversify(distinct_leads, sources), sources,
+                                                     lambda item: item.span.source)[:verify_limit]
     attempted: set[str] = set()
     for index, lead in enumerate(auditions, 1):
         print(f"Audition {index}/{len(auditions)}: {lead.span.source} at {timestamp(lead.span.start)}", flush=True)
@@ -312,7 +355,7 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
     for key in list(referenced):
         if sources[key].parent in sources:
             referenced.add(sources[key].parent)
-    report.append(f"Discovery found {len(current)} sources. Scouting nominated {len(leads)} windows. "
+    report.append(f"Discovery found {len(current)} sources. There were {len(leads)} proposed moments, including saved candidates. "
                   f"Auditions verified {len(verified)} new moments, with {len(pending)} saved for later. "
                   f"The catalog contains {len(sequence_pool)} longer sequences.")
     return {"version": VERSION, "generated_at": dated(), "scanned": scanned,

@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import binascii
 import json
+import math
 import os
 import re
 import shutil
@@ -181,13 +182,19 @@ class Downloads:
             if not whole:
                 options += ["--download-sections", f"*{span.start:.3f}-{span.end:.3f}", "--force-keyframes-at-cuts"]
             timeout = 75 if source.platform == "twitch-clip" else (420 if whole else 180)
-            try:
-                self.ytdlp(source.url, options, timeout=timeout)
-            except MediaError:
-                if source.platform != "twitch-clip" or not shutil.which("twitch-dl"):
-                    raise
+            if source.recording:
                 run(["twitch-dl", "download", "--quality", "source", "--overwrite",
-                     "--output", str(temporary / "video.mp4"), source.url], timeout=90)
+                     "--start", timestamp(span.start), "--end", timestamp(span.end),
+                     "--cache-dir", str(temporary / "segments/{id}/{quality}"),
+                     "--output", str(temporary / "video.mp4"), source.url], timeout=timeout)
+            else:
+                try:
+                    self.ytdlp(source.url, options, timeout=timeout)
+                except MediaError:
+                    if source.platform != "twitch-clip" or not shutil.which("twitch-dl"):
+                        raise
+                    run(["twitch-dl", "download", "--quality", "source", "--overwrite",
+                         "--output", str(temporary / "video.mp4"), source.url], timeout=90)
             file = temporary / "video.mp4"
             if not file.is_file():
                 raise MediaError("Downloader did not return an MP4.")
@@ -212,13 +219,14 @@ class Downloads:
             raise MediaError(self.unreachable[source.key])
         if source.platform == "twitch-clip":
             return self._fetch(source, span, whole=True), span.start
+        coverage = Range(span.source, math.floor(span.start), math.ceil(span.end)) if source.recording else span
         try:
-            file = self._fetch(source, span, whole=False)
+            file = self._fetch(source, coverage, whole=False)
         except MediaError as section_failure:
             failure = str(section_failure).casefold()
             blocked = any(reason in failure for reason in ("403", "sign in", "bot", "not available", "private"))
             ffmpeg_youtube = source.platform == "youtube" and self.youtube_cookies and "ffmpeg" in failure
-            if source.duration > self.full_limit or (blocked and not ffmpeg_youtube):
+            if source.recording or source.duration > self.full_limit or (blocked and not ffmpeg_youtube):
                 self.unreachable[source.key] = str(section_failure)
                 raise
             try:
@@ -226,8 +234,8 @@ class Downloads:
             except MediaError as full_failure:
                 self.unreachable[source.key] = str(full_failure)
                 raise
-        self.windows.setdefault(source.key, []).append((span, file))
-        return file, 0
+        self.windows.setdefault(source.key, []).append((coverage, file))
+        return file, span.start - coverage.start
 
 
 def proxy(source_path: Path, start: float, length: float, destination: Path, *, fps: int = 8) -> Path:

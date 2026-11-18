@@ -4,8 +4,10 @@ from datetime import UTC, datetime
 from unittest.mock import Mock, patch
 
 from clipper.core import GTA_VI_PUBLICATION_CUTOFF, Moment, Range, Source, WEIGHTS, dated, duplicate, source_url
-from clipper.discovery import discover, grounding_source, listed_twitch_source, tavily_discovery
-from clipper.editorial import bounded, build_catalog, score_cut, scout_windows
+from clipper.discovery import (
+    SEARCH_TERMS, discover, grounding_source, listed_twitch_source, tavily_discovery, twitch_search_channels,
+)
+from clipper.editorial import bounded, build_catalog, merge_catalogs, score_cut, scout_windows, width_rotation
 from clipper.gemini import QuotaError, quota_error
 from clipper.plans import is_new
 
@@ -33,7 +35,7 @@ class EditorialTests(unittest.TestCase):
         self.assertEqual(grounding_source(link).key, "youtube:TestGTA0001")
         get.assert_called_once_with(link, allow_redirects=False, stream=True, timeout=(5, 8))
 
-    def test_twitch_fallback_uses_game_category(self):
+    def test_twitch_clip_listing_uses_game_category(self):
         clip = {"title": "GTA VI now", "url": "https://www.twitch.tv/channel/clip/SomeSlug",
                 "createdAt": "2026-11-18T11:30:00Z", "durationSeconds": 30,
                 "game": {"name": "Grand Theft Auto VI"}}
@@ -41,6 +43,25 @@ class EditorialTests(unittest.TestCase):
         self.assertEqual(listed_twitch_source(clip, "channel", clip=True, earliest=earliest).duration, 30)
         clip["game"]["name"] = "Grand Theft Auto V"
         self.assertIsNone(listed_twitch_source(clip, "channel", clip=True, earliest=earliest))
+
+    @patch("clipper.discovery.twitch_query")
+    def test_twitch_search_uses_the_shared_terms_and_live_game_category(self, query):
+        query.return_value = {"term0": {"channels": {"edges": [
+            {"item": {"login": "FixtureOnline", "stream": {"game": {"name": "Grand Theft Auto V"}}}},
+            {"item": {"login": "FixtureCreator", "stream": {"game": {"name": "Grand Theft Auto VI"}}}},
+        ]}}}
+        self.assertEqual(twitch_search_channels(), ["fixturecreator"])
+        for term in SEARCH_TERMS:
+            self.assertIn(f'userQuery: "{term}"', query.call_args.args[0])
+
+    def test_recording_twitch_replay_uses_a_window_behind_the_live_edge(self):
+        row = {"id": "1234567890", "title": "GTA VI first playthrough", "status": "RECORDING",
+               "publishedAt": "2026-11-19T11:00:00Z", "lengthSeconds": 600,
+               "game": {"name": "Grand Theft Auto VI"}}
+        replay = listed_twitch_source(row, "fixturecreator", clip=False, earliest=GTA_VI_PUBLICATION_CUTOFF)
+        self.assertTrue(replay.recording)
+        self.assertEqual(replay.duration, 540)
+        self.assertEqual(scout_windows(replay)[0], Range(replay.key, 120, 540))
 
     def test_zero_search_quota_explains_the_billing_check(self):
         response = Mock()
@@ -61,8 +82,8 @@ class EditorialTests(unittest.TestCase):
 
     @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
     @patch.dict("os.environ", {}, clear=True)
-    @patch("clipper.discovery.youtube_fallback")
-    @patch("clipper.discovery.twitch_fallback")
+    @patch("clipper.discovery.youtube_search")
+    @patch("clipper.discovery.twitch_public_discovery")
     def test_twitch_results_do_not_skip_date_filtered_youtube_discovery(self, twitch, youtube, clock):
         def list_twitch(sources, report, days):
             for count in range(9):
@@ -88,12 +109,12 @@ class EditorialTests(unittest.TestCase):
         sources = discover(Mock(), Mock(), report)
         self.assertEqual(len(sources), 10)
         self.assertIn(video.key, sources)
-        self.assertEqual(youtube.call_count, 2)
+        self.assertEqual([call.args[1] for call in youtube.call_args_list], list(SEARCH_TERMS))
         self.assertIn("YouTube discovery collected 4 video links.", report)
         self.assertIn("Skipped sources before the publication cutoff (2) or with an unknown publication date (1).", report)
 
     @patch("clipper.core.now", return_value=datetime(2026, 11, 18, 20, 59, 59, tzinfo=UTC))
-    @patch("clipper.discovery.twitch_fallback")
+    @patch("clipper.discovery.twitch_public_discovery")
     def test_discovery_waits_until_november_19_in_nairobi(self, twitch, clock):
         self.assertEqual(discover(Mock(), Mock(), []), {})
         twitch.assert_not_called()
@@ -105,10 +126,14 @@ class EditorialTests(unittest.TestCase):
     def test_free_catalog_can_supply_ten_shorts_after_rejections(self, audition, scout, clock):
         sources = {}
         for index in range(14):
-            source = source_url(f"https://youtu.be/Fixture{index:04d}")
+            url = (f"https://youtu.be/Fixture{index:04d}" if index < 7
+                   else f"https://clips.twitch.tv/Fixture{index}")
+            source = source_url(url)
             source.duration = 60
             source.published = dated(1)
             sources[source.key] = source
+        opening = width_rotation(sources, {})[:10]
+        self.assertEqual(sum(sources[span.source].site == "youtube" for span in opening), 5)
         scout.return_value = {"subject": "gameplay", "gta_vi_evidence": "Lucia drives in Vice City.",
                               "sequences": [], "moments": [
             {"start": 15, "end": 40, "theme": "chase", "hook": "Roadblock", "setup": "Police pursuit",
@@ -121,7 +146,32 @@ class EditorialTests(unittest.TestCase):
         gemini.json.return_value = {"order": []}
         result = build_catalog(gemini, Mock(), sources, {}, [])
         self.assertEqual(len(result["moments"]), 10)
+        self.assertEqual(sum(sources[row["span"]["source"]].site == "youtube" for row in result["moments"]), 5)
         self.assertEqual(result["pending"], [])
+
+    @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
+    @patch("clipper.editorial.scout")
+    @patch("clipper.editorial.audition")
+    def test_condensed_search_adds_long_sequences_to_the_shared_catalog(self, audition, scout, clock):
+        clip = source_url("https://clips.twitch.tv/FixtureClip")
+        replay = source_url("https://www.twitch.tv/videos/1234567890")
+        youtube = source_url("https://youtu.be/TestGTA0001")
+        clip.duration, replay.duration, youtube.duration = 30, 400, 400
+        clip.published = replay.published = youtube.published = dated(1)
+        shared_sequence = {"span": asdict(Range(youtube.key, 0, 320)), "theme": "chase",
+                           "story": "Opening chase", "score": 95}
+        shared = {"sources": {youtube.key: asdict(youtube)}, "moments": [], "sequences": [shared_sequence]}
+        local = {"sources": {}, "moments": [], "sequences": []}
+        scout.return_value = {"subject": "gameplay", "gta_vi_evidence": "Lucia drives in Vice City.",
+                              "moments": [], "sequences": [
+            {"start": 20, "end": 350, "theme": "chase", "story": "Roadblocks and escape", "potential": 90},
+        ]}
+        result = build_catalog(Mock(), Mock(), {clip.key: clip, replay.key: replay}, merge_catalogs(local, shared),
+                               [], mode="condensed")
+        self.assertEqual({row["span"]["source"] for row in result["sequences"]}, {youtube.key, replay.key})
+        self.assertEqual(scout.call_count, 1)
+        self.assertTrue(scout.call_args.kwargs["sequence_only"])
+        audition.assert_not_called()
 
     @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
     @patch("clipper.editorial.audition", side_effect=QuotaError("quota"))

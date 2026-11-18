@@ -34,7 +34,7 @@ def follow_shorts(engine: str, repository: str, branch: str, token: str, catalog
         if published:
             catalogs.append((commit["sha"], *published.groups()))
     if not catalogs:
-        print("No Shorts run has published an eligible catalog yet.")
+        print("No Shorts run has published a catalog yet.")
         return
 
     runs = api(f"{editor}/runs?per_page=100", token)["workflow_runs"]

@@ -4,14 +4,15 @@ import json
 import os
 import shutil
 import tempfile
+from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
 
-from .core import VERSION, Edit, Source, clean, dated, number, source_cutoff, source_url, timestamp, write_json
+from .core import VERSION, Edit, Source, clean, dated, number, or_parent, source_cutoff, source_url, timestamp, write_json
 from .editorial import COLD_OPEN, HIGHLIGHT_STANDARD, PACKAGING, SUBJECT
 from .gemini import Gemini, QuotaError, ServiceError
 from .media import (Captions, Downloads, MediaError, ffmpeg, finish_video, join_pieces, proxy, render_piece, verify_video)
-from .plans import plans
+from .plans import is_new, plans
 
 REVIEW_BY_MODE = {
     "shorts": "The opening must give a concrete reason to stay, and the single moment must deliver a standout payoff.",
@@ -209,19 +210,34 @@ def render_batch(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict,
     sources = {key: item for key, item in saved_sources.items() if item.published and item.published >= cutoff}
     if len(sources) < len(saved_sources):
         report.append(f"The publication cutoff excluded {len(saved_sources) - len(sources)} saved sources from this batch.")
-    target = 10 if mode == "shorts" else 1
-    attempt_limit = int(os.getenv("MAX_RENDER_ATTEMPTS") or (26 if mode == "shorts" else 5))
+    target = 10 if mode == "shorts" else 2
+    platform_limit = target // 2
+    platform_counts: Counter[str] = Counter({"youtube": 0, "twitch": 0})
+    edit_counts: Counter[str] = Counter()
+    attempt_limit = int(os.getenv("MAX_RENDER_ATTEMPTS") or (26 if mode == "shorts" else 8))
     out.mkdir(parents=True, exist_ok=True)
     work.mkdir(parents=True, exist_ok=True)
     captions = captions if captions is not None else Captions()
     produced = []
+    used_ranges = []
     history = list(ledger.get("edits", []))
     prefix = {"shorts": "short", "ranked": "ranked-short", "themed": "themed", "condensed": "condensed"}[mode]
-    for attempt, edit in enumerate(plans(mode, gemini, downloads, catalog, ledger, sources, report), 1):
-        if attempt > attempt_limit:
+    attempts = 0
+    for edit in plans(mode, gemini, downloads, catalog, ledger, sources, report):
+        if attempts >= attempt_limit:
             break
+        if any(not is_new(cut.span, used_ranges, sources) for cut in edit.cuts):
+            continue
+        sites = [sources[cut.span.source].site for cut in edit.cuts]
+        if mode == "condensed":
+            sites = sites[:1]
+        counts = Counter(sites)
+        primary = counts.most_common(1)[0][0]
+        if mode != "themed" and edit_counts[primary] >= platform_limit:
+            continue
+        attempts += 1
         name = f"{prefix}-{len(produced) + 1:02}"
-        print(f"Reviewing {mode} edit {attempt} (target {target})", flush=True)
+        print(f"Reviewing {mode} edit {attempts} (target {target})", flush=True)
         try:
             item = render_edit(edit, mode, name, downloads, sources, gemini, captions, work, out, small=small)
         except (MediaError, ValueError, TypeError, KeyError, OSError) as error:
@@ -237,16 +253,21 @@ def render_batch(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict,
             report.append(f"Live processing ended early: {error}")
             break
         produced.append(item)
+        platform_counts.update(counts)
+        edit_counts[primary] += 1
+        used_ranges.extend(or_parent(cut.span, sources) for cut in edit.cuts)
         history.append({"id": edit.identity, "ranges": [asdict(cut.span) for cut in edit.cuts], "date": dated()})
         if len(produced) >= target:
             break
-    write_json(out / "manifest.json", {"mode": mode, "generated": len(produced), "target": target,
-                                      "catalog_time": catalog.get("generated_at"), "videos": produced})
+    manifest = {"mode": mode, "generated": len(produced), "target": target,
+                "catalog_time": catalog.get("generated_at"), "videos": produced, "platform_counts": dict(platform_counts)}
+    report.append(f"Sources used by platform — YouTube {platform_counts['youtube']}, Twitch {platform_counts['twitch']}.")
+    write_json(out / "manifest.json", manifest)
     outcome = f"Produced {len(produced)} of {target} target videos after download, render, and editorial checks."
     print(outcome, flush=True)
     report.append(outcome)
     if len(produced) < target:
-        report.append("The remaining candidates failed checks, had already been exported, or the catalog had insufficient matching footage.")
+        report.append("The catalog ran short of distinct edits that passed review and met the source mix.")
     if not produced:
         return {}
     return {"version": VERSION, "edits": history[-350:]}

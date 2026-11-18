@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import json
-from collections import defaultdict
+from collections import Counter, defaultdict
 
 from .core import Cut, Edit, Moment, Range, Sequence, Source, clean, or_parent, overlap
-from .editorial import GROUP_EDIT, SEQUENCE_EDIT, bounded, diversify
+from .editorial import GROUP_EDIT, SEQUENCE_EDIT, bounded, diversify, platform_rotation
 from .gemini import NUM, TEXT, Gemini, array, object_schema
 from .media import Downloads, MediaError, window_proxy
 
@@ -80,6 +80,51 @@ def expand_for_themed(gemini: Gemini, downloads: Downloads, item: Moment, source
     return item.span
 
 
+def group_plan(gemini: Gemini, downloads: Downloads, group: list[Moment], sources: dict[str, Source],
+               ranked: bool, youtube_count: int) -> tuple[Edit, set[str]] | None:
+    theme = group[0].theme
+    criteria = RANK_CRITERIA.get(theme, "difficulty, clarity, and memorability of the visible payoff")
+    ordering = (
+        f"Choose exactly 3 comparable entries and order them #3, #2, #1 using {criteria}. "
+        f"Use {youtube_count} YouTube and {3 - youtube_count} Twitch entries. "
+        "Each entry needs its own standout payoff. The viewer should be able to see why #1 wins. "
+        "Labels are short editorial captions."
+        if ranked else
+        "Choose 4 or 6 entries with equal YouTube and Twitch counts. Start with a strong scene and build "
+        "one specific premise through distinct developments or examples. Leave out repetitive entries. "
+        "Each label should name the scene in at most six words."
+    )
+    briefs = [{"id": item.identity, "platform": sources[item.span.source].site,
+               "hook": item.hook, "setup": item.setup, "payoff": item.payoff,
+               "evidence": item.evidence, "seconds": round(item.span.seconds)} for item in group]
+    reply = gemini.json(
+        f"Plan one GTA VI video about {theme}. {ordering} Return no entries if the moments do not support a coherent edit. "
+        "Keep the premise specific and supported by the briefs. Return entry IDs verbatim.\n" + json.dumps(briefs),
+        GROUP_EDIT,
+    )
+    entries = reply["entries"]
+    table = {item.identity: item for item in group}
+    ids = {entry["id"] for entry in entries}
+    if len(entries) != len(ids) or not ids <= table.keys():
+        return None
+    youtube = sum(sources[table[key].span.source].site == "youtube" for key in ids)
+    if ranked and (len(ids) != 3 or youtube != youtube_count):
+        return None
+    if not ranked and (len(ids) not in {4, 6} or youtube * 2 != len(ids)):
+        return None
+    cuts = []
+    for index, entry in enumerate(entries):
+        item = table[entry["id"]]
+        source = sources[item.span.source]
+        if ranked:
+            span = compact_for_rank(gemini, downloads, item, source)
+        else:
+            span = expand_for_themed(gemini, downloads, item, source)
+        cuts.append(Cut(span, clean(entry["label"], 54), len(entries) - index if ranked else None))
+    edit = Edit(cuts, theme, clean(reply["idea"], 180), clean(reply["context"], 600))
+    return (edit, ids) if not ranked or 24 <= edit.seconds <= 88 else None
+
+
 def group_plans(gemini: Gemini, downloads: Downloads, moments: list[Moment], sources: dict[str, Source],
                 report: list[str], ranked: bool):
     by_theme: dict[str, list[Moment]] = defaultdict(list)
@@ -88,48 +133,21 @@ def group_plans(gemini: Gemini, downloads: Downloads, moments: list[Moment], sou
     needed = 3 if ranked else 4
     groups = [diversify(group, sources) for group in by_theme.values() if len(group) >= needed]
     groups.sort(key=lambda group: sum(item.score for item in group[:needed]) / needed, reverse=True)
-    for group in groups[:5]:
-        group = group[:12]
-        theme = group[0].theme
-        criteria = RANK_CRITERIA.get(theme, "difficulty, clarity, and memorability of the visible payoff")
-        ordering = (
-            f"Choose exactly 3 comparable entries and order them #3, #2, #1 using {criteria}. "
-            "Each entry needs its own standout payoff. The viewer should be able to see why #1 wins. "
-            "Labels are short editorial captions."
-            if ranked else
-            "Choose 4–6 entries that support one specific premise. Start with a strong scene and build through "
-            "distinct developments or examples. Leave out repetitive entries and return no entries if the remaining "
-            "scenes do not support the premise. Each label should name the scene in at most six words."
-        )
-        briefs = [{"id": item.identity, "hook": item.hook, "setup": item.setup, "payoff": item.payoff,
-                   "evidence": item.evidence, "seconds": round(item.span.seconds)} for item in group]
-        try:
-            reply = gemini.json(
-                f"Plan one GTA VI video about {theme}. {ordering} Skip the group if these moments do not belong together. "
-                "Keep the premise specific and supported by the briefs. Return entry IDs verbatim.\n" + json.dumps(briefs),
-                GROUP_EDIT,
-            )
-            entries = reply["entries"]
-            table = {item.identity: item for item in group}
-            ids = [entry["id"] for entry in entries]
-            if len(ids) != len(set(ids)) or any(value not in table for value in ids):
+    for available in groups[:5]:
+        theme = available[0].theme
+        for youtube_count in ((2, 1) if ranked else (2, 2)):
+            group = platform_rotation(available, sources, lambda item: item.span.source)[:12]
+            counts = Counter(sources[item.span.source].site for item in group)
+            if counts["youtube"] < youtube_count or counts["twitch"] < needed - youtube_count:
                 continue
-            if ranked and len(ids) != 3 or not ranked and not 4 <= len(ids) <= 6:
-                continue
-            cuts = []
-            for index, entry in enumerate(entries):
-                item = table[entry["id"]]
-                source = sources[item.span.source]
-                if ranked:
-                    span = compact_for_rank(gemini, downloads, item, source)
-                else:
-                    span = expand_for_themed(gemini, downloads, item, source)
-                cuts.append(Cut(span, clean(entry["label"], 54), len(entries) - index if ranked else None))
-            edit = Edit(cuts, theme, clean(reply["idea"], 180), clean(reply["context"], 600))
-            if not ranked or 24 <= edit.seconds <= 88:
-                yield edit
-        except (KeyError, ValueError, TypeError, MediaError) as error:
-            report.append(f"{theme} compilation plan: {error}")
+            try:
+                proposal = group_plan(gemini, downloads, group, sources, ranked, youtube_count)
+                if proposal:
+                    edit, used = proposal
+                    available = [item for item in available if item.identity not in used]
+                    yield edit
+            except (KeyError, ValueError, TypeError, MediaError) as error:
+                report.append(f"{theme} compilation plan: {error}")
 
 
 def condensed_plan(gemini: Gemini, downloads: Downloads, sequence: Sequence, source: Source) -> Edit | None:
@@ -175,6 +193,7 @@ def plans(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict, ledger
     moments = [Moment.from_dict(row) for row in catalog["moments"]
                if row["span"]["source"] in sources and is_new(Range(**row["span"]), earlier, sources)]
     if mode == "shorts":
-        yield from (single_moment(moment) for moment in diversify(moments, sources))
+        ordered = platform_rotation(diversify(moments, sources), sources, lambda item: item.span.source)
+        yield from (single_moment(moment) for moment in ordered)
     else:
         yield from group_plans(gemini, downloads, moments, sources, report, mode == "ranked")

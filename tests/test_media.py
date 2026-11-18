@@ -71,3 +71,39 @@ class YouTubeCookieTests(unittest.TestCase):
             ]) as fetch:
                 self.assertEqual(downloads.get(source, span), (file, 10))
             self.assertTrue(fetch.call_args.kwargs["whole"])
+
+
+class TwitchReplayTests(unittest.TestCase):
+    @patch("clipper.media.video_duration", return_value=13)
+    @patch("clipper.media.run")
+    def test_recording_replay_uses_a_bounded_download_and_keeps_fractional_offsets(self, run, duration):
+        def write_media(args, **kwargs):
+            Path(args[args.index("--output") + 1]).touch()
+            return ""
+
+        run.side_effect = write_media
+        with tempfile.TemporaryDirectory() as folder:
+            downloads = Downloads(Path(folder))
+            source = source_url("https://www.twitch.tv/videos/1234567890")
+            source.recording = True
+            source.duration = 100
+            file, offset = downloads.get(source, Range(source.key, 10.25, 22.75))
+            command = run.call_args.args[0]
+            self.assertEqual(command[0], "twitch-dl")
+            self.assertEqual(command[command.index("--start") + 1], "00:00:10")
+            self.assertEqual(command[command.index("--end") + 1], "00:00:23")
+            self.assertEqual(offset, 0.25)
+            self.assertEqual(downloads.get(source, Range(source.key, 12, 21)), (file, 2))
+            self.assertEqual(run.call_count, 1)
+
+    def test_failed_recording_section_does_not_download_the_entire_stream(self):
+        with tempfile.TemporaryDirectory() as folder:
+            downloads = Downloads(Path(folder))
+            source = source_url("https://www.twitch.tv/videos/1234567890")
+            source.recording = True
+            source.duration = 120
+            span = Range(source.key, 40, 70)
+            with patch.object(downloads, "_fetch", side_effect=MediaError("Unavailable section")) as fetch:
+                with self.assertRaises(MediaError):
+                    downloads.get(source, span)
+            fetch.assert_called_once_with(source, span, whole=False)

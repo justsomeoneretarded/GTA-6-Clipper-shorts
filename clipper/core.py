@@ -83,6 +83,11 @@ class Source:
     anchors: list[float] = field(default_factory=list)
     parent: str = ""
     parent_offset: float | None = None
+    recording: bool = False
+
+    @property
+    def site(self) -> str:
+        return self.platform.split("-", 1)[0]
 
 
 def source_url(url: str) -> Source | None:

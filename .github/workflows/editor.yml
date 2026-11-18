@@ -114,21 +114,19 @@ jobs:
             exit 1
           fi
           if ! gh api "repos/$CATALOG_REPOSITORY/contents/catalog.json?ref=$CATALOG_REF" \
-            -H 'Accept: application/vnd.github.raw+json' > "$STATE_DIR/catalog.json"; then
-            printf '# Catalog unavailable\n\nRun discovery in the Shorts repository to publish the first catalog.\n' \
+            -H 'Accept: application/vnd.github.raw+json' > "$STATE_DIR/shared-catalog.json"; then
+            rm -f "$STATE_DIR/shared-catalog.json"
+            printf '# Shared catalog unavailable\n\nThis editor will search for footage directly.\n' \
               > "$OUTPUT_DIR/catalog-report.md"
-            exit 1
           fi
 
       - name: Discover footage and audition cuts
-        if: inputs.mode == 'shorts'
         env:
           YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
         working-directory: engine
-        run: python -m clipper discover --state "$STATE_DIR" --work "$WORK_DIR" --output "$OUTPUT_DIR"
+        run: python -m clipper discover --mode "$MODE" --state "$STATE_DIR" --work "$WORK_DIR" --output "$OUTPUT_DIR"
 
-      - name: Publish the timestamp catalog
-        if: inputs.mode == 'shorts'
+      - name: Save this editor's timestamp catalog
         run: bash "$ENGINE_DIR/scripts/state.sh" save-catalog "$PROJECT_DIR" "$STATE_DIR"
 
       - name: Render and review the videos
