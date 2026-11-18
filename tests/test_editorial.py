@@ -99,6 +99,31 @@ class EditorialTests(unittest.TestCase):
         twitch.assert_not_called()
 
     @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
+    @patch.dict("os.environ", {}, clear=True)
+    @patch("clipper.editorial.scout")
+    @patch("clipper.editorial.audition")
+    def test_free_catalog_can_supply_ten_shorts_after_rejections(self, audition, scout, clock):
+        sources = {}
+        for index in range(14):
+            source = source_url(f"https://youtu.be/Fixture{index:04d}")
+            source.duration = 60
+            source.published = dated(1)
+            sources[source.key] = source
+        scout.return_value = {"subject": "gameplay", "gta_vi_evidence": "Lucia drives in Vice City.",
+                              "sequences": [], "moments": [
+            {"start": 15, "end": 40, "theme": "chase", "hook": "Roadblock", "setup": "Police pursuit",
+             "payoff": "Gets away", "evidence": "The car clears the roadblock", "potential": 90},
+        ]}
+        audition.side_effect = lambda gemini, downloads, source, lead, floor: (
+            lead if audition.call_count > 4 else None
+        )
+        gemini = Mock()
+        gemini.json.return_value = {"order": []}
+        result = build_catalog(gemini, Mock(), sources, {}, [])
+        self.assertEqual(len(result["moments"]), 10)
+        self.assertEqual(result["pending"], [])
+
+    @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
     @patch("clipper.editorial.audition", side_effect=QuotaError("quota"))
     @patch("clipper.editorial.scout")
     def test_quota_pause_preserves_the_scouted_moment(self, scout, audition, clock):

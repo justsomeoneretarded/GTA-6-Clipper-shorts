@@ -220,8 +220,8 @@ def dedupe(moments: list[Moment], sources: dict[str, Source]) -> list[Moment]:
 
 def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Source], previous: dict, report: list[str]) -> dict:
     floor = float(os.getenv("MIN_MOMENT_SCORE") or 70)
-    scout_limit = int(os.getenv("SCOUT_WINDOWS") or (28 if search_enabled() else 5))
-    verify_limit = int(os.getenv("AUDITION_MOMENTS") or (34 if search_enabled() else 4))
+    scout_limit = int(os.getenv("SCOUT_WINDOWS") or (28 if search_enabled() else 16))
+    verify_limit = int(os.getenv("AUDITION_MOMENTS") or (34 if search_enabled() else 20))
     sources = {key: Source(**row) for key, row in previous.get("sources", {}).items()}
     for key, row in current.items():
         if row.published or key not in sources or not sources[key].published:
