@@ -7,7 +7,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from .core import VERSION, Moment, Range, Sequence, Source
-from .editorial import GROUP_EDIT, PACKAGING, SEQUENCE_EDIT
+from .editorial import COLD_OPEN, GROUP_EDIT, PACKAGING, SEQUENCE_EDIT
 from .media import Downloads, ffmpeg, probe
 from .plans import COMPACT
 from .production import MODES, render_batch
@@ -22,6 +22,8 @@ class FixtureModel:
         return {"fixture": file.name}
 
     def json(self, prompt: str, schema: dict, media: list | None = None) -> dict:
+        if schema is COLD_OPEN:
+            return {"reason_to_stay": "Fixture opening", "readable": True, "curiosity": 9}
         if schema is PACKAGING:
             return {"passes": True, "reason": "Synthetic fixture", "hook_seconds": 0.5,
                     "thumbnail_seconds": 2, "titles": ["Fixture video", "Alternate fixture"],

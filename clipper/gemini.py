@@ -55,7 +55,7 @@ class Gemini:
 
     @staticmethod
     def _text(reply: dict) -> str:
-        parts = reply.get("candidates", [{}])[0].get("content", {}).get("parts", [])
+        parts = (reply.get("candidates") or [{}])[0].get("content", {}).get("parts", [])
         text = "".join(part.get("text", "") for part in parts if not part.get("thought"))
         if not text:
             raise ValueError("Gemini returned no usable response.")
@@ -69,7 +69,7 @@ class Gemini:
 
     def search(self, prompt: str) -> str:
         reply = self._generate(prompt, [], {"tools": [{"googleSearch": {}}]})
-        chunks = reply.get("candidates", [{}])[0].get("groundingMetadata", {}).get("groundingChunks", [])
+        chunks = (reply.get("candidates") or [{}])[0].get("groundingMetadata", {}).get("groundingChunks", [])
         urls = [chunk.get("web", {}).get("uri", "") for chunk in chunks]
         return "\n".join([self._text(reply), *urls])
 

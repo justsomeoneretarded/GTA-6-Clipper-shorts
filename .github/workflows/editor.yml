@@ -47,7 +47,6 @@ jobs:
       SCOUT_WINDOWS: ${{ vars.SCOUT_WINDOWS }}
       AUDITION_MOMENTS: ${{ vars.AUDITION_MOMENTS }}
       MIN_MOMENT_SCORE: ${{ vars.MIN_MOMENT_SCORE }}
-      HF_HOME: ${{ runner.temp }}/whisper
     steps:
       - name: Check out the editor repository
         uses: actions/checkout@v7
@@ -108,6 +107,8 @@ jobs:
         run: bash "$ENGINE_DIR/scripts/state.sh" save-catalog "$PROJECT_DIR" "$STATE_DIR"
 
       - name: Render and review the videos
+        env:
+          HF_HOME: ${{ runner.temp }}/whisper
         working-directory: engine
         run: |
           python -m clipper render --mode "$MODE" --state "$STATE_DIR" --work "$WORK_DIR" --output "$OUTPUT_DIR"

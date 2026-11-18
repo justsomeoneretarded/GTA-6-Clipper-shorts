@@ -8,7 +8,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from .core import VERSION, Edit, Source, clean, dated, number, source_url, timestamp, write_json
-from .editorial import PACKAGING
+from .editorial import COLD_OPEN, PACKAGING
 from .gemini import Gemini, ServiceError
 from .media import (Captions, Downloads, MediaError, ffmpeg, finish_video, join_pieces, proxy, render_piece, verify_video)
 from .plans import plans
@@ -31,8 +31,22 @@ def sources_from(catalog: dict) -> dict[str, Source]:
 
 def approved_package(gemini: Gemini, edit: Edit, media: Path, length: float,
                      captions: list[dict], mode: str, credits: list[dict]) -> dict:
-    analysis = proxy(media, 0, length, media.with_name("review.mp4"), fps=10)
     is_short = mode in {"shorts", "ranked"}
+    opening_verdict = {}
+    if is_short:
+        opening = proxy(media, 0, min(3.3, length), media.with_name("opening.mp4"), fps=12)
+        opening_verdict = gemini.json(
+            "You are seeing only the opening of a vertical Short, with no title or context. "
+            "What specifically makes a first-time viewer want to see the next few seconds? "
+            "Name an actual visual or line that poses a question, establishes tension, or surprises. "
+            "If no such moment is visible or audible, leave reason_to_stay empty. "
+            "Score curiosity from 0 to 10 and mark whether the focal action or dialogue is readable at phone size.",
+            COLD_OPEN, [gemini.video(opening, fps=4)],
+        )
+        if (opening_verdict["readable"] is not True or not clean(opening_verdict["reason_to_stay"], 300)
+                or number(opening_verdict["curiosity"], 0, 10) < 6):
+            raise ValueError("The opening alone did not give a new viewer a reason to continue.")
+    analysis = proxy(media, 0, length, media.with_name("review.mp4"), fps=10)
     brief = {
         "mode": mode, "seconds": length, "theme": edit.theme, "editor_intent": edit.idea,
         "verified_scout_notes_to_check": edit.context, "creators": [source["creator"] for source in credits],
@@ -65,7 +79,8 @@ def approved_package(gemini: Gemini, edit: Edit, media: Path, length: float,
         raise ValueError("Editorial review produced no usable title or description.")
     return {"title": titles[0], "title_alternatives": titles[1:], "description": description,
             "opening_hook_seconds": hook, "thumbnail_seconds": round(min(cover, length - .16), 3),
-            "edit_review": clean(response["reason"], 450)}
+            "edit_review": clean(response["reason"], 450),
+            "opening_test": opening_verdict}
 
 
 def media_size(mode: str, small: bool = False) -> tuple[int, int]:

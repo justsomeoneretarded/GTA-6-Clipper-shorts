@@ -26,6 +26,7 @@ AUDITION = object_schema({"genuine": BOOL, "cuts": array(ALT_CUT, 3)})
 SEQUENCE_EDIT = object_schema({"idea": TEXT, "story": TEXT, "cuts": array(object_schema({**TIMES, "beat": TEXT}), 10)})
 GROUP_EDIT = object_schema({"idea": TEXT, "theme": IDEA["theme"], "context": TEXT,
                             "entries": array(object_schema({"id": TEXT, "label": TEXT}), 6)})
+COLD_OPEN = object_schema({"reason_to_stay": TEXT, "readable": BOOL, "curiosity": NUM})
 PACKAGING = object_schema({"passes": BOOL, "reason": TEXT, "hook_seconds": NUM, "thumbnail_seconds": NUM,
                            "titles": array(TEXT, 3), "description": TEXT})
 
