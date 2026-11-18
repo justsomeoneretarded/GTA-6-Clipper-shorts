@@ -15,6 +15,19 @@ class ServiceError(RuntimeError):
     pass
 
 
+def quota_error(response: requests.Response, *, search: bool) -> tuple[str, bool]:
+    try:
+        error = response.json().get("error", {})
+    except ValueError:
+        error = {}
+    violations = [row for detail in (error.get("details") or []) for row in (detail.get("violations") or [])]
+    zero_limit = any(str(row.get("quotaValue", "")) == "0" for row in violations)
+    zero_limit = zero_limit or bool(re.search(r"\blimit:\s*0\b", error.get("message") or "", re.IGNORECASE))
+    feature = "Gemini Google Search" if search else "Gemini model request"
+    reason = "the project has a zero quota for this request" if zero_limit else "the project hit a quota or rate limit"
+    return f"{feature} returned HTTP 429 ({reason}). Check this project's Gemini API billing and rate limits.", zero_limit
+
+
 class Gemini:
     def __init__(self):
         self.key = os.getenv("GEMINI_API_KEY")
@@ -41,11 +54,13 @@ class Gemini:
                     return response.json()
                 if response.status_code in {401, 403, 404}:
                     raise ServiceError(f"Gemini access failed (HTTP {response.status_code}). Check GEMINI_API_KEY and GEMINI_MODEL.")
-                if response.status_code != 429 and response.status_code < 500:
+                if response.status_code == 429:
+                    message, zero_limit = quota_error(response, search="tools" in extra)
+                    if zero_limit or attempt == 2:
+                        raise ServiceError(message)
+                elif response.status_code < 500:
                     raise ValueError(f"Gemini rejected this request (HTTP {response.status_code}).")
-                if attempt == 2:
-                    if response.status_code == 429:
-                        raise ServiceError("Gemini quota or rate limit persisted after retries.")
+                elif attempt == 2:
                     raise ValueError(f"Gemini temporarily unavailable (HTTP {response.status_code}).")
             except (requests.ConnectionError, requests.Timeout):
                 if attempt == 2:
@@ -72,6 +87,10 @@ class Gemini:
         chunks = (reply.get("candidates") or [{}])[0].get("groundingMetadata", {}).get("groundingChunks", [])
         urls = [chunk.get("web", {}).get("uri", "") for chunk in chunks]
         return "\n".join([self._text(reply), *urls])
+
+    def check(self) -> None:
+        """Check base model access when the discovery search cannot run."""
+        self._generate("Reply OK.", [], {"generationConfig": {"maxOutputTokens": 32}})
 
     @staticmethod
     def youtube(url: str, start: float, end: float, fps: float = 1) -> dict:

@@ -15,9 +15,11 @@ from .gemini import Gemini, ServiceError
 from .media import Downloads, MediaError, run
 
 SEED_CHANNELS = ("DarkViperAU", "TGgta6", "TGG_", "GTASeriesVideos")
+TWITCH_CHANNELS = ("darkviperau", "tgg_gta", "gtaseriesvideos")
 TOPICS = ("GTA 6 gameplay first playthrough", "GTA VI mission driving funny reaction", "GTA VI podcast radio theories")
 YOUTUBE = "https://www.googleapis.com/youtube/v3"
 TWITCH = "https://api.twitch.tv/helix"
+GTA_VI = re.compile(r"\b(?:gta|grand theft auto)\s*(?:vi|6)\b", re.IGNORECASE)
 
 
 def response_json(response: requests.Response, label: str) -> dict:
@@ -160,12 +162,68 @@ def youtube_fallback(downloads: Downloads, topic: str) -> list[Source]:
     return [item for row in rows if row and (item := source_url(f"https://www.youtube.com/watch?v={row.get('id', '')}"))]
 
 
+def listed_twitch_source(row: dict, channel: str, *, clip: bool, earliest: str) -> Source | None:
+    game = (row.get("game") or {}).get("name") or ""
+    title = row.get("title") or ""
+    if not GTA_VI.search(game) and (game.casefold() not in {"", "just chatting", "talk shows & podcasts", "special events"}
+                                   or not GTA_VI.search(title)):
+        return None
+    published = row.get("publishedAt") or row.get("createdAt") or ""
+    if published < earliest or row.get("status") == "RECORDING":
+        return None
+    url = (row.get("url") or "") if clip else f"https://www.twitch.tv/videos/{row.get('id', '')}"
+    item = source_url(url)
+    if item is None:
+        return None
+    creator = (row.get("broadcaster") if clip else row.get("owner")) or {}
+    item.creator = creator.get("displayName") or channel
+    item.title = title
+    item.duration = float(row.get("durationSeconds" if clip else "lengthSeconds") or 0)
+    item.views = int(row.get("viewCount") or 0)
+    item.published = published
+    return item if item.duration >= 10 else None
+
+
+def twitch_fallback(sources: dict[str, Source], report: list[str], days: int) -> None:
+    earliest = dated(days)
+
+    def list_channel(channel: str) -> tuple[list[Source], list[str]]:
+        items: list[Source] = []
+        errors = []
+        lists = (
+            (True, ["clips", "--limit", "24", "--period", "last_week"]),
+            (False, ["videos", "--limit", "12", "--skip-live"]),
+        )
+        for clip, args in lists:
+            try:
+                output = json.loads(run(["twitch-dl", *args, "--json", channel], timeout=30))
+                rows = output if clip else output["videos"]
+                for row in rows:
+                    item = listed_twitch_source(row, channel, clip=clip, earliest=earliest)
+                    if item:
+                        items.append(item)
+            except (KeyError, MediaError, ValueError) as error:
+                errors.append(f"Twitch watchlist {channel} {args[0]}: {error}")
+        return items, errors
+
+    count = 0
+    with ThreadPoolExecutor(max_workers=len(TWITCH_CHANNELS)) as pool:
+        for items, errors in pool.map(list_channel, TWITCH_CHANNELS):
+            report.extend(errors)
+            count += len(items)
+            for item in items:
+                add(sources, item)
+    report.append(f"Twitch watchlist found {count} recent GTA VI clips and archives.")
+
+
 def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: int = 7) -> dict[str, Source]:
     sources: dict[str, Source] = {}
+    gemini_search_failed = False
     try:
         for item in discovered_with_gemini(gemini, days):
             add(sources, item)
     except (ServiceError, ValueError) as error:
+        gemini_search_failed = True
         report.append(f"Gemini web discovery: {error}")
     youtube_key = os.getenv("YOUTUBE_API_KEY")
     twitch_client = os.getenv("TWITCH_CLIENT_ID")
@@ -180,6 +238,8 @@ def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: i
             twitch_discovery(sources, twitch_client, twitch_secret, days)
         except (KeyError, ValueError) as error:
             report.append(f"Twitch discovery: {error}")
+    if not any(item.platform.startswith("twitch") and item.duration for item in sources.values()):
+        twitch_fallback(sources, report, days)
     if len(sources) < 8:
         for topic in (TOPICS[0], TOPICS[2]):
             try:
@@ -206,7 +266,15 @@ def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: i
             item.duration = item.duration or duration
         except (MediaError, ValueError):
             continue
-    return {key: item for key, item in sources.items() if item.duration >= 10}
+    eligible = {key: item for key, item in sources.items() if item.duration >= 10}
+    if gemini_search_failed and not eligible:
+        try:
+            gemini.check()
+        except (ServiceError, ValueError) as error:
+            report.append(f"Plain Gemini API request: {error}")
+        else:
+            report.append("A plain Gemini API request succeeded. The web search call has separate access and quota.")
+    return eligible
 
 
 def priority(item: Source) -> float:

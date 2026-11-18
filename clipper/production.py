@@ -193,7 +193,9 @@ def render_batch(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict,
             break
     write_json(out / "manifest.json", {"mode": mode, "generated": len(produced), "target": target,
                                       "catalog_time": catalog.get("generated_at"), "videos": produced})
-    report.append(f"Produced {len(produced)} of {target} target videos after download, render, and editorial checks.")
+    outcome = f"Produced {len(produced)} of {target} target videos after download, render, and editorial checks."
+    print(outcome, flush=True)
+    report.append(outcome)
     if len(produced) < target:
         report.append("The remaining candidates failed checks, had already been exported, or the catalog had insufficient matching footage.")
     if not produced:

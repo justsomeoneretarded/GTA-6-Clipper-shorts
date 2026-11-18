@@ -1,9 +1,10 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from clipper.core import Moment, Range, Source, WEIGHTS, duplicate, source_url
-from clipper.discovery import grounding_source
+from clipper.discovery import grounding_source, listed_twitch_source
 from clipper.editorial import bounded, score_cut, scout_windows
+from clipper.gemini import quota_error
 from clipper.plans import is_new
 
 
@@ -29,6 +30,22 @@ class EditorialTests(unittest.TestCase):
         link = "https://vertexaisearch.cloud.google.com/grounding-api-redirect/example"
         self.assertEqual(grounding_source(link).key, "youtube:TestGTA0001")
         get.assert_called_once_with(link, allow_redirects=False, stream=True, timeout=(5, 8))
+
+    def test_twitch_fallback_uses_game_category(self):
+        clip = {"title": "GTA VI now", "url": "https://www.twitch.tv/channel/clip/SomeSlug",
+                "createdAt": "2026-11-18T11:30:00Z", "durationSeconds": 30,
+                "game": {"name": "Grand Theft Auto VI"}}
+        earliest = "2026-11-18T11:00:00Z"
+        self.assertEqual(listed_twitch_source(clip, "channel", clip=True, earliest=earliest).duration, 30)
+        clip["game"]["name"] = "Grand Theft Auto V"
+        self.assertIsNone(listed_twitch_source(clip, "channel", clip=True, earliest=earliest))
+
+    def test_zero_search_quota_explains_the_billing_check(self):
+        response = Mock()
+        response.json.return_value = {"error": {"details": [{"violations": [{"quotaValue": "0"}]}]}}
+        message, zero_limit = quota_error(response, search=True)
+        self.assertTrue(zero_limit)
+        self.assertIn("Google Search returned HTTP 429", message)
 
     def test_strong_scores_cannot_mask_a_weak_hook(self):
         row = {"scores": dict.fromkeys(WEIGHTS, 9), "confidence": .93, "time_to_hook": 2}

@@ -13,7 +13,7 @@ A scheduled GitHub Actions workflow scouts public GTA VI streams and videos, aud
 
 In each repo, go to **Settings → Secrets and variables → Actions** and add the repository secret `GEMINI_API_KEY`. Run **Actions → Produce GTA VI Shorts → Run workflow** first to populate the catalog. The four workflows run on daily schedules. You can run them again from the Actions tab without entering URLs or timestamps.
 
-The Shorts repo also accepts optional `YOUTUBE_API_KEY`, `TWITCH_CLIENT_ID`, and `TWITCH_CLIENT_SECRET` secrets for direct platform discovery. The Gemini Google Search pass runs with the Gemini key alone. Set the Actions variable `GEMINI_MODEL` to override the default Gemini 3.8 Flash model. `SCOUT_WINDOWS`, `AUDITION_MOMENTS`, and `MIN_MOMENT_SCORE` tune batch depth and the quality floor.
+The Shorts repo also accepts optional `YOUTUBE_API_KEY`, `TWITCH_CLIENT_ID`, and `TWITCH_CLIENT_SECRET` secrets for direct platform discovery. A billing-enabled Gemini API project enables Gemini 3.8 Flash's Google Search pass. The public Twitch watchlist fallback can find clips and completed archives without Twitch credentials. Set the Actions variable `GEMINI_MODEL` to override the default model. `SCOUT_WINDOWS`, `AUDITION_MOMENTS`, and `MIN_MOMENT_SCORE` tune batch depth and the quality floor.
 
 If you make the source repo private, supply a `CATALOG_TOKEN` in the consumer repos with read access to the source repo. The catalog contains source links, timestamps and editorial notes on the `clipper-state` branch. Rendered videos are kept in Actions artifacts for 14 days. Artifact access follows the repository's visibility.
 
