@@ -5,7 +5,8 @@ import math
 import os
 import re
 from collections import defaultdict
-from urllib.parse import unquote
+from concurrent.futures import ThreadPoolExecutor
+from urllib.parse import unquote, urlsplit
 
 import requests
 
@@ -133,8 +134,24 @@ def discovered_with_gemini(gemini: Gemini, days: int) -> list[Source]:
         "YouTube watch, Twitch clips.twitch.tv, or Twitch /videos/ URLs from search results, one per line, up to 28. "
         "Exclude category pages, channel links, trailers, GTA V and GTA Online, teasers, and upcoming events."
     )
-    results = [source_url(unquote(link.rstrip(").,;]"))) for link in re.findall(r'https://[^\s<>"\]]+', answer)]
-    return [item for item in results if item is not None]
+    links = list(dict.fromkeys(unquote(link.rstrip(").,;]")) for link in re.findall(r'https://[^\s<>"\]]+', answer)))
+    sources = [item for link in links if (item := source_url(link))]
+    citations = [link for link in links if link.startswith("https://vertexaisearch.cloud.google.com/grounding-api-redirect/")]
+    if citations:
+        with ThreadPoolExecutor(max_workers=5) as pool:
+            sources.extend(item for item in pool.map(grounding_source, citations[:18]) if item)
+    return sources
+
+
+def grounding_source(link: str) -> Source | None:
+    parts = urlsplit(link)
+    if parts.netloc != "vertexaisearch.cloud.google.com" or parts.scheme != "https" or not parts.path.startswith("/grounding-api-redirect/"):
+        return None
+    try:
+        with requests.get(link, allow_redirects=False, stream=True, timeout=(5, 8)) as response:
+            return source_url(response.headers.get("Location", "")) if response.is_redirect else None
+    except requests.RequestException:
+        return None
 
 
 def youtube_fallback(downloads: Downloads, topic: str) -> list[Source]:

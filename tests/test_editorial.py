@@ -1,6 +1,8 @@
 import unittest
+from unittest.mock import patch
 
 from clipper.core import Moment, Range, Source, WEIGHTS, duplicate, source_url
+from clipper.discovery import grounding_source
 from clipper.editorial import bounded, score_cut, scout_windows
 from clipper.plans import is_new
 
@@ -18,6 +20,15 @@ class EditorialTests(unittest.TestCase):
         self.assertEqual((result.start, result.end), (210, 225))
         with self.assertRaises(ValueError):
             bounded({"start": 10, "end": 100}, window.source, window)
+
+    @patch("clipper.discovery.requests.get")
+    def test_gemini_grounding_links_resolve_to_platform_sources(self, get):
+        response = get.return_value.__enter__.return_value
+        response.is_redirect = True
+        response.headers = {"Location": "https://youtu.be/TestGTA0001"}
+        link = "https://vertexaisearch.cloud.google.com/grounding-api-redirect/example"
+        self.assertEqual(grounding_source(link).key, "youtube:TestGTA0001")
+        get.assert_called_once_with(link, allow_redirects=False, stream=True, timeout=(5, 8))
 
     def test_strong_scores_cannot_mask_a_weak_hook(self):
         row = {"scores": dict.fromkeys(WEIGHTS, 9), "confidence": .93, "time_to_hook": 2}
