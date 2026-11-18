@@ -9,7 +9,7 @@ from pathlib import Path
 
 from .core import VERSION, Edit, Source, clean, dated, number, source_url, timestamp, write_json
 from .editorial import COLD_OPEN, PACKAGING
-from .gemini import Gemini, ServiceError
+from .gemini import Gemini, QuotaError, ServiceError
 from .media import (Captions, Downloads, MediaError, ffmpeg, finish_video, join_pieces, proxy, render_piece, verify_video)
 from .plans import plans
 
@@ -182,6 +182,9 @@ def render_batch(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict,
             report.append(f"Edit {edit.identity} rejected: {error}")
             shutil.rmtree(out / name, ignore_errors=True)
             continue
+        except QuotaError as error:
+            report.append(f"Review paused: {error}")
+            break
         except ServiceError as error:
             if not produced:
                 raise

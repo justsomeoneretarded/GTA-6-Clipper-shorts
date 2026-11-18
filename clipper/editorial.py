@@ -9,7 +9,7 @@ from datetime import date
 from .core import (THEMES, VERSION, WEIGHTS, Cut, Edit, Moment, Range, Sequence, Source, clean,
                    dated, digest, duplicate, number, overlap, or_parent, timestamp)
 from .discovery import priority
-from .gemini import BOOL, NUM, TEXT, Gemini, array, object_schema
+from .gemini import BOOL, NUM, TEXT, Gemini, QuotaError, array, object_schema, search_enabled
 from .media import Downloads, MediaError, fingerprint, window_proxy
 
 SCORES = object_schema({metric: NUM for metric in WEIGHTS})
@@ -215,16 +215,17 @@ def dedupe(moments: list[Moment], sources: dict[str, Source]) -> list[Moment]:
 
 def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Source], previous: dict, report: list[str]) -> dict:
     floor = float(os.getenv("MIN_MOMENT_SCORE") or 70)
-    scout_limit = int(os.getenv("SCOUT_WINDOWS") or 28)
-    verify_limit = int(os.getenv("AUDITION_MOMENTS") or 34)
+    scout_limit = int(os.getenv("SCOUT_WINDOWS") or (28 if search_enabled() else 5))
+    verify_limit = int(os.getenv("AUDITION_MOMENTS") or (34 if search_enabled() else 4))
     sources = {key: Source(**row) for key, row in previous.get("sources", {}).items()}
     for key, row in current.items():
         if row.published or key not in sources or not sources[key].published:
             sources[key] = row
     sources = {key: row for key, row in sources.items() if not row.published or row.published >= dated(21)}
     scanned = {key: value for key, value in previous.get("scanned", {}).items() if value >= dated(10)}
-    leads: list[Moment] = []
+    leads = [Moment.from_dict(row) for row in previous.get("pending", []) if row["span"]["source"] in sources]
     new_sequences: list[Sequence] = []
+    limited = False
     windows = width_rotation({key: sources[key] for key in current if key in sources}, scanned)[:scout_limit]
     print(f"Discovered {len(current)} sources. Checking {len(windows)} new windows.", flush=True)
     for index, window in enumerate(windows, 1):
@@ -251,35 +252,53 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
                     except (KeyError, TypeError, ValueError):
                         continue
             scanned[window.identity] = dated()
+        except QuotaError as error:
+            report.append(f"Scouting paused: {error}")
+            limited = True
+            break
         except (KeyError, ValueError, TypeError, MediaError) as error:
             report.append(f"{item.key} scouting {timestamp(window.start)}: {error}")
     previous_moments = [Moment.from_dict(row) for row in previous.get("moments", []) if row["span"]["source"] in sources]
     verified: list[Moment] = []
     distinct_leads = [item for item in dedupe(leads, sources) if not any(duplicate(item, old, sources) for old in previous_moments)]
-    auditions = diversify(distinct_leads, sources)[:verify_limit]
+    auditions = [] if limited else diversify(distinct_leads, sources)[:verify_limit]
+    attempted: set[str] = set()
     for index, lead in enumerate(auditions, 1):
         print(f"Audition {index}/{len(auditions)}: {lead.span.source} at {timestamp(lead.span.start)}", flush=True)
         try:
             checked = audition(gemini, downloads, sources[lead.span.source], lead, floor)
             if checked:
                 verified.append(checked)
+        except QuotaError as error:
+            report.append(f"Auditions paused: {error}")
+            limited = True
+            break
         except (KeyError, ValueError, TypeError, MediaError) as error:
             report.append(f"{lead.span.source} audition {timestamp(lead.span.start)}: {error}")
-    competition(gemini, verified)
+        attempted.add(lead.identity)
+    if not limited:
+        try:
+            competition(gemini, verified)
+        except QuotaError as error:
+            report.append(f"Used the individual audition scores: {error}")
     pool = dedupe(verified + previous_moments, sources)[:180]
+    pending = [item for item in distinct_leads if item.identity not in attempted
+               and not any(duplicate(item, other, sources) for other in pool)][:80]
     sequences = [Sequence.from_dict(row) for row in previous.get("sequences", []) if row["span"]["source"] in sources]
     sequence_pool: list[Sequence] = []
     for sequence in sorted(new_sequences + sequences, key=lambda row: row.score, reverse=True):
         if not any(overlap(sequence.span, other.span) >= .70 for other in sequence_pool):
             sequence_pool.append(sequence)
     sequence_pool = sequence_pool[:55]
-    referenced = {item.span.source for item in [*pool, *sequence_pool]}
+    referenced = {item.span.source for item in [*pool, *pending, *sequence_pool]}
     for key in list(referenced):
         if sources[key].parent in sources:
             referenced.add(sources[key].parent)
     report.append(f"Discovery found {len(current)} sources. Scouting nominated {len(leads)} windows. "
-                  f"Auditions verified {len(verified)} new moments and the catalog contains {len(sequence_pool)} longer sequences.")
+                  f"Auditions verified {len(verified)} new moments, with {len(pending)} saved for later. "
+                  f"The catalog contains {len(sequence_pool)} longer sequences.")
     return {"version": VERSION, "generated_at": dated(), "scanned": scanned,
             "sources": {key: asdict(sources[key]) for key in sorted(referenced)},
             "moments": [item.to_dict() for item in pool],
+            "pending": [item.to_dict() for item in pending],
             "sequences": [item.to_dict() for item in sequence_pool]}

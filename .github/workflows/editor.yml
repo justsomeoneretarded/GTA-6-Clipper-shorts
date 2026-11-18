@@ -12,6 +12,8 @@ on:
     secrets:
       GEMINI_API_KEY:
         required: false
+      TAVILY_API_KEY:
+        required: false
       YOUTUBE_API_KEY:
         required: false
       TWITCH_CLIENT_ID:
@@ -41,6 +43,8 @@ jobs:
       OUTPUT_DIR: ${{ github.workspace }}/dist
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+      GEMINI_SEARCH_ENABLED: ${{ vars.GEMINI_SEARCH_ENABLED }}
+      TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
       YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
       TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
       TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}

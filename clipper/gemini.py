@@ -15,6 +15,14 @@ class ServiceError(RuntimeError):
     pass
 
 
+class QuotaError(ServiceError):
+    pass
+
+
+def search_enabled() -> bool:
+    return os.getenv("GEMINI_SEARCH_ENABLED", "").casefold() in {"1", "true"}
+
+
 def quota_error(response: requests.Response, *, search: bool) -> tuple[str, bool]:
     try:
         error = response.json().get("error", {})
@@ -57,7 +65,7 @@ class Gemini:
                 if response.status_code == 429:
                     message, zero_limit = quota_error(response, search="tools" in extra)
                     if zero_limit or attempt == 2:
-                        raise ServiceError(message)
+                        raise QuotaError(message)
                 elif response.status_code < 500:
                     raise ValueError(f"Gemini rejected this request (HTTP {response.status_code}).")
                 elif attempt == 2:

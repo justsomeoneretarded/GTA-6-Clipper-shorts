@@ -2,9 +2,9 @@ import unittest
 from unittest.mock import Mock, patch
 
 from clipper.core import Moment, Range, Source, WEIGHTS, duplicate, source_url
-from clipper.discovery import grounding_source, listed_twitch_source
-from clipper.editorial import bounded, score_cut, scout_windows
-from clipper.gemini import quota_error
+from clipper.discovery import grounding_source, listed_twitch_source, tavily_discovery
+from clipper.editorial import bounded, build_catalog, score_cut, scout_windows
+from clipper.gemini import QuotaError, quota_error
 from clipper.plans import is_new
 
 
@@ -46,6 +46,30 @@ class EditorialTests(unittest.TestCase):
         message, zero_limit = quota_error(response, search=True)
         self.assertTrue(zero_limit)
         self.assertIn("Google Search returned HTTP 429", message)
+
+    @patch("clipper.discovery.requests.post")
+    def test_tavily_uses_basic_search_and_canonical_urls(self, post):
+        post.return_value.ok = True
+        post.return_value.json.return_value = {
+            "results": [{"url": "https://youtu.be/TestGTA0001"}, {"url": "https://example.com/movie"}],
+        }
+        self.assertEqual({item.key for item in tavily_discovery("example")}, {"youtube:TestGTA0001"})
+        self.assertEqual(post.call_count, 2)
+        self.assertTrue(all(call.kwargs["json"]["search_depth"] == "basic" for call in post.call_args_list))
+
+    @patch("clipper.editorial.audition", side_effect=QuotaError("quota"))
+    @patch("clipper.editorial.scout")
+    def test_quota_pause_preserves_the_scouted_moment(self, scout, audition):
+        source = source_url("https://www.youtube.com/watch?v=TestGTA0001")
+        source.duration = 310
+        scout.return_value = {"subject": "gameplay", "sequences": [], "moments": [
+            {"start": 15, "end": 45, "theme": "chase", "hook": "Roadblock", "setup": "Escape route",
+             "payoff": "Gets away", "evidence": "Police car passes", "potential": 90},
+        ]}
+        result = build_catalog(Mock(), Mock(), {source.key: source}, {}, [])
+        self.assertEqual(len(result["pending"]), 1)
+        self.assertEqual(result["moments"], [])
+        self.assertIn(source.key, result["sources"])
 
     def test_strong_scores_cannot_mask_a_weak_hook(self):
         row = {"scores": dict.fromkeys(WEIGHTS, 9), "confidence": .93, "time_to_hook": 2}

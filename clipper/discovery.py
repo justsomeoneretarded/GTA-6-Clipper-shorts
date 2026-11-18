@@ -11,7 +11,7 @@ from urllib.parse import unquote, urlsplit
 import requests
 
 from .core import Source, dated, duration_text, source_url
-from .gemini import Gemini, ServiceError
+from .gemini import Gemini, ServiceError, search_enabled
 from .media import Downloads, MediaError, run
 
 SEED_CHANNELS = ("DarkViperAU", "TGgta6", "TGG_", "GTASeriesVideos")
@@ -145,6 +145,26 @@ def discovered_with_gemini(gemini: Gemini, days: int) -> list[Source]:
     return sources
 
 
+def tavily_discovery(api_key: str) -> list[Source]:
+    """Search public video pages using two basic searches."""
+    found: list[Source] = []
+    queries = (
+        ("GTA VI launch gameplay Twitch clips and stream archives first playthrough", ["twitch.tv"]),
+        ("GTA VI YouTube gameplay full stream archive funny moments playthrough", ["youtube.com", "youtu.be"]),
+    )
+    for query, domains in queries:
+        try:
+            response = requests.post("https://api.tavily.com/search", timeout=(8, 22),
+                                     headers={"Authorization": f"Bearer {api_key}"},
+                                     json={"query": query, "include_domains": domains, "search_depth": "basic",
+                                           "auto_parameters": False, "time_range": "week", "max_results": 12})
+        except requests.RequestException:
+            raise ValueError("Tavily connection failed") from None
+        rows = response_json(response, "Tavily search").get("results", [])
+        found.extend(item for row in rows if (item := source_url(row.get("url") or "")))
+    return found
+
+
 def grounding_source(link: str) -> Source | None:
     parts = urlsplit(link)
     if parts.netloc != "vertexaisearch.cloud.google.com" or parts.scheme != "https" or not parts.path.startswith("/grounding-api-redirect/"):
@@ -190,20 +210,23 @@ def twitch_fallback(sources: dict[str, Source], report: list[str], days: int) ->
     def list_channel(channel: str) -> tuple[list[Source], list[str]]:
         items: list[Source] = []
         errors = []
-        lists = (
-            (True, ["clips", "--limit", "24", "--period", "last_week"]),
-            (False, ["videos", "--limit", "12", "--skip-live"]),
-        )
-        for clip, args in lists:
+        lists = ((True, "clips", 24, ["--period", "last_week"]), (False, "videos", 12, ["--skip-live"]))
+        for clip, command, limit, args in lists:
             try:
-                output = json.loads(run(["twitch-dl", *args, "--json", channel], timeout=30))
+                cmd = ["twitch-dl", command, "--limit"]
+                try:
+                    output = json.loads(run([*cmd, str(limit), *args, "--json", channel], timeout=30))
+                except MediaError as error:
+                    if "service error" not in str(error).casefold():
+                        raise
+                    output = json.loads(run([*cmd, "8", *args, "--json", channel], timeout=25))
                 rows = output if clip else output["videos"]
                 for row in rows:
                     item = listed_twitch_source(row, channel, clip=clip, earliest=earliest)
                     if item:
                         items.append(item)
             except (KeyError, MediaError, ValueError) as error:
-                errors.append(f"Twitch watchlist {channel} {args[0]}: {error}")
+                errors.append(f"Twitch watchlist {channel} {command}: {error}")
         return items, errors
 
     count = 0
@@ -218,13 +241,19 @@ def twitch_fallback(sources: dict[str, Source], report: list[str], days: int) ->
 
 def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: int = 7) -> dict[str, Source]:
     sources: dict[str, Source] = {}
-    gemini_search_failed = False
-    try:
-        for item in discovered_with_gemini(gemini, days):
-            add(sources, item)
-    except (ServiceError, ValueError) as error:
-        gemini_search_failed = True
-        report.append(f"Gemini web discovery: {error}")
+    if search_enabled():
+        try:
+            for item in discovered_with_gemini(gemini, days):
+                add(sources, item)
+        except (ServiceError, ValueError) as error:
+            report.append(f"Gemini web discovery: {error}")
+    tavily_key = os.getenv("TAVILY_API_KEY")
+    if tavily_key:
+        try:
+            for item in tavily_discovery(tavily_key):
+                add(sources, item)
+        except (KeyError, ValueError) as error:
+            report.append(f"Free web discovery: {error}")
     youtube_key = os.getenv("YOUTUBE_API_KEY")
     twitch_client = os.getenv("TWITCH_CLIENT_ID")
     twitch_secret = os.getenv("TWITCH_CLIENT_SECRET")
@@ -247,15 +276,25 @@ def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: i
                     add(sources, item)
             except (MediaError, ValueError) as error:
                 report.append(f"YouTube search fallback: {error}")
+    youtube_blocks = 0
+    skipped = 0
     for item in list(sources.values()):
         if not item.duration:
+            if item.platform == "youtube" and youtube_blocks >= 2:
+                skipped += 1
+                sources.pop(item.key, None)
+                continue
             try:
                 downloads.metadata(item)
             except (MediaError, ValueError) as error:
+                if item.platform == "youtube" and "sign in to confirm" in str(error).casefold():
+                    youtube_blocks += 1
                 report.append(f"{item.key} metadata: {error}")
                 sources.pop(item.key, None)
         if 0 < item.duration < 10:
             sources.pop(item.key, None)
+    if skipped:
+        report.append(f"Skipped {skipped} further YouTube metadata calls after repeated sign-in challenges.")
     # YouTube's replay graph is optional; the API and coverage sweep supply the baseline.
     replay_targets = sorted((item for item in sources.values() if item.platform == "youtube" and item.duration > 420
                              and not item.anchors and item.published), key=priority, reverse=True)
@@ -267,13 +306,13 @@ def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: i
         except (MediaError, ValueError):
             continue
     eligible = {key: item for key, item in sources.items() if item.duration >= 10}
-    if gemini_search_failed and not eligible:
+    if not eligible:
         try:
             gemini.check()
         except (ServiceError, ValueError) as error:
             report.append(f"Plain Gemini API request: {error}")
         else:
-            report.append("A plain Gemini API request succeeded. The web search call has separate access and quota.")
+            report.append("A plain Gemini API request succeeded.")
     return eligible
 
 
