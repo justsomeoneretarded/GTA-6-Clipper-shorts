@@ -9,6 +9,9 @@ on:
       engine:
         type: string
         required: true
+      catalog_ref:
+        type: string
+        required: false
     secrets:
       GEMINI_API_KEY:
         required: false
@@ -103,9 +106,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.CATALOG_TOKEN || github.token }}
           CATALOG_REPOSITORY: ${{ inputs.engine }}
+          CATALOG_REF: ${{ inputs.catalog_ref || 'clipper-state' }}
         run: |
           mkdir -p "$OUTPUT_DIR"
-          if ! gh api "repos/$CATALOG_REPOSITORY/contents/catalog.json?ref=clipper-state" \
+          if [[ "$CATALOG_REF" != clipper-state && ! "$CATALOG_REF" =~ ^[0-9a-f]{40}$ ]]; then
+            echo '::error::Expected a full catalog commit SHA.'
+            exit 1
+          fi
+          if ! gh api "repos/$CATALOG_REPOSITORY/contents/catalog.json?ref=$CATALOG_REF" \
             -H 'Accept: application/vnd.github.raw+json' > "$STATE_DIR/catalog.json"; then
             printf '# Catalog unavailable\n\nRun discovery in the Shorts repository to publish the first catalog.\n' \
               > "$OUTPUT_DIR/catalog-report.md"

@@ -3,7 +3,7 @@ name: Produce GTA VI Shorts
 on:
   workflow_dispatch:
   schedule:
-    - cron: '23 5 * * *'
+    - cron: '23 5,17 * * *'
 
 permissions:
   contents: write

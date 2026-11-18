@@ -11,7 +11,7 @@ A scheduled GitHub Actions workflow scouts public GTA VI streams and videos, aud
 
 ## One-time setup
 
-In each repo, go to **Settings → Secrets and variables → Actions** and add the repository secret `GEMINI_API_KEY`. Run **Actions → Produce GTA VI Shorts → Run workflow** first to populate the catalog. The four workflows run on daily schedules. You can run them again from the Actions tab without entering URLs or timestamps.
+In each repo, go to **Settings → Secrets and variables → Actions** and add the repository secret `GEMINI_API_KEY`. Shorts runs at 8:23 a.m. and 8:23 p.m. Nairobi time. Condensed, Themed, and Ranked Shorts check for a finished Shorts run with an eligible catalog every 20 minutes. Each starts once per published batch and reads the exact catalog from that run. You can also start any editor manually from the Actions tab without entering URLs or timestamps.
 
 The Shorts discovery workflow checks both YouTube and Twitch. The default path checks public Twitch listings and tries YouTube search when other discovery providers supply zero YouTube links. Discovery accepts sources published within the past seven days, starting November 19, 2026 at midnight Nairobi time. Each editor applies the publication cutoff to its saved catalog too. Unused, dated candidates can stay in the catalog for up to 21 days after publication. Gemini reviews footage and writes the upload package. YouTube may challenge hosted media fetches even when a video appears in search.
 

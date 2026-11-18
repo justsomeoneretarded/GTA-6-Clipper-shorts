@@ -1,0 +1,37 @@
+name: Start an editor from Shorts
+
+on:
+  workflow_call:
+    inputs:
+      engine:
+        type: string
+        required: true
+    secrets:
+      CATALOG_TOKEN:
+        required: false
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: gta6-follow-shorts-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ inputs.engine }}
+          ref: main
+          token: ${{ secrets.CATALOG_TOKEN || github.token }}
+          persist-credentials: false
+      - name: Start production for an unused Shorts catalog
+        env:
+          ENGINE: ${{ inputs.engine }}
+          GH_TOKEN: ${{ github.token }}
+          CATALOG_TOKEN: ${{ secrets.CATALOG_TOKEN }}
+        run: python3 -m clipper.handoff
