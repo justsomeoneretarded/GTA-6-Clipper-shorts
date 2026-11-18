@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "edits": [
+    {
+      "id": "45b841dea0abfbfd602f",
+      "ranges": [
+        {
+          "source": "twitch-clip:BeautifulScaryFungusFUNgineer-vOKAsBcSFLz0POLZ",
+          "start": 1.0,
+          "end": 31.33
+        }
+      ],
+      "date": "2026-11-18T15:33:02Z"
+    }
+  ]
+}
