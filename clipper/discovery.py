@@ -10,7 +10,7 @@ from urllib.parse import unquote, urlsplit
 
 import requests
 
-from .core import Source, dated, duration_text, source_url
+from .core import Source, dated, duration_text, source_cutoff, source_url
 from .gemini import Gemini, ServiceError, search_enabled
 from .media import Downloads, MediaError, run
 
@@ -42,7 +42,7 @@ def youtube_discovery(sources: dict[str, Source], api_key: str, days: int) -> No
         return data.get("items", [])
 
     ids = [item.key.split(":", 1)[1] for item in sources.values() if item.platform == "youtube"]
-    until = dated(days)
+    until = source_cutoff(days)
     for topic in TOPICS:
         rows = api("search", part="snippet", type="video", order="date", maxResults=18, publishedAfter=until, q=topic)
         ids.extend(row["id"]["videoId"] for row in rows)
@@ -95,7 +95,7 @@ def twitch_discovery(sources: dict[str, Source], client: str, secret: str, days:
     if not category:
         return
     anchors: dict[str, list[float]] = defaultdict(list)
-    for clip in api("clips", game_id=category, first=45, started_at=dated(days), ended_at=dated()):
+    for clip in api("clips", game_id=category, first=45, started_at=source_cutoff(days), ended_at=dated()):
         item = source_url(clip["url"])
         if item is None:
             continue
@@ -205,7 +205,7 @@ def listed_twitch_source(row: dict, channel: str, *, clip: bool, earliest: str) 
 
 
 def twitch_fallback(sources: dict[str, Source], report: list[str], days: int) -> None:
-    earliest = dated(days)
+    earliest = source_cutoff(days)
 
     def list_channel(channel: str) -> tuple[list[Source], list[str]]:
         items: list[Source] = []
@@ -240,7 +240,10 @@ def twitch_fallback(sources: dict[str, Source], report: list[str], days: int) ->
 
 
 def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: int = 7) -> dict[str, Source]:
-    earliest = dated(days)
+    earliest = source_cutoff(days)
+    if dated() < earliest:
+        report.append("No sources can qualify before the GTA VI publication cutoff.")
+        return {}
     sources: dict[str, Source] = {}
     if search_enabled():
         try:
@@ -302,7 +305,7 @@ def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: i
     stale = sum(bool(item.published and item.published < earliest) for item in sources.values())
     undated = sum(not item.published for item in sources.values())
     if stale or undated:
-        report.append(f"Skipped sources posted more than {days} days ago ({stale}) or with an unknown publication date ({undated}).")
+        report.append(f"Skipped sources before the publication cutoff ({stale}) or with an unknown publication date ({undated}).")
     # YouTube's replay graph is optional; the API and coverage sweep supply the baseline.
     replay_targets = sorted((item for item in recent.values() if item.platform == "youtube" and item.duration > 420
                              and not item.anchors), key=priority, reverse=True)

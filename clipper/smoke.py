@@ -6,7 +6,7 @@ import tempfile
 from dataclasses import asdict
 from pathlib import Path
 
-from .core import VERSION, Moment, Range, Sequence, Source
+from .core import VERSION, Moment, Range, Sequence, Source, source_cutoff
 from .editorial import COLD_OPEN, GROUP_EDIT, PACKAGING, SEQUENCE_EDIT
 from .media import Downloads, ffmpeg, probe
 from .plans import COMPACT
@@ -25,7 +25,8 @@ class FixtureModel:
         if schema is COLD_OPEN:
             return {"reason_to_stay": "Fixture opening", "readable": True, "curiosity": 9}
         if schema is PACKAGING:
-            return {"passes": True, "reason": "Synthetic fixture", "hook_seconds": 0.5,
+            return {"gta_vi": True, "gta_vi_evidence": "Synthetic editorial fixture",
+                    "passes": True, "reason": "Synthetic fixture", "hook_seconds": 0.5,
                     "thumbnail_seconds": 2, "titles": ["Fixture video", "Alternate fixture"],
                     "description": "A generated test video."}
         if schema is COMPACT:
@@ -56,7 +57,7 @@ def smoke(output: Path) -> None:
         ffmpeg("-f", "lavfi", "-i", "testsrc2=size=320x180:rate=12", "-f", "lavfi", "-i", "sine=frequency=520",
                "-t", "310", "-c:v", "libx264", "-threads", "2", "-preset", "ultrafast", "-c:a", "aac", str(input_path))
         item = Source("youtube:TestGTA0001", "https://www.youtube.com/watch?v=TestGTA0001", "youtube",
-                      "Synthetic source", "Fixture creator", 310)
+                      "Synthetic source", "Fixture creator", 310, published=source_cutoff(0))
         moments = [Moment(Range(item.key, start, start + 13), "chase", f"Opening {i}",
                           "Setup", "Payoff", "Synthetic evidence", 92 - i)
                    for i, start in enumerate(range(12, 289, 24), 1)]

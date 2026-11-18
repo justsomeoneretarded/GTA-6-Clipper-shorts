@@ -158,7 +158,7 @@ def plans(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict, ledger
           sources: dict[str, Source], report: list[str]):
     earlier = previous_ranges(ledger, sources)
     if mode == "condensed":
-        sequences = [Sequence.from_dict(row) for row in catalog["sequences"]]
+        sequences = [Sequence.from_dict(row) for row in catalog["sequences"] if row["span"]["source"] in sources]
         for sequence in sequences[:12]:
             if not is_new(sequence.span, earlier, sources):
                 continue
@@ -169,7 +169,8 @@ def plans(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict, ledger
             except (KeyError, ValueError, TypeError, MediaError) as error:
                 report.append(f"{sequence.span.source} condensed plan: {error}")
         return
-    moments = [Moment.from_dict(row) for row in catalog["moments"] if is_new(Range(**row["span"]), earlier, sources)]
+    moments = [Moment.from_dict(row) for row in catalog["moments"]
+               if row["span"]["source"] in sources and is_new(Range(**row["span"]), earlier, sources)]
     if mode == "shorts":
         yield from (single_moment(moment) for moment in diversify(moments, sources))
     else:

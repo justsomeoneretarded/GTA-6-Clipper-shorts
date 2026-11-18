@@ -9,6 +9,8 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
 VERSION = 1
+# November 19, 2026 at 00:00 in Africa/Nairobi.
+GTA_VI_PUBLICATION_CUTOFF = "2026-11-18T21:00:00Z"
 WEIGHTS = {"hook": .25, "payoff": .25, "context": .20, "specificity": .15, "pace": .10, "readability": .05}
 THEMES = ("chase", "driving", "stunt", "mission", "party", "radio", "podcast", "theory", "discovery", "comedy", "other")
 
@@ -19,6 +21,10 @@ def now() -> datetime:
 
 def dated(days_ago: int = 0) -> str:
     return (now() - timedelta(days=days_ago)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def source_cutoff(days: int) -> str:
+    return max(GTA_VI_PUBLICATION_CUTOFF, dated(days))
 
 
 def digest(*pieces: object) -> str:
