@@ -41,7 +41,7 @@ class Gemini:
         self.key = os.getenv("GEMINI_API_KEY")
         if not self.key:
             raise ServiceError("GEMINI_API_KEY is missing from the workflow secrets.")
-        self.model = os.getenv("GEMINI_MODEL") or "gemini-3.8-flash"
+        self.model = os.getenv("GEMINI_MODEL") or ("gemini-3.8-flash" if search_enabled() else "gemini-3.5-flash-lite")
         if not re.fullmatch(r"[\w.-]+", self.model):
             raise ServiceError("GEMINI_MODEL must be a Gemini model ID.")
         self.session = requests.Session()

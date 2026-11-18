@@ -83,13 +83,14 @@ class Downloads:
                        "-o", str(temporary / "video.%(ext)s")]
             if not whole:
                 options += ["--download-sections", f"*{span.start:.3f}-{span.end:.3f}", "--force-keyframes-at-cuts"]
+            timeout = 75 if source.platform == "twitch-clip" else (420 if whole else 180)
             try:
-                run(self.ytdlp(source.url, options), timeout=420 if whole else 180)
+                run(self.ytdlp(source.url, options), timeout=timeout)
             except MediaError:
                 if source.platform != "twitch-clip" or not shutil.which("twitch-dl"):
                     raise
                 run(["twitch-dl", "download", "--quality", "source", "--overwrite",
-                     "--output", str(temporary / "video.mp4"), source.url], timeout=120)
+                     "--output", str(temporary / "video.mp4"), source.url], timeout=90)
             file = temporary / "video.mp4"
             if not file.is_file():
                 raise MediaError("Downloader did not return an MP4.")
