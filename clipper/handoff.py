@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import re
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 CATALOG_COMMIT = re.compile(
@@ -29,7 +30,16 @@ def api(path: str, token: str, *, payload: dict | None = None):
 def follow_shorts(engine: str, repository: str, branch: str, token: str, catalog_token: str = "") -> None:
     source = f"/repos/{engine}"
     editor = f"/repos/{repository}/actions/workflows/produce.yml"
-    commits = api(f"{source}/commits?sha=clipper-state&per_page=60", catalog_token)
+
+    def read_source(path: str):
+        try:
+            return api(f"{source}/{path}", catalog_token or token)
+        except HTTPError as error:
+            if catalog_token or error.code not in {403, 404}:
+                raise
+            return api(f"{source}/{path}", "")
+
+    commits = read_source("commits?sha=clipper-state&per_page=60")
     catalogs = []
     for commit in reversed(commits):
         published = CATALOG_COMMIT.fullmatch(commit["commit"]["message"].strip())
@@ -48,7 +58,7 @@ def follow_shorts(engine: str, repository: str, branch: str, token: str, catalog
         batch = f"{run_id}.{attempt}"
         if f"Shorts batch {batch}" in started:
             continue
-        run = api(f"{source}/actions/runs/{run_id}/attempts/{attempt}", catalog_token)
+        run = read_source(f"actions/runs/{run_id}/attempts/{attempt}")
         if (run["status"] != "completed" or run["conclusion"] not in {"success", "failure"}
                 or run["path"] != ".github/workflows/produce.yml"):
             continue

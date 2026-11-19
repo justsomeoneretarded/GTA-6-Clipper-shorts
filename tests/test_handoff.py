@@ -1,4 +1,5 @@
 import unittest
+from urllib.error import HTTPError
 from unittest.mock import patch
 
 from clipper.handoff import follow_shorts
@@ -56,4 +57,10 @@ class HandoffTests(unittest.TestCase):
     def test_unmarked_catalog_refresh_does_not_start_production(self, api):
         api.return_value = [{"sha": "c" * 40, "commit": {"message": "Refresh GTA VI catalog.json"}}]
         follow_shorts(ENGINE, EDITOR, "main", "local-token")
-        api.assert_called_once_with(f"/repos/{ENGINE}/commits?sha=clipper-state&per_page=60", "")
+        api.assert_called_once_with(f"/repos/{ENGINE}/commits?sha=clipper-state&per_page=60", "local-token")
+
+    @patch("clipper.handoff.api")
+    def test_public_source_is_used_if_the_repository_token_lacks_access(self, api):
+        api.side_effect = [HTTPError("https://api.github.com", 403, "Resource not accessible", None, None), []]
+        follow_shorts(ENGINE, EDITOR, "main", "local-token")
+        self.assertEqual([call.args[1] for call in api.call_args_list], ["local-token", ""])
