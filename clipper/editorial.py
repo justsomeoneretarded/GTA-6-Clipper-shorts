@@ -23,6 +23,7 @@ SCOUT = object_schema({
     "moments": array(object_schema({**TIMES, **IDEA, "potential": NUM}), 5),
     "sequences": array(object_schema({**TIMES, "theme": IDEA["theme"], "story": TEXT, "potential": NUM}), 2),
 })
+CLIP_SCOUT = object_schema({"clips": array(object_schema({"clip_id": TEXT, **SCOUT["properties"]}), 3)})
 ALT_CUT = object_schema({**TIMES, **IDEA, "time_to_hook": NUM, "confidence": NUM, "scores": SCORES})
 AUDITION = object_schema({"genuine": BOOL, "gta_vi_evidence": TEXT, "standout": BOOL, "cuts": array(ALT_CUT, 3)})
 SEQUENCE_EDIT = object_schema({"idea": TEXT, "story": TEXT, "cuts": array(object_schema({**TIMES, "beat": TEXT}), 10)})
@@ -50,7 +51,9 @@ HIGHLIGHT_STANDARD = (
     "Routine actions with expected results, such as using a menu, grabbing a drink from a fridge for a normal stat gain, "
     "or driving without anything distinctive, are weak payoffs. A generic question or loud reaction alone is insufficient. "
     "Look for real stakes and a turn, a sharp joke with its setup, a surprising game detail, a distinctive view or radio "
-    "moment, or a GTA VI insight backed by something specific you can see or hear."
+    "moment, or a GTA VI insight backed by something specific you can see or hear. "
+    "A setup qualifies only when the selected cut shows what happens next. When someone equips a tool to investigate, "
+    "include the encounter, reveal, or consequence that makes the investigation worth showing."
 )
 
 
@@ -122,6 +125,22 @@ def width_rotation(sources: dict[str, Source], used: dict[str, str]) -> list[Ran
     return platform_rotation(ordered, sources, lambda window: window.source)
 
 
+def scouting_batches(windows: list[Range], sources: dict[str, Source]) -> list[list[Range]]:
+    clips = deque(window for window in windows
+                  if sources[window.source].platform == "twitch-clip" and window.seconds <= 60)
+    clip_ids = {window.identity for window in clips}
+    queued = set()
+    batches = []
+    for window in windows:
+        if window.identity in queued:
+            continue
+        batch = ([clips.popleft() for _ in range(min(3, len(clips)))]
+                 if window.identity in clip_ids else [window])
+        queued.update(span.identity for span in batch)
+        batches.append(batch)
+    return platform_rotation(batches, sources, lambda batch: batch[0].source)
+
+
 def score_cut(row: dict, floor: float) -> float:
     scores = {name: number(row["scores"][name], 0, 10) for name in WEIGHTS}
     if scores["hook"] < 7 or scores["payoff"] < 8 or scores["context"] < 6:
@@ -159,6 +178,37 @@ def scout(gemini: Gemini, downloads: Downloads, source: Source, window: Range, *
             pass
     media = window_proxy(downloads, source, window)
     return gemini.json(prompt, SCOUT, [gemini.video(media, fps=1.5)])
+
+
+def scout_clips(gemini: Gemini, downloads: Downloads, sources: dict[str, Source], windows: list[Range],
+                report: list[str]) -> list[tuple[Range, dict]]:
+    prepared = []
+    media = []
+    for window in windows:
+        try:
+            proxy = window_proxy(downloads, sources[window.source], window)
+            video = gemini.video(proxy, fps=2)
+        except (MediaError, ValueError) as error:
+            report.append(f"{window.source} scouting {timestamp(window.start)}: {error}")
+            continue
+        media.append(video)
+        prepared.append(window)
+    if not prepared:
+        return []
+    clips = {str(index): window for index, window in enumerate(prepared, 1)}
+    lengths = ", ".join(f"{key} ({window.seconds:.1f}s)" for key, window in clips.items())
+    reply = gemini.json(
+        f"The attached clips are separate inputs in this order: {lengths}. Review each on its own. "
+        f"{SUBJECT} {HOOKS} {HIGHLIGHT_STANDARD} "
+        "Return one result per input using its numbered clip_id. Use seconds from the start of that clip. "
+        "For each result identify the subject and directly observed game evidence. Propose up to two distinct "
+        "10–58 second highlights with setup and payoff. Leave sequences empty and return no moments for a weak clip.",
+        CLIP_SCOUT, media,
+    )
+    results = {row["clip_id"]: row for row in reply["clips"]}
+    if len(reply["clips"]) != len(clips) or results.keys() != clips.keys():
+        raise ValueError("Gemini did not identify each scouting clip separately.")
+    return [(window, results[key]) for key, window in clips.items()]
 
 
 def audition(gemini: Gemini, downloads: Downloads, source: Source, lead: Moment, floor: float) -> Moment | None:
@@ -283,48 +333,67 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
     limited = False
     scout_sources = {key: sources[key] for key in current if key in sources
                      and (not sequence_only or sources[key].duration >= 260)}
-    windows = width_rotation(scout_sources, scanned)[:scout_limit * 2]
+    windows = width_rotation(scout_sources, scanned)
+    batches = deque(scouting_batches(windows, sources)[:scout_limit * 2])
+    queued_windows = sum(len(batch) for batch in batches)
     scouting_slots: Counter[str] = Counter()
-    print(f"Discovered {len(current)} sources. Up to {len(windows)} windows are queued for scouting.", flush=True)
-    for index, window in enumerate(windows, 1):
-        if sum(scouting_slots.values()) >= scout_limit:
+    reviewed: Counter[str] = Counter()
+    print(f"Discovered {len(current)} sources. Up to {queued_windows} windows are queued for scouting.", flush=True)
+    for index in range(scout_limit * 2):
+        if not batches or sum(scouting_slots.values()) >= scout_limit:
             break
-        item = sources[window.source]
-        scouting_slots[item.site] += 1
-        print(f"Scouting {index}/{len(windows)}: {item.key} at {timestamp(window.start)}", flush=True)
+        batch = batches.popleft()
+        window = batch[0]
+        site = sources[window.source].site
+        scouting_slots[site] += 1
+        print(f"Scouting {index + 1}: " + ", ".join(f"{span.source} at {timestamp(span.start)}" for span in batch),
+              flush=True)
         try:
-            reply = scout(gemini, downloads, item, window, sequence_only=sequence_only)
-            if reply["subject"] in {"gameplay", "discussion"} and clean(reply["gta_vi_evidence"], 500):
-                for row in () if sequence_only else reply["moments"]:
-                    try:
-                        span = bounded(row, item.key, window)
-                        potential = number(row["potential"], 0, 100)
-                        if 9 <= span.seconds <= 60 and potential >= 56 and row["theme"] in THEMES:
-                            leads.append(Moment(span, row["theme"], clean(row["hook"], 350), clean(row["setup"], 350),
-                                                clean(row["payoff"], 350), clean(row["evidence"], 500), potential))
-                    except (KeyError, TypeError, ValueError):
-                        continue
-                for row in reply["sequences"]:
-                    try:
-                        span = bounded(row, item.key, window)
-                        potential = number(row["potential"], 0, 100)
-                        if span.seconds >= 260 and potential >= 66 and row["theme"] in THEMES:
-                            new_sequences.append(Sequence(span, row["theme"], clean(row["story"], 550), potential))
-                    except (KeyError, TypeError, ValueError):
-                        continue
-            scanned[window.identity] = dated()
+            if len(batch) == 1:
+                replies = [(window, scout(gemini, downloads, sources[window.source], window, sequence_only=sequence_only))]
+            else:
+                replies = scout_clips(gemini, downloads, sources, batch, report)
+            if not replies:
+                scouting_slots[site] -= 1
+            for window, reply in replies:
+                item = sources[window.source]
+                if reply["subject"] in {"gameplay", "discussion"} and clean(reply["gta_vi_evidence"], 500):
+                    for row in () if sequence_only else reply["moments"]:
+                        try:
+                            span = bounded(row, item.key, window)
+                            potential = number(row["potential"], 0, 100)
+                            if 9 <= span.seconds <= 60 and potential >= 56 and row["theme"] in THEMES:
+                                leads.append(Moment(span, row["theme"], clean(row["hook"], 350), clean(row["setup"], 350),
+                                                    clean(row["payoff"], 350), clean(row["evidence"], 500), potential))
+                        except (KeyError, TypeError, ValueError):
+                            continue
+                    for row in reply["sequences"]:
+                        try:
+                            span = bounded(row, item.key, window)
+                            potential = number(row["potential"], 0, 100)
+                            if span.seconds >= 260 and potential >= 66 and row["theme"] in THEMES:
+                                new_sequences.append(Sequence(span, row["theme"], clean(row["story"], 550), potential))
+                        except (KeyError, TypeError, ValueError):
+                            continue
+                scanned[window.identity] = dated()
+                reviewed[site] += 1
         except QuotaError as error:
             report.append(f"Scouting paused: {error}")
             limited = True
             break
         except MediaError as error:
-            if item.site == "twitch":
+            if site == "twitch":
                 # Twitch media is prepared before the model call.
-                scouting_slots[item.site] -= 1
-            report.append(f"{item.key} scouting {timestamp(window.start)}: {error}")
+                scouting_slots[site] -= 1
+            report.append(f"{window.source} scouting {timestamp(window.start)}: {error}")
         except (KeyError, ValueError, TypeError) as error:
-            report.append(f"{item.key} scouting {timestamp(window.start)}: {error}")
+            report.append(f"{window.source} scouting {timestamp(window.start)}: {error}")
+            if len(batch) > 1:
+                pending_windows = [span for group in (batch, *batches) for span in group if span.identity not in scanned]
+                batches = deque([span] for span in platform_rotation(pending_windows, sources, lambda row: row.source))
+                report.append("Continuing with one clip at a time after the grouped review failed.")
     report.append(f"Scouting slots used — YouTube {scouting_slots['youtube']}, Twitch {scouting_slots['twitch']}.")
+    report.append(f"Excerpts reviewed — YouTube {reviewed['youtube']}, Twitch {reviewed['twitch']}.")
     previous_moments = [] if sequence_only else [Moment.from_dict(row) for row in previous.get("moments", [])
                                                 if row["span"]["source"] in sources]
     verified: list[Moment] = []

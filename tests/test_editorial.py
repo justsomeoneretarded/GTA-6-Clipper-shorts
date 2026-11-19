@@ -133,9 +133,10 @@ class EditorialTests(unittest.TestCase):
 
     @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
     @patch.dict("os.environ", {}, clear=True)
+    @patch("clipper.editorial.scout_clips")
     @patch("clipper.editorial.scout")
     @patch("clipper.editorial.audition")
-    def test_free_catalog_can_supply_ten_shorts_after_rejections(self, audition, scout, clock):
+    def test_free_catalog_can_supply_ten_shorts_after_rejections(self, audition, scout, scout_clips, clock):
         sources = {}
         for index in range(14):
             url = (f"https://youtu.be/Fixture{index:04d}" if index < 7
@@ -151,6 +152,9 @@ class EditorialTests(unittest.TestCase):
             {"start": 15, "end": 40, "theme": "chase", "hook": "Roadblock", "setup": "Police pursuit",
              "payoff": "Gets away", "evidence": "The car clears the roadblock", "potential": 90},
         ]}
+        scout_clips.side_effect = lambda model, downloads, sources, windows, report: [
+            (window, scout.return_value) for window in windows
+        ]
         audition.side_effect = lambda gemini, downloads, source, lead, floor: (
             lead if audition.call_count > 4 else None
         )
@@ -190,16 +194,59 @@ class EditorialTests(unittest.TestCase):
     @patch("clipper.editorial.scout")
     def test_failed_twitch_fetch_is_replaced_with_another_scouting_window(self, scout, clock):
         sources = {}
-        for slug in ("Unavailable", "Playable"):
-            source = source_url(f"https://clips.twitch.tv/{slug}")
-            source.duration = 30
+        for identifier in ("1234567890", "1234567891"):
+            source = source_url(f"https://www.twitch.tv/videos/{identifier}")
+            source.duration = 80
             source.published = dated(1)
             sources[source.key] = source
         scout.side_effect = [MediaError("Unreadable section"),
                              {"subject": "other", "gta_vi_evidence": "", "moments": [], "sequences": []}]
         result = build_catalog(Mock(), Mock(), sources, {}, [])
         self.assertEqual(scout.call_count, 2)
-        self.assertIn(Range("twitch-clip:Playable", 0, 30).identity, result["scanned"])
+        self.assertIn(Range("twitch-vod:1234567891", 0, 80).identity, result["scanned"])
+
+    @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
+    @patch.dict("os.environ", {"SCOUT_WINDOWS": "1"}, clear=True)
+    @patch("clipper.editorial.window_proxy")
+    @patch("clipper.editorial.audition", side_effect=lambda gemini, downloads, source, lead, floor: lead)
+    def test_three_twitch_clips_share_one_review_and_keep_their_own_times(self, audition, proxy, clock):
+        sources = {}
+        for slug in ("FirstFixture", "SecondFixture", "ThirdFixture"):
+            source = source_url(f"https://clips.twitch.tv/{slug}")
+            source.duration, source.published = 30, dated(1)
+            sources[source.key] = source
+        gemini = Mock()
+        rejected = {"subject": "other", "gta_vi_evidence": "", "moments": [], "sequences": []}
+        gemini.json.return_value = {"clips": [
+            {**rejected, "clip_id": "3", "subject": "gameplay", "gta_vi_evidence": "Lucia enters the car.", "moments": [
+                {"start": 4, "end": 26, "theme": "chase", "hook": "Roadblock", "setup": "Pursuit",
+                 "payoff": "Gets away", "evidence": "The car clears the roadblock", "potential": 90},
+            ]},
+            {**rejected, "clip_id": "1"},
+            {**rejected, "clip_id": "2"},
+        ]}
+        report = []
+        result = build_catalog(gemini, Mock(), sources, {}, report)
+        self.assertEqual(len(result["scanned"]), 3)
+        self.assertEqual([Range(**row["span"]) for row in result["moments"]], [Range("twitch-clip:ThirdFixture", 4, 26)])
+        gemini.json.assert_called_once()
+        self.assertEqual(len(gemini.json.call_args.args[2]), 3)
+        self.assertIn("Excerpts reviewed — YouTube 0, Twitch 3.", report)
+
+    @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
+    @patch.dict("os.environ", {"SCOUT_WINDOWS": "2"}, clear=True)
+    @patch("clipper.editorial.scout_clips", side_effect=ValueError("Grouped request unsupported"))
+    @patch("clipper.editorial.scout", return_value={"subject": "other", "gta_vi_evidence": "", "sequences": [], "moments": []})
+    def test_grouped_review_error_falls_back_within_the_same_budget(self, scout, scout_clips, clock):
+        sources = {}
+        for slug in ("FirstFixture", "SecondFixture", "ThirdFixture"):
+            source = source_url(f"https://clips.twitch.tv/{slug}")
+            source.duration, source.published = 30, dated(1)
+            sources[source.key] = source
+        result = build_catalog(Mock(), Mock(), sources, {}, [])
+        self.assertEqual(len(result["scanned"]), 1)
+        scout_clips.assert_called_once()
+        scout.assert_called_once()
 
     @patch("clipper.plans.window_proxy")
     def test_condensed_plan_retries_timestamps_outside_its_excerpt(self, proxy):
