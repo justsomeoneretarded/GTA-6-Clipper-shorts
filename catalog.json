@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-19T07:21:11Z",
+  "generated_at": "2026-11-19T15:57:57Z",
   "scanned": {
     "d66f80f00ab35d8f5532": "2026-11-18T12:29:44Z",
     "4f8b3e763c3765bfbfdf": "2026-11-18T12:29:55Z",
@@ -39,7 +39,25 @@
     "fbaa4879adc6a3ffe357": "2026-11-19T07:01:54Z",
     "8e8f25bbdafd9861f4d9": "2026-11-19T07:03:24Z",
     "3e9cb39f3bb2258da74a": "2026-11-19T07:03:35Z",
-    "b0202a1fe0d65e513533": "2026-11-19T07:03:49Z"
+    "b0202a1fe0d65e513533": "2026-11-19T07:03:49Z",
+    "74c148990aacfe78a076": "2026-11-19T14:55:44Z",
+    "d67107a14ca02920093a": "2026-11-19T14:58:02Z",
+    "fb5b2c0f1b2d38d7244c": "2026-11-19T14:58:02Z",
+    "e16f2782e5ac5ce0ae77": "2026-11-19T14:58:02Z",
+    "70df4f7cc4c3a830eed6": "2026-11-19T15:12:13Z",
+    "cc0a65354fbc3d41c98c": "2026-11-19T15:18:43Z",
+    "1f30101bc8ac799fb555": "2026-11-19T15:18:43Z",
+    "3d01e62cfb7b797314e8": "2026-11-19T15:18:43Z",
+    "c7da3a61fac346985c89": "2026-11-19T15:19:23Z",
+    "f885d141f726ebba3ef5": "2026-11-19T15:20:46Z",
+    "e71d77b88532e3189ef8": "2026-11-19T15:22:22Z",
+    "2dbc76fbd50bbc3a9d69": "2026-11-19T15:25:58Z",
+    "cc67e0227fac9f7bbb35": "2026-11-19T15:31:05Z",
+    "1a354f5b2690da0e0c35": "2026-11-19T15:33:03Z",
+    "11685f6dda7e985946dc": "2026-11-19T15:33:03Z",
+    "3432eb43ccf004100051": "2026-11-19T15:33:03Z",
+    "76b449be63961afae961": "2026-11-19T15:33:16Z",
+    "c19de4596658d828fb69": "2026-11-19T15:38:41Z"
   },
   "sources": {
     "youtube:-UuHA1h-Cf8": {
@@ -49,7 +67,7 @@
       "title": "Can a TANK Survive a 6-STAR Police Chase in GTA 6? | PS5 Pro Gameplay",
       "creator": "GameV",
       "duration": 572.0,
-      "views": 297929,
+      "views": 515553,
       "published": "2026-11-18T21:05:14Z",
       "rights": "unspecified",
       "anchors": [],
@@ -64,8 +82,38 @@
       "title": "GTA 6 - Free Roam Exploring - NEXT GEN Ray Tracing Looks INCREDIBLE! (4K Open World)",
       "creator": "DubStepZz",
       "duration": 2606.0,
-      "views": 126308,
+      "views": 482677,
       "published": "2026-11-18T22:30:28Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
+    "youtube:CK6XFkFSoyc": {
+      "key": "youtube:CK6XFkFSoyc",
+      "url": "https://www.youtube.com/watch?v=CK6XFkFSoyc",
+      "platform": "youtube",
+      "title": "GTA 6 VS GTA 4 (CAR PHYSICS COMPARISON)",
+      "creator": "Onespot Gaming",
+      "duration": 679.0,
+      "views": 646215,
+      "published": "2026-11-18T21:03:02Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
+    "youtube:HzzzoomJ-Os": {
+      "key": "youtube:HzzzoomJ-Os",
+      "url": "https://www.youtube.com/watch?v=HzzzoomJ-Os",
+      "platform": "youtube",
+      "title": "🔴 LIVE! - GTA 6 EARLY ACCESS with TYPICAL GAMER! (PS5 PRO)",
+      "creator": "Typical Gamer",
+      "duration": 35745.0,
+      "views": 2586700,
+      "published": "2026-11-19T01:16:55Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
@@ -94,7 +142,7 @@
       "title": "GTA 6 – I Stole a Plane From the Airport and Fighter Jets Chased Me!",
       "creator": "Champs Network",
       "duration": 492.0,
-      "views": 37674,
+      "views": 119838,
       "published": "2026-11-18T23:14:23Z",
       "rights": "unspecified",
       "anchors": [],
@@ -109,7 +157,7 @@
       "title": "Grand Theft Auto 6 Gameplay and Impressions...",
       "creator": "jackfrags",
       "duration": 2218.0,
-      "views": 630113,
+      "views": 1381083,
       "published": "2026-11-18T22:04:15Z",
       "rights": "unspecified",
       "anchors": [],
@@ -126,6 +174,36 @@
       "duration": 957.0,
       "views": 59194,
       "published": "2026-11-19T00:30:14Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
+    "youtube:fJUt1YegOB0": {
+      "key": "youtube:fJUt1YegOB0",
+      "url": "https://www.youtube.com/watch?v=fJUt1YegOB0",
+      "platform": "youtube",
+      "title": "What to expect from GTA 6 as ‘masterpiece’ game released around the world",
+      "creator": "ITV News",
+      "duration": 296.0,
+      "views": 42308,
+      "published": "2026-11-18T23:00:57Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
+    "youtube:gZf-qhJt_SM": {
+      "key": "youtube:gZf-qhJt_SM",
+      "url": "https://www.youtube.com/watch?v=gZf-qhJt_SM",
+      "platform": "youtube",
+      "title": "GTA 6 Is Already a DISASTER...",
+      "creator": "Jaac",
+      "duration": 501.0,
+      "views": 111206,
+      "published": "2026-11-18T22:37:02Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
@@ -182,107 +260,17 @@
   ],
   "pending": [
     {
-      "id": "9d54565476cf010a1075",
+      "id": "bcddb2d106cf23e18ccc",
       "span": {
-        "source": "youtube:xgZCLTZbvs8",
-        "start": 14.32,
-        "end": 24.32
+        "source": "youtube:fJUt1YegOB0",
+        "start": 98.0,
+        "end": 124.0
       },
-      "theme": "mission",
-      "hook": "Testing police and ambulance response sequences on a beach",
-      "setup": "The player shoots at civilians on a sunny beach, triggering a crime report and emergency vehicles.",
-      "payoff": "Police arrive first, followed by an ambulance, and the bodies disappear after a while as the player flees into the bushes.",
-      "evidence": "Police cars and an ambulance pull up to the beach victims while wanted stars display at top right.",
-      "score": 85.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "cd3b5c35779e36cc7805",
-      "span": {
-        "source": "youtube:YOxDxdVD4MY",
-        "start": 65.64,
-        "end": 90.94
-      },
-      "theme": "mission",
-      "hook": "Lucia argues with her mother in a diner.",
-      "setup": "Lucia meets her mother who talks about real estate and criticizes her past.",
-      "payoff": "Her mother convinces Lucia to accompany her to check on a property.",
-      "evidence": "Lucia and her mother sit across each other in a diner talking about real estate.",
-      "score": 85.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "b5e2149d97f0ac599c7c",
-      "span": {
-        "source": "youtube:Wd-vKw3XYP0",
-        "start": 869.57,
-        "end": 882.57
-      },
-      "theme": "chase",
-      "hook": "Stealing a tour bus to escape the police.",
-      "setup": "After triggering a crime response, the player boards a Bulldog Bus Tours bus as an escape vehicle.",
-      "payoff": "The player drives the massive bus through busy city intersections while trying to evade police cruisers.",
-      "evidence": "Bulldog Bus Tours branding on the vehicle and police chase mechanics.",
-      "score": 82.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "8e3e43d8010f4e46478a",
-      "span": {
-        "source": "youtube:Mw4MrVRO_co",
-        "start": 8510.21,
-        "end": 8552.21
-      },
-      "theme": "driving",
-      "hook": "High-stakes escape driving across industrial bridges at night.",
-      "setup": "The player drives the stolen Karin Futo back toward the drop-off location while avoiding traffic.",
-      "payoff": "Navigating tight highway traffic and minor collisions on the bridge.",
-      "evidence": "Driving the red Futo across the bridge while commentary discusses vehicle choices.",
-      "score": 82.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "59bdbb8c54cb7b683fba",
-      "span": {
-        "source": "youtube:YOxDxdVD4MY",
-        "start": 129.94,
-        "end": 188.44
-      },
-      "theme": "driving",
-      "hook": "Driving to the real estate address.",
-      "setup": "Lucia drives her mother's blue Declasse Miko Akane.",
-      "payoff": "They arrive at a very rundown, dilapidated house instead of a nice property.",
-      "evidence": "Blue Declasse Miko Akane driving on city streets with GPS route.",
-      "score": 80.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "9a9acad22e16fd681937",
-      "span": {
-        "source": "youtube:Ui5eAdG6a-I",
-        "start": 403.64,
-        "end": 415.64
-      },
-      "theme": "mission",
-      "hook": "The ultimate crash landing and failure screen.",
-      "setup": "The damaged private jet loses control and crashes into a highway ridge.",
-      "payoff": "A massive explosion occurs and the standard 'wasted' screen appears.",
-      "evidence": "The screen flashes red and displays 'wasted' over the crash site.",
-      "score": 80.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "6d908d550cd892aa37bd",
-      "span": {
-        "source": "youtube:Mw4MrVRO_co",
-        "start": 8370.21,
-        "end": 8410.21
-      },
-      "theme": "driving",
-      "hook": "Grabbing a white sedan to start a heist preparation.",
-      "setup": "The player runs from a drone stand to hijack an Ocelot Jugular parked on the street.",
-      "payoff": "Driving through industrial gates to reach the mission objective.",
-      "evidence": "Hijacking the white sedan labeled 'OCELOT JUGULAR' and driving off.",
+      "theme": "podcast",
+      "hook": "Staggering game statistics and file sizes",
+      "setup": "Reporter detailing global sales figures and massive download requirements",
+      "payoff": "On-screen graphics displaying 212 GB download size, 50 hours of gameplay, and 200 hours for full completion",
+      "evidence": "Television screen showing graphic overlays with text 212 GB DOWNLOAD and 200 HOURS FULL COMPLETION",
       "score": 78.0,
       "fingerprint": ""
     },
@@ -332,6 +320,36 @@
       "fingerprint": ""
     },
     {
+      "id": "218bd3a0171b30c16905",
+      "span": {
+        "source": "youtube:HzzzoomJ-Os",
+        "start": 12666.4,
+        "end": 12694.4
+      },
+      "theme": "mission",
+      "hook": "Arriving at the boatyard warehouse.",
+      "setup": "Driving through rural paths to find Dunk's friends at an old boathouse.",
+      "payoff": "Entering the dilapidated warehouse and confronting NPCs in cutscene dialogue.",
+      "evidence": "Sup, fuckos?",
+      "score": 75.0,
+      "fingerprint": ""
+    },
+    {
+      "id": "167dc3345b3e99e86dca",
+      "span": {
+        "source": "youtube:fJUt1YegOB0",
+        "start": 34.5,
+        "end": 46.0
+      },
+      "theme": "driving",
+      "hook": "Evolution from 1997 top-down graphics",
+      "setup": "Commentary about Grand Theft Auto's humble beginnings in Dundee in 1997",
+      "payoff": "Top-down 2D gameplay footage of blue cars navigating city streets with retro UI elements",
+      "evidence": "Top-down gameplay showing a blue car driving past a street sign reading South Park with 1997 watermark",
+      "score": 75.0,
+      "fingerprint": ""
+    },
+    {
       "id": "80fc1f38fa254e9f46e7",
       "span": {
         "source": "youtube:Mw4MrVRO_co",
@@ -343,6 +361,21 @@
       "setup": "The streamer shows the Xbox home dashboard with GTA VI pre-ordered.",
       "payoff": "The game details pop up showing 'Grand Theft Auto VI: Ultimate Edition' and its restricted rating.",
       "evidence": "Grand Theft Auto VI Ultimate Edition pre-order screen displayed on Xbox interface.",
+      "score": 70.0,
+      "fingerprint": ""
+    },
+    {
+      "id": "7e0c99964cb20c65d167",
+      "span": {
+        "source": "youtube:HzzzoomJ-Os",
+        "start": 12512.4,
+        "end": 12526.4
+      },
+      "theme": "driving",
+      "hook": "Reversing confusion during navigation.",
+      "setup": "The player attempts to navigate through traffic while discussing reverse settings.",
+      "payoff": "The streamer realizes their settings were in reverse while trying to drive forward.",
+      "evidence": "My settings are all in reverse",
       "score": 70.0,
       "fingerprint": ""
     },
@@ -405,6 +438,16 @@
     },
     {
       "span": {
+        "source": "youtube:HzzzoomJ-Os",
+        "start": 12450.4,
+        "end": 12744.4
+      },
+      "theme": "mission",
+      "story": "A continuous sequence of open-world exploration and mission driving, starting with the auto-drive feature discovery, navigating through traffic and bridges, experiencing a severe collision, and arriving at the warehouse to talk to NPCs.",
+      "score": 92.0
+    },
+    {
+      "span": {
         "source": "youtube:-UuHA1h-Cf8",
         "start": 36.24,
         "end": 427.24
@@ -422,6 +465,26 @@
       "theme": "discovery",
       "story": "The player explores the docks, interacts with wildlife, strolls through downtown Vice City at sunset, visits clothing stores, hangs out in a club lounge, and ends up in an escalating police chase after stealing a tour bus.",
       "score": 90.0
+    },
+    {
+      "span": {
+        "source": "youtube:CK6XFkFSoyc",
+        "start": 63.08,
+        "end": 339.08
+      },
+      "theme": "discovery",
+      "story": "A structured physics comparison demonstrating tyre shooting, water splashes, vehicle handling feedback, braking distances, and directional force.",
+      "score": 88.0
+    },
+    {
+      "span": {
+        "source": "youtube:gZf-qhJt_SM",
+        "start": 21.72,
+        "end": 289.72
+      },
+      "theme": "podcast",
+      "story": "The video breaks down the massive hype surrounding GTA VI's launch, followed by immediate negative social media reactions, viral gameplay complaints, and glitches discovered within hours of release.",
+      "score": 85.0
     },
     {
       "span": {
