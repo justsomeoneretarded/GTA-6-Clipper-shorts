@@ -3,13 +3,16 @@ from dataclasses import asdict
 from datetime import UTC, datetime
 from unittest.mock import Mock, patch
 
-from clipper.core import GTA_VI_PUBLICATION_CUTOFF, Moment, Range, Source, WEIGHTS, dated, duplicate, source_cutoff, source_url
+from clipper.core import (
+    GTA_VI_PUBLICATION_CUTOFF, Moment, Range, Sequence, Source, WEIGHTS, dated, duplicate, source_cutoff, source_url,
+)
 from clipper.discovery import (
     SEARCH_TERMS, discover, grounding_source, listed_twitch_source, tavily_discovery, twitch_search_channels,
 )
 from clipper.editorial import bounded, build_catalog, merge_catalogs, score_cut, scout_windows, width_rotation
 from clipper.gemini import QuotaError, quota_error
-from clipper.plans import is_new
+from clipper.media import MediaError
+from clipper.plans import condensed_plan, is_new
 
 
 class EditorialTests(unittest.TestCase):
@@ -181,6 +184,35 @@ class EditorialTests(unittest.TestCase):
         self.assertEqual(scout.call_count, 1)
         self.assertTrue(scout.call_args.kwargs["sequence_only"])
         audition.assert_not_called()
+
+    @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
+    @patch.dict("os.environ", {"SCOUT_WINDOWS": "1"}, clear=True)
+    @patch("clipper.editorial.scout")
+    def test_failed_twitch_fetch_is_replaced_with_another_scouting_window(self, scout, clock):
+        sources = {}
+        for slug in ("Unavailable", "Playable"):
+            source = source_url(f"https://clips.twitch.tv/{slug}")
+            source.duration = 30
+            source.published = dated(1)
+            sources[source.key] = source
+        scout.side_effect = [MediaError("Unreadable section"),
+                             {"subject": "other", "gta_vi_evidence": "", "moments": [], "sequences": []}]
+        result = build_catalog(Mock(), Mock(), sources, {}, [])
+        self.assertEqual(scout.call_count, 2)
+        self.assertIn(Range("twitch-clip:Playable", 0, 30).identity, result["scanned"])
+
+    @patch("clipper.plans.window_proxy")
+    def test_condensed_plan_retries_timestamps_outside_its_excerpt(self, proxy):
+        source = source_url("https://www.twitch.tv/videos/1234567890")
+        sequence = Sequence(Range(source.key, 1000, 1260), "mission", "A mission", 90)
+        gemini = Mock()
+        gemini.json.side_effect = [
+            {"cuts": [{"start": 1010, "end": 1260, "beat": "Wrong offset"}]},
+            {"cuts": [{"start": 10, "end": 260.6, "beat": "Mission"}], "idea": "Mission", "story": "Ready"},
+        ]
+        edit = condensed_plan(gemini, Mock(), sequence, source)
+        self.assertEqual(gemini.json.call_count, 2)
+        self.assertEqual(edit.cuts[0].span, Range(source.key, 1010, 1260))
 
     @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
     @patch("clipper.editorial.audition", side_effect=QuotaError("quota"))

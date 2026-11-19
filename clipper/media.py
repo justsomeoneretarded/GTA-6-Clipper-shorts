@@ -182,7 +182,7 @@ class Downloads:
             if not whole:
                 options += ["--download-sections", f"*{span.start:.3f}-{span.end:.3f}", "--force-keyframes-at-cuts"]
             timeout = 75 if source.platform == "twitch-clip" else (420 if whole else 180)
-            if source.recording:
+            if not whole and source.platform == "twitch-vod" and (source.recording or shutil.which("twitch-dl")):
                 run(["twitch-dl", "download", "--quality", "source", "--overwrite",
                      "--start", timestamp(span.start), "--end", timestamp(span.end),
                      "--cache-dir", str(temporary / "segments/{id}/{quality}"),
@@ -198,8 +198,10 @@ class Downloads:
             file = temporary / "video.mp4"
             if not file.is_file():
                 raise MediaError("Downloader did not return an MP4.")
-            if not whole and abs(video_duration(file) - span.seconds) > min(2, span.seconds * .15):
-                raise MediaError("Section download length differs from the requested range.")
+            if not whole:
+                length = video_duration(file)
+                if abs(length - span.seconds) > min(2, span.seconds * .15):
+                    raise MediaError(f"Section download returned {length:.2f}s for the requested {span.seconds:.2f}s range.")
             file.replace(target)
         return target
 
@@ -219,7 +221,8 @@ class Downloads:
             raise MediaError(self.unreachable[source.key])
         if source.platform == "twitch-clip":
             return self._fetch(source, span, whole=True), span.start
-        coverage = Range(span.source, math.floor(span.start), math.ceil(span.end)) if source.recording else span
+        coverage = (Range(span.source, math.floor(span.start), math.ceil(span.end))
+                    if source.platform == "twitch-vod" else span)
         try:
             file = self._fetch(source, coverage, whole=False)
         except MediaError as section_failure:
@@ -227,7 +230,8 @@ class Downloads:
             blocked = any(reason in failure for reason in ("403", "sign in", "bot", "not available", "private"))
             ffmpeg_youtube = source.platform == "youtube" and self.youtube_cookies and "ffmpeg" in failure
             if source.recording or source.duration > self.full_limit or (blocked and not ffmpeg_youtube):
-                self.unreachable[source.key] = str(section_failure)
+                if blocked or source.platform != "twitch-vod":
+                    self.unreachable[source.key] = str(section_failure)
                 raise
             try:
                 return self._fetch(source, span, whole=True), span.start

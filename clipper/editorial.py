@@ -54,9 +54,9 @@ HIGHLIGHT_STANDARD = (
 )
 
 
-def bounded(row: dict, source: str, window: Range) -> Range:
+def bounded(row: dict, source: str, window: Range, *, end_tolerance: float = .15) -> Range:
     start = number(row["start"], 0, window.seconds + .15)
-    end = number(row["end"], 0, window.seconds + .15)
+    end = number(row["end"], 0, window.seconds + end_tolerance)
     if end <= start or window.start + start >= window.end:
         raise ValueError("Model returned an empty or backwards range.")
     return Range(source, round(window.start + start, 3), round(min(window.end, window.start + end), 3))
@@ -283,12 +283,14 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
     limited = False
     scout_sources = {key: sources[key] for key in current if key in sources
                      and (not sequence_only or sources[key].duration >= 260)}
-    windows = width_rotation(scout_sources, scanned)[:scout_limit]
-    youtube_windows = sum(sources[window.source].platform == "youtube" for window in windows)
-    print(f"Discovered {len(current)} sources. Checking {len(windows)} new windows.", flush=True)
-    report.append(f"Scouting windows by platform — YouTube {youtube_windows}, Twitch {len(windows) - youtube_windows}.")
+    windows = width_rotation(scout_sources, scanned)[:scout_limit * 2]
+    scouting_slots: Counter[str] = Counter()
+    print(f"Discovered {len(current)} sources. Up to {len(windows)} windows are queued for scouting.", flush=True)
     for index, window in enumerate(windows, 1):
+        if sum(scouting_slots.values()) >= scout_limit:
+            break
         item = sources[window.source]
+        scouting_slots[item.site] += 1
         print(f"Scouting {index}/{len(windows)}: {item.key} at {timestamp(window.start)}", flush=True)
         try:
             reply = scout(gemini, downloads, item, window, sequence_only=sequence_only)
@@ -315,8 +317,14 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
             report.append(f"Scouting paused: {error}")
             limited = True
             break
-        except (KeyError, ValueError, TypeError, MediaError) as error:
+        except MediaError as error:
+            if item.site == "twitch":
+                # Twitch media is prepared before the model call.
+                scouting_slots[item.site] -= 1
             report.append(f"{item.key} scouting {timestamp(window.start)}: {error}")
+        except (KeyError, ValueError, TypeError) as error:
+            report.append(f"{item.key} scouting {timestamp(window.start)}: {error}")
+    report.append(f"Scouting slots used — YouTube {scouting_slots['youtube']}, Twitch {scouting_slots['twitch']}.")
     previous_moments = [] if sequence_only else [Moment.from_dict(row) for row in previous.get("moments", [])
                                                 if row["span"]["source"] in sources]
     verified: list[Moment] = []

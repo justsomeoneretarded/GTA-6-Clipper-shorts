@@ -158,14 +158,23 @@ def condensed_plan(gemini: Gemini, downloads: Downloads, sequence: Sequence, sou
         "Keep a strong opening, required dialogue and cause/effect, escalation, and an ending viewers can understand. "
         "Keep transitions that explain how the next beat happens. Remove loading, idle travel, menus, routine interactions, "
         "and repeated attempts unless a specific detail changes the stakes or advances the story. "
-        "Return ordered non-overlapping ranges, at most ten, using seconds from this excerpt. "
+        f"Return at most ten ordered, non-overlapping ranges in excerpt-local seconds. "
+        f"The first frame is 0 and the end is {sequence.span.seconds:.2f}. "
         "Keep at least 240 seconds total with an honest payoff. Empty cuts are valid if there is too little real material. "
         "Label each kept range with its narrative beat. The edit idea should be a specific viewable premise."
     )
-    reply = gemini.json(prompt, SEQUENCE_EDIT, [gemini.video(media, fps=1.5)])
+    video = gemini.video(media, fps=1.5)
+    reply = gemini.json(prompt, SEQUENCE_EDIT, [video])
+    try:
+        spans = [bounded(row, source.key, sequence.span, end_tolerance=1) for row in reply["cuts"]]
+    except ValueError:
+        reply = gemini.json(prompt + (
+            f" The earlier timings fell outside the excerpt. Use 0–{sequence.span.seconds:.2f} seconds only. "
+            "Convert from source timestamps if needed. Return an empty cuts list if you cannot locate the scenes."
+        ), SEQUENCE_EDIT, [video])
+        spans = [bounded(row, source.key, sequence.span, end_tolerance=1) for row in reply["cuts"]]
     cuts: list[Cut] = []
-    for row in reply["cuts"]:
-        span = bounded(row, source.key, sequence.span)
+    for row, span in zip(reply["cuts"], spans):
         if span.seconds < 5 or cuts and span.start < cuts[-1].span.end:
             return None
         cuts.append(Cut(span, clean(row["beat"], 68)))

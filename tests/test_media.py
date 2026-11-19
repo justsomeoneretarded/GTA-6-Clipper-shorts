@@ -107,3 +107,16 @@ class TwitchReplayTests(unittest.TestCase):
                 with self.assertRaises(MediaError):
                     downloads.get(source, span)
             fetch.assert_called_once_with(source, span, whole=False)
+
+    def test_bad_replay_section_does_not_block_an_earlier_range(self):
+        with tempfile.TemporaryDirectory() as folder:
+            downloads = Downloads(Path(folder))
+            source = source_url("https://www.twitch.tv/videos/1234567890")
+            source.recording = True
+            source.duration = 700
+            file = Path(folder) / "earlier.mp4"
+            with patch.object(downloads, "_fetch", side_effect=[MediaError("Section length mismatch"), file]) as fetch:
+                with self.assertRaises(MediaError):
+                    downloads.get(source, Range(source.key, 500, 650))
+                self.assertEqual(downloads.get(source, Range(source.key, 80, 130)), (file, 0))
+                self.assertEqual(fetch.call_count, 2)
