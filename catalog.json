@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-20T00:16:58Z",
+  "generated_at": "2026-11-20T14:41:40Z",
   "scanned": {
     "d66f80f00ab35d8f5532": "2026-11-18T12:29:44Z",
     "4f8b3e763c3765bfbfdf": "2026-11-18T12:29:55Z",
@@ -79,9 +79,59 @@
     "af39c0d528280cab1ce9": "2026-11-20T00:10:06Z",
     "abc0289b2182a7f540de": "2026-11-20T00:10:06Z",
     "aaab99a9f16efcaa7216": "2026-11-20T00:10:06Z",
-    "37fc5bd7f97afbf33f4f": "2026-11-20T00:10:56Z"
+    "37fc5bd7f97afbf33f4f": "2026-11-20T00:10:56Z",
+    "74d13b486a761cab6704": "2026-11-20T14:15:58Z",
+    "cf52e6c698cab0796228": "2026-11-20T14:16:42Z",
+    "9758bb601db2ba3f906e": "2026-11-20T14:16:42Z",
+    "1aced8a309b6ae9c834f": "2026-11-20T14:16:42Z",
+    "af952c09a32c946f512f": "2026-11-20T14:16:52Z",
+    "80924f01d20eca975d89": "2026-11-20T14:21:30Z",
+    "29a0cbf9de1044590b95": "2026-11-20T14:22:54Z",
+    "31ca09422b0df72881c8": "2026-11-20T14:25:33Z",
+    "f697b92691050df0c263": "2026-11-20T14:25:43Z",
+    "b5b00ddfb027c36d8626": "2026-11-20T14:29:02Z",
+    "e37e67d77f2c51d8d39c": "2026-11-20T14:29:43Z",
+    "38aefda7ff2d4220abd1": "2026-11-20T14:30:19Z",
+    "917ca0428d968c2559d2": "2026-11-20T14:30:19Z",
+    "5afb654e7d15a7486e33": "2026-11-20T14:30:19Z",
+    "46732ed826404ac028dd": "2026-11-20T14:30:34Z",
+    "02ff0c87704a3fcd4fed": "2026-11-20T14:32:18Z",
+    "2d5e093dff0d0b12b2a8": "2026-11-20T14:33:07Z",
+    "ec3e8372b6d6f2cbe600": "2026-11-20T14:35:52Z",
+    "a5bb52178700b6dccbc0": "2026-11-20T14:36:02Z",
+    "cf0533019f5f36dde0f6": "2026-11-20T14:37:38Z"
   },
   "sources": {
+    "twitch-vod:2932809277": {
+      "key": "twitch-vod:2932809277",
+      "url": "https://www.twitch.tv/videos/2932809277",
+      "platform": "twitch-vod",
+      "title": "GTA 6 LAUNCH STREAM! Playing GTA 6 For the First Time",
+      "creator": "TGG_gta",
+      "duration": 12085.0,
+      "views": 54686,
+      "published": "2026-11-18T22:44:11Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
+    "twitch-vod:2933538555": {
+      "key": "twitch-vod:2933538555",
+      "url": "https://www.twitch.tv/videos/2933538555",
+      "platform": "twitch-vod",
+      "title": "GTA 6 LAUNCH STREAM! Playing GTA 6 For the First Time",
+      "creator": "TGG_gta",
+      "duration": 13109.0,
+      "views": 70683,
+      "published": "2026-11-19T10:12:55Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
     "youtube:-UuHA1h-Cf8": {
       "key": "youtube:-UuHA1h-Cf8",
       "url": "https://www.youtube.com/watch?v=-UuHA1h-Cf8",
@@ -91,6 +141,21 @@
       "duration": 572.0,
       "views": 515553,
       "published": "2026-11-18T21:05:14Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
+    "youtube:5tdj53ioJ-c": {
+      "key": "youtube:5tdj53ioJ-c",
+      "url": "https://www.youtube.com/watch?v=5tdj53ioJ-c",
+      "platform": "youtube",
+      "title": "PLAYING GTA 6 FOR THE FIRST TIME (PART 3)",
+      "creator": "Kai Cenat Live",
+      "duration": 42141.0,
+      "views": 4342865,
+      "published": "2026-11-19T12:54:38Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
@@ -149,7 +214,7 @@
       "title": "GTA 6 Walkthrough Gameplay Part 2 - JASON DUVAL (GRAND THEFT AUTO 6)",
       "creator": "theRadBrad",
       "duration": 3741.0,
-      "views": 844321,
+      "views": 1448095,
       "published": "2026-11-19T15:00:35Z",
       "rights": "unspecified",
       "anchors": [],
@@ -164,7 +229,7 @@
       "title": "🔴 LIVE! - GTA 6 EARLY ACCESS with TYPICAL GAMER! (PS5 PRO)",
       "creator": "Typical Gamer",
       "duration": 35745.0,
-      "views": 2586700,
+      "views": 2779073,
       "published": "2026-11-19T01:16:55Z",
       "rights": "unspecified",
       "anchors": [],
@@ -209,7 +274,7 @@
       "title": "Grand Theft Auto 6 Gameplay and Impressions...",
       "creator": "jackfrags",
       "duration": 2218.0,
-      "views": 2549834,
+      "views": 3018685,
       "published": "2026-11-18T22:04:15Z",
       "rights": "unspecified",
       "anchors": [],
@@ -232,6 +297,21 @@
       "parent_offset": null,
       "recording": false
     },
+    "youtube:YylVwL4UIFU": {
+      "key": "youtube:YylVwL4UIFU",
+      "url": "https://www.youtube.com/watch?v=YylVwL4UIFU",
+      "platform": "youtube",
+      "title": "🔴LIVE | GTA 6 | DAY 2 | VICE CITY | SUPER CARS/HYPER CARS | #1 GTA 6 DRIVER | #BUNGULATE",
+      "creator": "TheBurntPeanut",
+      "duration": 57359.0,
+      "views": 3063214,
+      "published": "2026-11-19T19:13:20Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
     "youtube:ey0qks0aQ-c": {
       "key": "youtube:ey0qks0aQ-c",
       "url": "https://www.youtube.com/watch?v=ey0qks0aQ-c",
@@ -239,7 +319,7 @@
       "title": "GTA 6 - Ocean Beach Shootout + Five Star Escape",
       "creator": "Mike The Goon",
       "duration": 861.0,
-      "views": 329934,
+      "views": 452677,
       "published": "2026-11-19T11:46:27Z",
       "rights": "unspecified",
       "anchors": [],
@@ -271,6 +351,21 @@
       "duration": 501.0,
       "views": 136717,
       "published": "2026-11-18T22:37:02Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
+    "youtube:hwSg39yIBGU": {
+      "key": "youtube:hwSg39yIBGU",
+      "url": "https://www.youtube.com/watch?v=hwSg39yIBGU",
+      "platform": "youtube",
+      "title": "🔴PLAYING GTA 6 RIGHT NOW GET IN HERE!",
+      "creator": "IShowSpeed",
+      "duration": 85282.0,
+      "views": 33975461,
+      "published": "2026-11-19T13:04:39Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
@@ -340,6 +435,21 @@
       "fingerprint": "cb135c6c77e8e1c0.e338e9a90db0f8d4.c3c9d8514c62eaca"
     },
     {
+      "id": "29970e23947074a9908b",
+      "span": {
+        "source": "twitch-vod:2933538555",
+        "start": 194.5,
+        "end": 204.5
+      },
+      "theme": "mission",
+      "hook": "Lucia drives into Watkins Auto Parts to lose police heat.",
+      "setup": "Lucia pulls into the auto shop garage while wanted by police.",
+      "payoff": "The heat clears just as she parks inside and steps out of the car.",
+      "evidence": "Video shows the car entering the garage at Watkins Auto Parts, the 'Heat cleared' notification appearing on screen, and Lucia getting out of the driver seat.",
+      "score": 82.75,
+      "fingerprint": "4240434010307070.e4e0e060e8e0b072.b0d6dc48e84d4dcd"
+    },
+    {
       "id": "10acd9bceafe92fe34a7",
       "span": {
         "source": "youtube:xgZCLTZbvs8",
@@ -357,126 +467,6 @@
   ],
   "pending": [
     {
-      "id": "5cd9688783c896d4bbe7",
-      "span": {
-        "source": "youtube:CukTYtF72KY",
-        "start": 302.0,
-        "end": 320.0
-      },
-      "theme": "driving",
-      "hook": "Jason navigates narrow dirt roads on a motorcycle.",
-      "setup": "Jason mounts the Dinka 72 Enduro motorcycle parked under a house on stilts.",
-      "payoff": "He rides through the neighborhood streets while phone call audio plays in the background.",
-      "evidence": "Jason driving a motorcycle down residential streets in Key Lento.",
-      "score": 80.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "00227582144d5d1ece76",
-      "span": {
-        "source": "youtube:uZGnqBLC60Y",
-        "start": 6476.02,
-        "end": 6501.02
-      },
-      "theme": "driving",
-      "hook": "We're not stopping for long.",
-      "setup": "Jason and Brian drive a Vapid 4x4 pickup truck to a liquor store in Key Lento to find Arnold.",
-      "payoff": "Cal rushes out of the One Stop Liquor store to get into the truck.",
-      "evidence": "Just... pull up front of the store. We're not stopping for long.",
-      "score": 80.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "e45db18bdb395cd852ff",
-      "span": {
-        "source": "youtube:CukTYtF72KY",
-        "start": 2186.91,
-        "end": 2198.91
-      },
-      "theme": "discovery",
-      "hook": "Jason replaces rotted wooden steps on his exterior staircase.",
-      "setup": "Jason investigates damaged steps outside and picks up new lumber.",
-      "payoff": "He nails new wooden boards onto the staircase steps.",
-      "evidence": "Jason uses a nail gun to secure planks onto porch stairs.",
-      "score": 80.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "aacd99ce65ffb8fa75d3",
-      "span": {
-        "source": "youtube:gBLQ-t_tywk",
-        "start": 29156.6,
-        "end": 29196.6
-      },
-      "theme": "mission",
-      "hook": "Planning a heist in a dark room with a female associate.",
-      "setup": "Jason climbs through back alleyways and doors to reach the planning room.",
-      "payoff": "Discussion about rewriting files and security access.",
-      "evidence": "Characters discuss heist plans in an indoor office setting.",
-      "score": 80.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "cd55264aaf65ff9c45e7",
-      "span": {
-        "source": "youtube:oyHFwPNd_c4",
-        "start": 305.0,
-        "end": 350.0
-      },
-      "theme": "mission",
-      "hook": "I'm Jason.",
-      "setup": "Jason and Lucia sit inside a car at night discussing their names and next steps.",
-      "payoff": "Jason introduces himself and suggests they go have some fun.",
-      "evidence": "Jason states, \"I'm Jason,\" and Lucia replies, \"Lucia.\"",
-      "score": 78.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "bcb2c3022b0b72a3a428",
-      "span": {
-        "source": "youtube:oyHFwPNd_c4",
-        "start": 20954.64,
-        "end": 20970.64
-      },
-      "theme": "mission",
-      "hook": "A close call during a river flight sequence.",
-      "setup": "The player flies the plane low over the water while characters converse.",
-      "payoff": "The plane nearly clips a boat while executing a maneuver.",
-      "evidence": "That was honestly like I'm just getting so good at this point.",
-      "score": 78.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "8f9ecbfa2e0091d1a99b",
-      "span": {
-        "source": "youtube:CukTYtF72KY",
-        "start": 2158.91,
-        "end": 2173.91
-      },
-      "theme": "discovery",
-      "hook": "Jason uses a drill and screws to fix up the drywall inside his home.",
-      "setup": "Jason picks up a power drill to perform home improvement tasks.",
-      "payoff": "He fastens drywall panels to the wooden framework.",
-      "evidence": "Jason drills screws into drywall panels on interior framing.",
-      "score": 78.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "238ec3cee36a9ab11e58",
-      "span": {
-        "source": "youtube:Mw4MrVRO_co",
-        "start": 407.0,
-        "end": 465.0
-      },
-      "theme": "discovery",
-      "hook": "Checking phone banking app",
-      "setup": "Lucia pulls out her smartphone to check her funds.",
-      "payoff": "The BuckMe app opens showing zero balance and a checking account.",
-      "evidence": "BuckMe app interface displayed on the in-game smartphone.",
-      "score": 75.0,
-      "fingerprint": ""
-    },
-    {
       "id": "edc6dcd75f570e893eb5",
       "span": {
         "source": "youtube:YOxDxdVD4MY",
@@ -488,21 +478,6 @@
       "setup": "Lucia's mother tells her to start cleaning the front yard.",
       "payoff": "Lucia picks up trash and puts it into a dumpster while talking to her mother.",
       "evidence": "Lucia picks up debris in front of the house and disposes of it in the dumpster.",
-      "score": 75.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "635138ad747c900f9ec5",
-      "span": {
-        "source": "youtube:Ui5eAdG6a-I",
-        "start": 310.64,
-        "end": 366.64
-      },
-      "theme": "chase",
-      "hook": "Fighter jets engage the stolen private jet.",
-      "setup": "Military fighter jets appear alongside the private jet, demanding an immediate landing.",
-      "payoff": "The fighter jets damage the private jet's engines, causing thick black smoke to trail behind.",
-      "evidence": "Pilot: Land the aircraft. We will engage.",
       "score": 75.0,
       "fingerprint": ""
     },
@@ -522,21 +497,6 @@
       "fingerprint": ""
     },
     {
-      "id": "5c63bc48c7eaa7da203f",
-      "span": {
-        "source": "youtube:oyHFwPNd_c4",
-        "start": 385.0,
-        "end": 425.0
-      },
-      "theme": "other",
-      "hook": "Successful car thief.",
-      "setup": "Lucia stands by a refrigerator in a kitchen and talks to Jason on the couch.",
-      "payoff": "Lucia criticizes Jason for coming back keyed up with a roll of bills.",
-      "evidence": "Lucia says, \"The guys that picked you up the other day, you come back all keyed up, with a roll of bills.\"",
-      "score": 75.0,
-      "fingerprint": ""
-    },
-    {
       "id": "dc74dfa19781d4a740d7",
       "span": {
         "source": "youtube:gBLQ-t_tywk",
@@ -548,6 +508,21 @@
       "setup": "Jason runs from a scooter to the middle of the street.",
       "payoff": "Jason kicks the driver out and speeds off down Ocean Beach.",
       "evidence": "Jason runs to the car and drives away.",
+      "score": 75.0,
+      "fingerprint": ""
+    },
+    {
+      "id": "a8d5dda883323d70c579",
+      "span": {
+        "source": "youtube:hwSg39yIBGU",
+        "start": 26949.39,
+        "end": 26990.39
+      },
+      "theme": "mission",
+      "hook": "Weapon locker customization",
+      "setup": "The player enters the gun store and accesses the weapon locker to manage loadouts.",
+      "payoff": "The player browses through sidearms, shotguns, and assault rifles before equipping gear.",
+      "evidence": "The interface displays 'JASON'S WEAPON LOCKER' with detailed firearm statistics.",
       "score": 75.0,
       "fingerprint": ""
     },
@@ -582,21 +557,6 @@
       "fingerprint": ""
     },
     {
-      "id": "b54ecd8fe0dafe306bd4",
-      "span": {
-        "source": "youtube:oyHFwPNd_c4",
-        "start": 20885.64,
-        "end": 20905.64
-      },
-      "theme": "comedy",
-      "hook": "An awkward encounter unfolds outside the safehouse.",
-      "setup": "The characters interact with a law enforcement officer who questions their whereabouts.",
-      "payoff": "The officer engages in dialogue while the streamer reacts to the absurd narrative setup.",
-      "evidence": "You know that must be like a dud or something.",
-      "score": 70.0,
-      "fingerprint": ""
-    },
-    {
       "id": "92a67e26882c8fa3de87",
       "span": {
         "source": "youtube:gBLQ-t_tywk",
@@ -608,6 +568,51 @@
       "setup": "Jason uses the phone to call a 'RydeMe' vehicle.",
       "payoff": "A blue sedan arrives, and Jason enters as a passenger.",
       "evidence": "Smartphone app shows 'RydeMe' and car picks him up.",
+      "score": 70.0,
+      "fingerprint": ""
+    },
+    {
+      "id": "036e3770f95e9c3c4eee",
+      "span": {
+        "source": "youtube:5tdj53ioJ-c",
+        "start": 12227.09,
+        "end": 12269.09
+      },
+      "theme": "mission",
+      "hook": "Choosing an outfit.",
+      "setup": "Jason and Lucia converse about what to wear.",
+      "payoff": "Lucia changes into a new dress and is ready.",
+      "evidence": "Lucia holding dresses to choose an outfit.",
+      "score": 70.0,
+      "fingerprint": ""
+    },
+    {
+      "id": "1c4a7bb3f65e04eaed7c",
+      "span": {
+        "source": "youtube:5tdj53ioJ-c",
+        "start": 12421.09,
+        "end": 12458.09
+      },
+      "theme": "mission",
+      "hook": "Arriving at the restaurant.",
+      "setup": "Parking the motorcycle and walking towards the restaurant entrance.",
+      "payoff": "Entering the restaurant holding hands.",
+      "evidence": "Walking into the restaurant entrance together.",
+      "score": 70.0,
+      "fingerprint": ""
+    },
+    {
+      "id": "13f138228368e1434208",
+      "span": {
+        "source": "youtube:HzzzoomJ-Os",
+        "start": 11876.88,
+        "end": 11907.88
+      },
+      "theme": "mission",
+      "hook": "Driving past Pearl House",
+      "setup": "Lucia and companion drive down the main strip passing landmarks",
+      "payoff": "They arrive at Delights and park outside",
+      "evidence": "Driving past signs like Pearl House and arriving at Delights parking lot",
       "score": 70.0,
       "fingerprint": ""
     },
@@ -672,6 +677,36 @@
       "fingerprint": ""
     },
     {
+      "id": "3252e8a45be3080a147d",
+      "span": {
+        "source": "youtube:5tdj53ioJ-c",
+        "start": 12156.09,
+        "end": 12187.09
+      },
+      "theme": "mission",
+      "hook": "Returning to the apartment.",
+      "setup": "Walking up the stairs to apartment 302.",
+      "payoff": "Entering the apartment and interacting with the wardrobe.",
+      "evidence": "Walking up the apartment staircase.",
+      "score": 65.0,
+      "fingerprint": ""
+    },
+    {
+      "id": "eb8cbcc44c2a9cd98457",
+      "span": {
+        "source": "youtube:5tdj53ioJ-c",
+        "start": 12354.09,
+        "end": 12397.09
+      },
+      "theme": "driving",
+      "hook": "Heading out on a motorcycle.",
+      "setup": "Jason and Lucia get on a motorcycle outside the apartment.",
+      "payoff": "Riding through Vice City traffic towards the restaurant.",
+      "evidence": "Driving the motorcycle with Lucia on the back.",
+      "score": 65.0,
+      "fingerprint": ""
+    },
+    {
       "id": "d11a875a1c93d85da7b6",
       "span": {
         "source": "youtube:Ui5eAdG6a-I",
@@ -700,6 +735,51 @@
       "evidence": "Visual of the silver sedan sliding on the road at 1:25",
       "score": 60.0,
       "fingerprint": ""
+    },
+    {
+      "id": "1fd294e36364c6ba3ebb",
+      "span": {
+        "source": "youtube:hwSg39yIBGU",
+        "start": 26821.39,
+        "end": 26836.39
+      },
+      "theme": "discovery",
+      "hook": "Inventory management menu review",
+      "setup": "The player opens the weapon selection wheel while driving a red car in Vice City.",
+      "payoff": "The player opens the map menu to locate the Iron & Oak Ammu-Nation store.",
+      "evidence": "Inventory and map menus display HUD elements for 'JASON & LUCIA'.",
+      "score": 60.0,
+      "fingerprint": ""
+    },
+    {
+      "id": "28449a032721d40bfb08",
+      "span": {
+        "source": "youtube:5tdj53ioJ-c",
+        "start": 12100.09,
+        "end": 12131.09
+      },
+      "theme": "driving",
+      "hook": "Driving through Vice City streets.",
+      "setup": "The player drives a red SUV through city traffic.",
+      "payoff": "The player arrives at the apartment building and gets out.",
+      "evidence": "Driving the red SUV through the streets.",
+      "score": 60.0,
+      "fingerprint": ""
+    },
+    {
+      "id": "b325ebb24c2e7bca3b01",
+      "span": {
+        "source": "youtube:HzzzoomJ-Os",
+        "start": 11833.88,
+        "end": 11847.88
+      },
+      "theme": "driving",
+      "hook": "Lucia drives through town",
+      "setup": "Lucia is driving a convertible in GTA VI",
+      "payoff": "Lucia has a conversation about her friend and arriving at the destination",
+      "evidence": "Lucia driving a convertible with dialogue about heading to see her friend",
+      "score": 60.0,
+      "fingerprint": ""
     }
   ],
   "sequences": [
@@ -712,6 +792,16 @@
       "theme": "mission",
       "story": "Lucia helps her mother clean up their dilapidated property, survives an alligator attack in the pool, deals with an armed gang confrontation, and ultimately uses an excavator to demolish the gang's house in retaliation.",
       "score": 95.0
+    },
+    {
+      "span": {
+        "source": "twitch-vod:2933538555",
+        "start": 195.0,
+        "end": 465.0
+      },
+      "theme": "mission",
+      "story": "Lucia carjacks an Ocelot Jugular, drives to Watkins Auto Parts, and negotiates with Moses to prove her car boosting skills.",
+      "score": 92.0
     },
     {
       "span": {
@@ -732,6 +822,16 @@
       "theme": "chase",
       "story": "A sustained 6-star police chase beginning inside a military base, breaking out onto country roads, crossing bridges towards Vice City, battling N.O.O.S.E. units and helicopters, and eventually culminating in a 'wasted' screen after extensive damage.",
       "score": 92.0
+    },
+    {
+      "span": {
+        "source": "youtube:YylVwL4UIFU",
+        "start": 41166.9,
+        "end": 41431.9
+      },
+      "theme": "mission",
+      "story": "The player navigates through various missions, evades police, steals vehicles, and completes objectives across the map.",
+      "score": 90.0
     },
     {
       "span": {
@@ -842,6 +942,46 @@
       "theme": "driving",
       "story": "The player exits a safehouse, gets into an SUV, drives through suburban streets to a gas station convenience store, buys supplies and a beverage, and ends up in a street brawl with hostile locals.",
       "score": 82.0
+    },
+    {
+      "span": {
+        "source": "youtube:hwSg39yIBGU",
+        "start": 26821.39,
+        "end": 27171.39
+      },
+      "theme": "mission",
+      "story": "The player drives through Vice City, visits an Ammu-Nation store to manage weapon loadouts and ammunition, drives to a planning room, and triggers a cinematic cutscene where the crew details roles for an upcoming bank heist.",
+      "score": 80.0
+    },
+    {
+      "span": {
+        "source": "twitch-vod:2932809277",
+        "start": 73.0,
+        "end": 345.0
+      },
+      "theme": "driving",
+      "story": "The streamer discusses being sleep-deprived for the GTA VI launch, opens the weapon menu, navigates the game map to locate missions around Key Lento, and prepares to drive.",
+      "score": 80.0
+    },
+    {
+      "span": {
+        "source": "youtube:5tdj53ioJ-c",
+        "start": 12100.09,
+        "end": 12364.09
+      },
+      "theme": "mission",
+      "story": "The sequence follows the player driving through Vice City, arriving at the apartment, navigating the interior, and interacting with Lucia before they prepare to go out.",
+      "score": 75.0
+    },
+    {
+      "span": {
+        "source": "youtube:HzzzoomJ-Os",
+        "start": 11833.88,
+        "end": 12118.88
+      },
+      "theme": "mission",
+      "story": "Lucia drives through the countryside, arrives at Delights strip club, interacts with Frankie Delight and other patrons, and explores the venue during a mission.",
+      "score": 75.0
     },
     {
       "span": {
