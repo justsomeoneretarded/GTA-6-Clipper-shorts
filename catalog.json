@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-20T23:50:08Z",
+  "generated_at": "2026-11-21T13:57:59Z",
   "scanned": {
     "d66f80f00ab35d8f5532": "2026-11-18T12:29:44Z",
     "4f8b3e763c3765bfbfdf": "2026-11-18T12:29:55Z",
@@ -118,7 +118,27 @@
     "a597ac67f6da5a35e9c9": "2026-11-20T23:37:48Z",
     "97c8fd8126983d7e7f9f": "2026-11-20T23:40:08Z",
     "408fe92be52b80b9132d": "2026-11-20T23:40:15Z",
-    "a2be01380f2d828b2428": "2026-11-20T23:42:55Z"
+    "a2be01380f2d828b2428": "2026-11-20T23:42:55Z",
+    "d6ad741c93b24bd1af50": "2026-11-21T13:40:33Z",
+    "d1793689f50f06c3b801": "2026-11-21T13:41:06Z",
+    "b9fe29d1295ed43e6e83": "2026-11-21T13:41:06Z",
+    "dd02b6b001556662963e": "2026-11-21T13:41:06Z",
+    "b997b176368058cd8e31": "2026-11-21T13:41:24Z",
+    "a49ebc0fe6a69886265f": "2026-11-21T13:42:18Z",
+    "ccb6c32291091aba0427": "2026-11-21T13:42:30Z",
+    "719d0423563a1a98305e": "2026-11-21T13:44:29Z",
+    "d9614862844ecd3e4962": "2026-11-21T13:44:44Z",
+    "d3f11525895d4e0a1c2e": "2026-11-21T13:45:53Z",
+    "2d5efb940ba4a0050c08": "2026-11-21T13:46:26Z",
+    "fc6b8bde9668bd55ed15": "2026-11-21T13:46:52Z",
+    "987d8549916ab414f59f": "2026-11-21T13:46:52Z",
+    "b9e080d229abbe3a8d9e": "2026-11-21T13:46:52Z",
+    "2e21ad456bf8f3fc48f3": "2026-11-21T13:47:03Z",
+    "295b676ce5a36ea1ba64": "2026-11-21T13:49:18Z",
+    "3e40e81305c4ce8527d1": "2026-11-21T13:50:01Z",
+    "9734a9a29fb71feacff3": "2026-11-21T13:52:14Z",
+    "5cd93c890e969dbe9d9e": "2026-11-21T13:52:27Z",
+    "f4f25c9fe4c1ed162c93": "2026-11-21T13:53:50Z"
   },
   "sources": {
     "twitch-vod:2932809277": {
@@ -128,7 +148,7 @@
       "title": "GTA 6 LAUNCH STREAM! Playing GTA 6 For the First Time",
       "creator": "TGG_gta",
       "duration": 12085.0,
-      "views": 54686,
+      "views": 54911,
       "published": "2026-11-18T22:44:11Z",
       "rights": "unspecified",
       "anchors": [],
@@ -143,7 +163,7 @@
       "title": "GTA 6 LAUNCH STREAM! Playing GTA 6 For the First Time",
       "creator": "TGG_gta",
       "duration": 13109.0,
-      "views": 70683,
+      "views": 71073,
       "published": "2026-11-19T10:12:55Z",
       "rights": "unspecified",
       "anchors": [],
@@ -278,8 +298,23 @@
       "title": "🔴 LIVE! - GTA 6 EARLY ACCESS with TYPICAL GAMER! (PS5 PRO)",
       "creator": "Typical Gamer",
       "duration": 35745.0,
-      "views": 2779073,
+      "views": 2808331,
       "published": "2026-11-19T01:16:55Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
+    "youtube:LHoHInbPkk0": {
+      "key": "youtube:LHoHInbPkk0",
+      "url": "https://www.youtube.com/watch?v=LHoHInbPkk0",
+      "platform": "youtube",
+      "title": "🌴PLAYING GTA 6 FOR THE FIRST TIME🌴 (DAY 3)",
+      "creator": "Kai Cenat Live",
+      "duration": 42898.0,
+      "views": 2788001,
+      "published": "2026-11-20T12:39:52Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
@@ -308,8 +343,23 @@
       "title": "🔴 BEATING GTA 6 RIGHT NOW 100% (FINAL MISSION)",
       "creator": "IShowSpeed",
       "duration": 22061.0,
-      "views": 18424907,
+      "views": 21021090,
       "published": "2026-11-20T12:46:26Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
+    "youtube:QQV-0OUGxGs": {
+      "key": "youtube:QQV-0OUGxGs",
+      "url": "https://www.youtube.com/watch?v=QQV-0OUGxGs",
+      "platform": "youtube",
+      "title": "Whatever You Steal in GTA 6, You Keep!",
+      "creator": "MrBeast Gaming",
+      "duration": 1285.0,
+      "views": 19171570,
+      "published": "2026-11-20T20:43:18Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
@@ -383,7 +433,7 @@
       "title": "GTA 6 WTF and Funny Moments! #2",
       "creator": "Zynxize",
       "duration": 1098.0,
-      "views": 2559440,
+      "views": 3236066,
       "published": "2026-11-19T17:00:28Z",
       "rights": "unspecified",
       "anchors": [],
@@ -398,7 +448,7 @@
       "title": "GTA 6 - Ocean Beach Shootout + Five Star Escape",
       "creator": "Mike The Goon",
       "duration": 861.0,
-      "views": 541140,
+      "views": 587917,
       "published": "2026-11-19T11:46:27Z",
       "rights": "unspecified",
       "anchors": [],
@@ -443,7 +493,7 @@
       "title": "🔴PLAYING GTA 6 RIGHT NOW GET IN HERE!",
       "creator": "IShowSpeed",
       "duration": 85282.0,
-      "views": 36533101,
+      "views": 37147935,
       "published": "2026-11-19T13:04:39Z",
       "rights": "unspecified",
       "anchors": [],
@@ -503,7 +553,7 @@
       "title": "🌴PLAYING GTA 6 FOR THE FIRST TIME🌴 (DAY 2)",
       "creator": "Kai Cenat Live",
       "duration": 41640.0,
-      "views": 2733854,
+      "views": 2751679,
       "published": "2026-11-20T01:04:50Z",
       "rights": "unspecified",
       "anchors": [],
@@ -513,6 +563,21 @@
     }
   },
   "moments": [
+    {
+      "id": "6e47796d9241802917f9",
+      "span": {
+        "source": "youtube:QQV-0OUGxGs",
+        "start": 950.45,
+        "end": 985.95
+      },
+      "theme": "mission",
+      "hook": "The player crashes the SUV directly in front of a police car.",
+      "setup": "The player exits the vehicle, walks into a ShoreFront bank, and confronts the guards.",
+      "payoff": "The player fights the guards, kicks open doors, plants explosives, and cracks the safe to steal money.",
+      "evidence": "The player enters the bank, fights off officers, kicks open the staff door, and opens the safe to collect cash.",
+      "score": 85.75,
+      "fingerprint": "1b9b8b8ecc677733.f3b2b3b32242b234.747171d1958cbc35"
+    },
     {
       "id": "9b60e1746105acd25513",
       "span": {
@@ -542,6 +607,21 @@
       "evidence": "The interface displays 'Approach the speaker to order', followed by menu options including 'Reverse Chicken Sandwich ($10)' and a 'Health buffed' notification after consuming it.",
       "score": 85.25,
       "fingerprint": "cb135c6c77e8e1c0.e338e9a90db0f8d4.c3c9d8514c62eaca"
+    },
+    {
+      "id": "1830c877a0a51560a2b6",
+      "span": {
+        "source": "youtube:dUYIMa2ifWM",
+        "start": 197.0,
+        "end": 209.5
+      },
+      "theme": "mission",
+      "hook": "The player exits a truck next to an overturned car on fire.",
+      "setup": "The player walks over to examine the flipped vehicle and retrieve a stash bag while NPCs run past.",
+      "payoff": "The player successfully grabs the stash bag from the wrecked car and flees on foot.",
+      "evidence": "The player character gets out of the truck at 16.0s, walks past the overturned car at 33.0s, picks up the stash bag at 35.8s, and runs away.",
+      "score": 83.0,
+      "fingerprint": "582b06892cf4c4dc.b62c8e2361e8d8e9.0e2f2c272126eeee"
     },
     {
       "id": "29970e23947074a9908b",
@@ -591,21 +671,6 @@
   ],
   "pending": [
     {
-      "id": "a8d5dda883323d70c579",
-      "span": {
-        "source": "youtube:hwSg39yIBGU",
-        "start": 26949.39,
-        "end": 26990.39
-      },
-      "theme": "mission",
-      "hook": "Weapon locker customization",
-      "setup": "The player enters the gun store and accesses the weapon locker to manage loadouts.",
-      "payoff": "The player browses through sidearms, shotguns, and assault rifles before equipping gear.",
-      "evidence": "The interface displays 'JASON'S WEAPON LOCKER' with detailed firearm statistics.",
-      "score": 75.0,
-      "fingerprint": ""
-    },
-    {
       "id": "ad5eac84197d30a86ce7",
       "span": {
         "source": "youtube:gBLQ-t_tywk",
@@ -617,21 +682,6 @@
       "setup": "Jason and Lucia request a vehicle from the hotel valet.",
       "payoff": "A black SUV arrives at the hotel entrance and they enter it.",
       "evidence": "Black SUV pulling up at 3:46",
-      "score": 70.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "92a67e26882c8fa3de87",
-      "span": {
-        "source": "youtube:gBLQ-t_tywk",
-        "start": 29026.6,
-        "end": 29056.6
-      },
-      "theme": "driving",
-      "hook": "Ordering a rideshare app on the smartphone.",
-      "setup": "Jason uses the phone to call a 'RydeMe' vehicle.",
-      "payoff": "A blue sedan arrives, and Jason enters as a passenger.",
-      "evidence": "Smartphone app shows 'RydeMe' and car picks him up.",
       "score": 70.0,
       "fingerprint": ""
     },
@@ -726,21 +776,6 @@
       "fingerprint": ""
     },
     {
-      "id": "eac187720344bac81d82",
-      "span": {
-        "source": "youtube:oyHFwPNd_c4",
-        "start": 21075.64,
-        "end": 21092.64
-      },
-      "theme": "discovery",
-      "hook": "The player checks out a magazine inside the house.",
-      "setup": "The character walks inside and inspects a prop item.",
-      "payoff": "The 'Off The Hook Reel Talk' magazine cover is displayed close up.",
-      "evidence": "Magazines, Books & Comics",
-      "score": 65.0,
-      "fingerprint": ""
-    },
-    {
       "id": "3252e8a45be3080a147d",
       "span": {
         "source": "youtube:5tdj53ioJ-c",
@@ -801,21 +836,6 @@
       "fingerprint": ""
     },
     {
-      "id": "bc886acf534f06210ce3",
-      "span": {
-        "source": "youtube:gBLQ-t_tywk",
-        "start": 76.0,
-        "end": 105.0
-      },
-      "theme": "driving",
-      "hook": "Driving through city traffic",
-      "setup": "Jason drives a silver sedan on a highway bridge heading towards downtown Vice City.",
-      "payoff": "The car slides off the road onto the sidewalk before continuing.",
-      "evidence": "Visual of the silver sedan sliding on the road at 1:25",
-      "score": 60.0,
-      "fingerprint": ""
-    },
-    {
       "id": "1fd294e36364c6ba3ebb",
       "span": {
         "source": "youtube:hwSg39yIBGU",
@@ -871,6 +891,16 @@
       "theme": "mission",
       "story": "Lucia helps her mother clean up their dilapidated property, survives an alligator attack in the pool, deals with an armed gang confrontation, and ultimately uses an excavator to demolish the gang's house in retaliation.",
       "score": 95.0
+    },
+    {
+      "span": {
+        "source": "youtube:dUYIMa2ifWM",
+        "start": 197.0,
+        "end": 465.0
+      },
+      "theme": "stunt",
+      "story": "The sequence follows the player stealing a jet, performing chaotic low-altitude flights through the city, getting wasted, and then exploring street-level interactions with NPCs.",
+      "score": 92.0
     },
     {
       "span": {
@@ -964,6 +994,16 @@
     },
     {
       "span": {
+        "source": "youtube:OIeLbmyraRQ",
+        "start": 13006.96,
+        "end": 13322.96
+      },
+      "theme": "mission",
+      "story": "The player manages in-game smartphone banking applications to transfer funds, navigates the map to locate heist and mission targets across Vice City, and receives phone call briefings regarding final job preparations.",
+      "score": 88.0
+    },
+    {
+      "span": {
         "source": "youtube:oyHFwPNd_c4",
         "start": 105.0,
         "end": 380.0
@@ -1001,6 +1041,26 @@
       "theme": "discovery",
       "story": "A structured physics comparison demonstrating tyre shooting, water splashes, vehicle handling feedback, braking distances, and directional force.",
       "score": 88.0
+    },
+    {
+      "span": {
+        "source": "youtube:LHoHInbPkk0",
+        "start": 75.0,
+        "end": 345.0
+      },
+      "theme": "mission",
+      "story": "The player navigates Lucia through the streets of Vice-Dale County, checks the map for Chapter 4 Making Gainz objectives, triggers an interactive conversation with an NPC in an alleyway, and deals with sudden gameplay hazards.",
+      "score": 85.0
+    },
+    {
+      "span": {
+        "source": "youtube:LHoHInbPkk0",
+        "start": 28630.17,
+        "end": 28920.17
+      },
+      "theme": "mission",
+      "story": "Jason and Lucia reunite at an ice cream shop, return to their apartment, drink protein shakes, receive phone calls about legal affairs and contracts, and watch television.",
+      "score": 85.0
     },
     {
       "span": {
