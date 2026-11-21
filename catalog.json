@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-21T13:57:59Z",
+  "generated_at": "2026-11-21T22:33:36Z",
   "scanned": {
     "d66f80f00ab35d8f5532": "2026-11-18T12:29:44Z",
     "4f8b3e763c3765bfbfdf": "2026-11-18T12:29:55Z",
@@ -138,7 +138,26 @@
     "3e40e81305c4ce8527d1": "2026-11-21T13:50:01Z",
     "9734a9a29fb71feacff3": "2026-11-21T13:52:14Z",
     "5cd93c890e969dbe9d9e": "2026-11-21T13:52:27Z",
-    "f4f25c9fe4c1ed162c93": "2026-11-21T13:53:50Z"
+    "f4f25c9fe4c1ed162c93": "2026-11-21T13:53:50Z",
+    "96e251a9b50a68286998": "2026-11-21T22:20:41Z",
+    "3728adf51f85e84549af": "2026-11-21T22:21:09Z",
+    "4c986a26d9dda7f73a3b": "2026-11-21T22:21:09Z",
+    "1f0d84edae23ad3597f3": "2026-11-21T22:21:09Z",
+    "df44037a000faa5cd3f0": "2026-11-21T22:21:16Z",
+    "8a9e6ca1db7234aff93c": "2026-11-21T22:22:36Z",
+    "10f923c0e6ea74998ea3": "2026-11-21T22:22:46Z",
+    "1b00b6476ed4cb25c6f9": "2026-11-21T22:23:52Z",
+    "c5388984f14266a78d7b": "2026-11-21T22:24:02Z",
+    "fbebf9db0970990d9dcc": "2026-11-21T22:25:25Z",
+    "a9387bf04dd3f0dc14fc": "2026-11-21T22:25:41Z",
+    "ed75c65d9bfde9901995": "2026-11-21T22:26:16Z",
+    "9ee129cfa4706c756dc5": "2026-11-21T22:26:16Z",
+    "ec20d256cacb6bf246ce": "2026-11-21T22:26:16Z",
+    "14d2907ad1dba7329d78": "2026-11-21T22:26:22Z",
+    "ca5b3f751043b81f1f11": "2026-11-21T22:27:32Z",
+    "876133c3836eb6a1c044": "2026-11-21T22:27:38Z",
+    "3b2bc90730f17e874bd5": "2026-11-21T22:28:42Z",
+    "cb5aa4b344712662d894": "2026-11-21T22:28:52Z"
   },
   "sources": {
     "twitch-vod:2932809277": {
@@ -193,8 +212,23 @@
       "title": "[DROPS ON] UNBANNED GTA 6 RELEASE STREAM FOREVER WOW  BIG DAY HUGE DRAMA NEW GAMES BIG NEWS  REACTS !restedXP #WWMPartner | @asmongold247",
       "creator": "zackrawrr",
       "duration": 30480.0,
-      "views": 1439988,
+      "views": 1443671,
       "published": "2026-11-19T17:58:07Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
+    "twitch-vod:2935185818": {
+      "key": "twitch-vod:2935185818",
+      "url": "https://www.twitch.tv/videos/2935185818",
+      "platform": "twitch-vod",
+      "title": "[DROPS ON] UNBANNED GTA 6 RELEASE STREAM FOREVER WOW  BIG DAY HUGE DRAMA NEW GAMES BIG NEWS  REACTS !restedXP #WWMPartner | @asmongold247",
+      "creator": "zackrawrr",
+      "duration": 31051.0,
+      "views": 1389237,
+      "published": "2026-11-20T18:33:31Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
@@ -210,6 +244,21 @@
       "duration": 572.0,
       "views": 515553,
       "published": "2026-11-18T21:05:14Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
+    "youtube:1GeQU0SEC-E": {
+      "key": "youtube:1GeQU0SEC-E",
+      "url": "https://www.youtube.com/watch?v=1GeQU0SEC-E",
+      "platform": "youtube",
+      "title": "Can You Live a Normal Life in GTA 6?",
+      "creator": "Arean",
+      "duration": 1399.0,
+      "views": 1702969,
+      "published": "2026-11-20T16:53:43Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
@@ -291,6 +340,21 @@
       "parent_offset": null,
       "recording": false
     },
+    "youtube:GMZzFJsf844": {
+      "key": "youtube:GMZzFJsf844",
+      "url": "https://www.youtube.com/watch?v=GMZzFJsf844",
+      "platform": "youtube",
+      "title": "GTA 6 WTF and Funny Moments! #3",
+      "creator": "Zynxize",
+      "duration": 1171.0,
+      "views": 2259610,
+      "published": "2026-11-20T17:00:04Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
     "youtube:HzzzoomJ-Os": {
       "key": "youtube:HzzzoomJ-Os",
       "url": "https://www.youtube.com/watch?v=HzzzoomJ-Os",
@@ -298,7 +362,7 @@
       "title": "🔴 LIVE! - GTA 6 EARLY ACCESS with TYPICAL GAMER! (PS5 PRO)",
       "creator": "Typical Gamer",
       "duration": 35745.0,
-      "views": 2808331,
+      "views": 2819956,
       "published": "2026-11-19T01:16:55Z",
       "rights": "unspecified",
       "anchors": [],
@@ -343,7 +407,7 @@
       "title": "🔴 BEATING GTA 6 RIGHT NOW 100% (FINAL MISSION)",
       "creator": "IShowSpeed",
       "duration": 22061.0,
-      "views": 21021090,
+      "views": 22300943,
       "published": "2026-11-20T12:46:26Z",
       "rights": "unspecified",
       "anchors": [],
@@ -390,6 +454,21 @@
       "duration": 2218.0,
       "views": 3209668,
       "published": "2026-11-18T22:04:15Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
+    "youtube:XUQ7qoZjNBA": {
+      "key": "youtube:XUQ7qoZjNBA",
+      "url": "https://www.youtube.com/watch?v=XUQ7qoZjNBA",
+      "platform": "youtube",
+      "title": "🔴LIVE | GTA 6 | DAY 2 | VICE CITY | SUPER CARS/HYPER CARS | #1 GTA 6 DRIVER | #BUNGULATE",
+      "creator": "TheBurntPeanut",
+      "duration": 40692.0,
+      "views": 2014246,
+      "published": "2026-11-20T22:39:48Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
@@ -448,7 +527,7 @@
       "title": "GTA 6 - Ocean Beach Shootout + Five Star Escape",
       "creator": "Mike The Goon",
       "duration": 861.0,
-      "views": 587917,
+      "views": 628061,
       "published": "2026-11-19T11:46:27Z",
       "rights": "unspecified",
       "anchors": [],
@@ -493,7 +572,7 @@
       "title": "🔴PLAYING GTA 6 RIGHT NOW GET IN HERE!",
       "creator": "IShowSpeed",
       "duration": 85282.0,
-      "views": 37147935,
+      "views": 37521501,
       "published": "2026-11-19T13:04:39Z",
       "rights": "unspecified",
       "anchors": [],
@@ -523,7 +602,7 @@
       "title": "IT'S FINALLY HERE | Grand Theft Auto 6 - Part 1",
       "creator": "jacksepticeye",
       "duration": 10485.0,
-      "views": 3816511,
+      "views": 4259736,
       "published": "2026-11-18T23:47:15Z",
       "rights": "unspecified",
       "anchors": [],
@@ -553,7 +632,7 @@
       "title": "🌴PLAYING GTA 6 FOR THE FIRST TIME🌴 (DAY 2)",
       "creator": "Kai Cenat Live",
       "duration": 41640.0,
-      "views": 2751679,
+      "views": 2760180,
       "published": "2026-11-20T01:04:50Z",
       "rights": "unspecified",
       "anchors": [],
@@ -607,6 +686,21 @@
       "evidence": "The interface displays 'Approach the speaker to order', followed by menu options including 'Reverse Chicken Sandwich ($10)' and a 'Health buffed' notification after consuming it.",
       "score": 85.25,
       "fingerprint": "cb135c6c77e8e1c0.e338e9a90db0f8d4.c3c9d8514c62eaca"
+    },
+    {
+      "id": "57a7d5c2fdef2dbc33da",
+      "span": {
+        "source": "twitch-vod:2935185818",
+        "start": 420.0,
+        "end": 440.0
+      },
+      "theme": "podcast",
+      "hook": "He questions the quality of heavily funded games.",
+      "setup": "The speaker evaluates previous high-budget titles and their shortcomings.",
+      "payoff": "He explains how poor storytelling and progression affect major games.",
+      "evidence": "They were like objectively bad games... the storyline and the progression was bad.",
+      "score": 83.75,
+      "fingerprint": "265250708c0c00c0.265250708c0c00c0.265250708c0c00c0"
     },
     {
       "id": "1830c877a0a51560a2b6",
@@ -671,18 +765,63 @@
   ],
   "pending": [
     {
-      "id": "ad5eac84197d30a86ce7",
+      "id": "3f4cc30346619922a129",
       "span": {
-        "source": "youtube:gBLQ-t_tywk",
-        "start": 416.0,
-        "end": 446.0
+        "source": "youtube:GMZzFJsf844",
+        "start": 464.0,
+        "end": 479.0
       },
-      "theme": "mission",
-      "hook": "Valet service vehicle arrival",
-      "setup": "Jason and Lucia request a vehicle from the hotel valet.",
-      "payoff": "A black SUV arrives at the hotel entrance and they enter it.",
-      "evidence": "Black SUV pulling up at 3:46",
-      "score": 70.0,
+      "theme": "discovery",
+      "hook": "A peaceful fishing trip interrupted unexpectedly.",
+      "setup": "A character stands on a dock holding a fishing rod over the water.",
+      "payoff": "An NPC abruptly pushes the character off the dock into the water, sending them swimming.",
+      "evidence": "An NPC shoves the player off the dock into the water.",
+      "score": 80.0,
+      "fingerprint": ""
+    },
+    {
+      "id": "a8a0ed037bcc9badbb60",
+      "span": {
+        "source": "youtube:1GeQU0SEC-E",
+        "start": 1165.57,
+        "end": 1207.57
+      },
+      "theme": "discovery",
+      "hook": "Grabbing quick cash from the floorboards.",
+      "setup": "The player is short on cash and checks their hidden stash under the floorboards.",
+      "payoff": "Jason retrieves all his savings, increasing his cash total significantly.",
+      "evidence": "I went to my personal stash and grabbed everything there.",
+      "score": 80.0,
+      "fingerprint": ""
+    },
+    {
+      "id": "ed2632d166aaf4e565af",
+      "span": {
+        "source": "youtube:yX4DH_msPkI",
+        "start": 29122.6,
+        "end": 29150.1
+      },
+      "theme": "driving",
+      "hook": "Cruising through Vice City",
+      "setup": "Jason gets into a car and checks his phone.",
+      "payoff": "Jason receives a message about Partners in Crime status.",
+      "evidence": "Jason & Lucia's relationship has declined to Partners in Crime.",
+      "score": 78.0,
+      "fingerprint": ""
+    },
+    {
+      "id": "b9aa44e44823c8929e89",
+      "span": {
+        "source": "youtube:XUQ7qoZjNBA",
+        "start": 24618.19,
+        "end": 24637.19
+      },
+      "theme": "driving",
+      "hook": "Choosing the getaway vehicle.",
+      "setup": "A countdown timer is displayed over three different vehicles in a garage.",
+      "payoff": "The armored truck is selected and speeds out of the garage.",
+      "evidence": "PICK YOUR GETAWAY VEHICLE",
+      "score": 75.0,
       "fingerprint": ""
     },
     {
@@ -935,6 +1074,26 @@
     {
       "span": {
         "source": "youtube:yX4DH_msPkI",
+        "start": 29060.1,
+        "end": 29320.1
+      },
+      "theme": "mission",
+      "story": "Jason navigates through Vice City, completes mission objectives, engages in shootouts at a lab, manages phone messages regarding relationship status, and explores apartment buildings.",
+      "score": 90.0
+    },
+    {
+      "span": {
+        "source": "youtube:XUQ7qoZjNBA",
+        "start": 24735.19,
+        "end": 25001.19
+      },
+      "theme": "driving",
+      "story": "A complete street race sequence featuring high speeds, traffic dodging, dramatic crashes, and vehicle flips.",
+      "score": 90.0
+    },
+    {
+      "span": {
+        "source": "youtube:yX4DH_msPkI",
         "start": 34212.6,
         "end": 34482.6
       },
@@ -1041,6 +1200,16 @@
       "theme": "discovery",
       "story": "A structured physics comparison demonstrating tyre shooting, water splashes, vehicle handling feedback, braking distances, and directional force.",
       "score": 88.0
+    },
+    {
+      "span": {
+        "source": "youtube:1GeQU0SEC-E",
+        "start": 825.57,
+        "end": 1164.57
+      },
+      "theme": "discovery",
+      "story": "Jason alters his appearance, evades police by sleeping, works out, drives a damaged truck to sell collectibles at a pawn shop, and explores various side activities.",
+      "score": 86.0
     },
     {
       "span": {
