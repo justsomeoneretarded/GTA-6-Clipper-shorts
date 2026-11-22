@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-22T14:05:47Z",
+  "generated_at": "2026-11-22T22:53:03Z",
   "scanned": {
     "d66f80f00ab35d8f5532": "2026-11-18T12:29:44Z",
     "4f8b3e763c3765bfbfdf": "2026-11-18T12:29:55Z",
@@ -173,7 +173,25 @@
     "c087948e7a13c05c9434": "2026-11-22T13:56:32Z",
     "f061cb63ca6f516437ea": "2026-11-22T13:56:36Z",
     "dbe7c9909761bcf3428f": "2026-11-22T13:56:50Z",
-    "1823d140344fde230af8": "2026-11-22T13:57:03Z"
+    "1823d140344fde230af8": "2026-11-22T13:57:03Z",
+    "19f4ebdc2624793e075f": "2026-11-22T22:40:43Z",
+    "33a0881e19e73cc3e2af": "2026-11-22T22:41:05Z",
+    "b4ed8663c9dcdd49a80c": "2026-11-22T22:41:05Z",
+    "7f9035324dddc57e7049": "2026-11-22T22:41:05Z",
+    "0285e887805b9aef2e21": "2026-11-22T22:41:13Z",
+    "3d25e5fd8fa7c2c14468": "2026-11-22T22:42:15Z",
+    "45ca388553fd81ee59a2": "2026-11-22T22:42:24Z",
+    "290512257ede1c8d3956": "2026-11-22T22:43:29Z",
+    "6549c8986e710654ba5f": "2026-11-22T22:43:42Z",
+    "0d77183135a35c8e47f9": "2026-11-22T22:44:42Z",
+    "11bcc6f8d89be99720e6": "2026-11-22T22:44:52Z",
+    "31429f5a9a3bf7755e49": "2026-11-22T22:45:22Z",
+    "f234624f8eadee244b07": "2026-11-22T22:45:22Z",
+    "8f72bd90a3fba3cdc375": "2026-11-22T22:45:22Z",
+    "ebddc8a2d9f4746dfeb8": "2026-11-22T22:46:29Z",
+    "37f511534f9f39021ce3": "2026-11-22T22:46:38Z",
+    "0c22e9b2ad1a5cfde4e9": "2026-11-22T22:47:59Z",
+    "923cc269df6d817c1186": "2026-11-22T22:49:20Z"
   },
   "sources": {
     "twitch-vod:2932809277": {
@@ -213,7 +231,7 @@
       "title": "🦎GTA VI🦎CODIGOS CADA 10 MIN🦎DROPS EXCLUSIVOS🦎SEGUIMOS SIMPEANDO A LUCIA🦎",
       "creator": "Rubius",
       "duration": 31260.0,
-      "views": 2803546,
+      "views": 2903947,
       "published": "2026-11-19T17:07:46Z",
       "rights": "unspecified",
       "anchors": [],
@@ -228,7 +246,7 @@
       "title": "[DROPS ON] UNBANNED GTA 6 RELEASE STREAM FOREVER WOW  BIG DAY HUGE DRAMA NEW GAMES BIG NEWS  REACTS !restedXP #WWMPartner | @asmongold247",
       "creator": "zackrawrr",
       "duration": 30480.0,
-      "views": 1443671,
+      "views": 1445552,
       "published": "2026-11-19T17:58:07Z",
       "rights": "unspecified",
       "anchors": [],
@@ -243,8 +261,23 @@
       "title": "[DROPS ON] UNBANNED GTA 6 RELEASE STREAM FOREVER WOW  BIG DAY HUGE DRAMA NEW GAMES BIG NEWS  REACTS !restedXP #WWMPartner | @asmongold247",
       "creator": "zackrawrr",
       "duration": 31051.0,
-      "views": 1389237,
+      "views": 1393248,
       "published": "2026-11-20T18:33:31Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
+    "twitch-vod:2935805716": {
+      "key": "twitch-vod:2935805716",
+      "url": "https://www.twitch.tv/videos/2935805716",
+      "platform": "twitch-vod",
+      "title": "[SUBATHON MIAMI] On découvre Vice City sur GTA VI | !subathon !holy !free !submiami",
+      "creator": "JLTomy",
+      "duration": 53090.0,
+      "views": 436545,
+      "published": "2026-11-21T04:45:34Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
@@ -273,7 +306,7 @@
       "title": "Can You Live a Normal Life in GTA 6?",
       "creator": "Arean",
       "duration": 1399.0,
-      "views": 2380157,
+      "views": 2748753,
       "published": "2026-11-20T16:53:43Z",
       "rights": "unspecified",
       "anchors": [],
@@ -363,7 +396,7 @@
       "title": "GTA 6 WTF and Funny Moments! #3",
       "creator": "Zynxize",
       "duration": 1171.0,
-      "views": 3077443,
+      "views": 3489667,
       "published": "2026-11-20T17:00:04Z",
       "rights": "unspecified",
       "anchors": [],
@@ -378,7 +411,7 @@
       "title": "🔴 LIVE! - GTA 6 EARLY ACCESS with TYPICAL GAMER! (PS5 PRO)",
       "creator": "Typical Gamer",
       "duration": 35745.0,
-      "views": 2838068,
+      "views": 2847159,
       "published": "2026-11-19T01:16:55Z",
       "rights": "unspecified",
       "anchors": [],
@@ -401,21 +434,6 @@
       "parent_offset": null,
       "recording": false
     },
-    "youtube:Mw4MrVRO_co": {
-      "key": "youtube:Mw4MrVRO_co",
-      "url": "https://www.youtube.com/watch?v=Mw4MrVRO_co",
-      "platform": "youtube",
-      "title": "First Look at GTA 6! 🔥 IT'S FINALLY GETTING GOOD!",
-      "creator": "Fresh Spawns",
-      "duration": 14121.0,
-      "views": 124864,
-      "published": "2026-11-18T22:45:12Z",
-      "rights": "unspecified",
-      "anchors": [],
-      "parent": "",
-      "parent_offset": null,
-      "recording": false
-    },
     "youtube:OIeLbmyraRQ": {
       "key": "youtube:OIeLbmyraRQ",
       "url": "https://www.youtube.com/watch?v=OIeLbmyraRQ",
@@ -423,7 +441,7 @@
       "title": "🔴 BEATING GTA 6 RIGHT NOW 100% (FINAL MISSION)",
       "creator": "IShowSpeed",
       "duration": 22061.0,
-      "views": 23277587,
+      "views": 23751131,
       "published": "2026-11-20T12:46:26Z",
       "rights": "unspecified",
       "anchors": [],
@@ -468,7 +486,7 @@
       "title": "GTA 6 Gameplay Walkthrough FULL GAME [4K PS5 PRO] No Commentary",
       "creator": "Shirrako",
       "duration": 129958.0,
-      "views": 2264854,
+      "views": 2616890,
       "published": "2026-11-20T19:41:59Z",
       "rights": "unspecified",
       "anchors": [],
@@ -528,8 +546,23 @@
       "title": "🔴LIVE | GTA 6 | DAY 2 | VICE CITY | SUPER CARS/HYPER CARS | #1 GTA 6 DRIVER | #BUNGULATE",
       "creator": "TheBurntPeanut",
       "duration": 57359.0,
-      "views": 3367742,
+      "views": 3362390,
       "published": "2026-11-19T19:13:20Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
+    "youtube:dMfN68hBoc8": {
+      "key": "youtube:dMfN68hBoc8",
+      "url": "https://www.youtube.com/watch?v=dMfN68hBoc8",
+      "platform": "youtube",
+      "title": "TOP 250 WTF & Funny Moments In GTA 6",
+      "creator": "Red Arcade",
+      "duration": 3014.0,
+      "views": 1723138,
+      "published": "2026-11-21T15:33:25Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
@@ -603,8 +636,23 @@
       "title": "🔴PLAYING GTA 6 RIGHT NOW GET IN HERE!",
       "creator": "IShowSpeed",
       "duration": 85282.0,
-      "views": 37816176,
+      "views": 37829273,
       "published": "2026-11-19T13:04:39Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
+    "youtube:izXcd-bU72k": {
+      "key": "youtube:izXcd-bU72k",
+      "url": "https://www.youtube.com/watch?v=izXcd-bU72k",
+      "platform": "youtube",
+      "title": "🔴EXPLORING VICE CITY - GTA 6 STREAM (EASTER EGGS)",
+      "creator": "IShowSpeed",
+      "duration": 20702.0,
+      "views": 8208484,
+      "published": "2026-11-22T16:04:37Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
@@ -633,7 +681,7 @@
       "title": "IT'S FINALLY HERE | Grand Theft Auto 6 - Part 1",
       "creator": "jacksepticeye",
       "duration": 10485.0,
-      "views": 4489535,
+      "views": 4643812,
       "published": "2026-11-18T23:47:15Z",
       "rights": "unspecified",
       "anchors": [],
@@ -794,6 +842,21 @@
       "fingerprint": "4fc3074de60cd9d4.a63b99d9d1a3c3f2.80e0b2f6f1b0b395"
     },
     {
+      "id": "c6b9adaa63453baf547d",
+      "span": {
+        "source": "twitch-vod:2935805716",
+        "start": 126.0,
+        "end": 148.0
+      },
+      "theme": "driving",
+      "hook": "Jason approaches a car and gets in with a prompt.",
+      "setup": "Jason joins Lucia outside, gets into the black sedan, and drives off across a bridge while music plays.",
+      "payoff": "The player drives the sedan across the bridge and laughs while navigating traffic.",
+      "evidence": "Jason says 'Yo...' and gets into the car, then drives away across the bridge.",
+      "score": 82.0,
+      "fingerprint": "043a6f0f850626e3.d0d238900038e0c0.fbff4f0e9c70f4f6"
+    },
+    {
       "id": "10acd9bceafe92fe34a7",
       "span": {
         "source": "youtube:xgZCLTZbvs8",
@@ -811,78 +874,18 @@
   ],
   "pending": [
     {
-      "id": "3745c85744bfdbfff210",
+      "id": "c1ffdd65d84436099ef8",
       "span": {
-        "source": "youtube:Ve2M5i_DSKI",
-        "start": 50090.13,
-        "end": 50129.13
+        "source": "youtube:izXcd-bU72k",
+        "start": 14877.34,
+        "end": 14887.17
       },
       "theme": "discovery",
-      "hook": "A player checks their smartphone apps while driving.",
-      "setup": "Jason drives a silver sedan while interacting with his phone.",
-      "payoff": "The phone displays the 'BuckMe' finance app, text message conversations, and social media notifications.",
-      "evidence": "Phone screen shows 'buckme' app interface with checking account balance and transfer options.",
+      "hook": "Lucia navigates through the swamp area.",
+      "setup": "Lucia runs past an RV park gate towards the swamp.",
+      "payoff": "Lucia leaps over a fence and sprints through the brush.",
+      "evidence": "Lucia vaults over a wire fence into the swamp area.",
       "score": 70.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "1df180e8da2f04f762f0",
-      "span": {
-        "source": "youtube:Mw4MrVRO_co",
-        "start": 304.0,
-        "end": 350.0
-      },
-      "theme": "mission",
-      "hook": "Checking in on Chapter 2",
-      "setup": "Lucia leans against a motel wall outside Starlet Motel.",
-      "payoff": "Lucia walks out into the open motel parking lot area, transitioning into the new chapter.",
-      "evidence": "Lucia walking along the Starlet Motel walkway in Kelly County.",
-      "score": 65.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "dbd7cafe8ac425b2bc34",
-      "span": {
-        "source": "youtube:gBLQ-t_tywk",
-        "start": 306.0,
-        "end": 330.0
-      },
-      "theme": "mission",
-      "hook": "Conversing at the front desk",
-      "setup": "Lucia and Jason talk to the receptionist at the 'Y' hotel lobby.",
-      "payoff": "The receptionist explains valet and car rental options with Status Auto Imports in Bayside.",
-      "evidence": "Receptionist speaking at hotel desk at 2:43",
-      "score": 65.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "3252e8a45be3080a147d",
-      "span": {
-        "source": "youtube:5tdj53ioJ-c",
-        "start": 12156.09,
-        "end": 12187.09
-      },
-      "theme": "mission",
-      "hook": "Returning to the apartment.",
-      "setup": "Walking up the stairs to apartment 302.",
-      "payoff": "Entering the apartment and interacting with the wardrobe.",
-      "evidence": "Walking up the apartment staircase.",
-      "score": 65.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "eb8cbcc44c2a9cd98457",
-      "span": {
-        "source": "youtube:5tdj53ioJ-c",
-        "start": 12354.09,
-        "end": 12397.09
-      },
-      "theme": "driving",
-      "hook": "Heading out on a motorcycle.",
-      "setup": "Jason and Lucia get on a motorcycle outside the apartment.",
-      "payoff": "Riding through Vice City traffic towards the restaurant.",
-      "evidence": "Driving the motorcycle with Lucia on the back.",
-      "score": 65.0,
       "fingerprint": ""
     },
     {
@@ -897,6 +900,21 @@
       "setup": "Driving through city streets in a sports car while characters talk about legal fees.",
       "payoff": "The dialogue highlights the cost of legal representation in Vice City.",
       "evidence": "We're not going to give it up without a fight.",
+      "score": 65.0,
+      "fingerprint": ""
+    },
+    {
+      "id": "8771b71a75e136ec4ac5",
+      "span": {
+        "source": "youtube:hwSg39yIBGU",
+        "start": 47196.05,
+        "end": 47217.55
+      },
+      "theme": "other",
+      "hook": "Lucia uses exercise bikes by the pool with instructor commentary.",
+      "setup": "Lucia moves to the outdoor pool area to participate in a cycling class.",
+      "payoff": "She rides the exercise bike while the instructor gives coaching cues.",
+      "evidence": "Instructor says, \"Breathe in deep. Find your rhythm. Repeat!\"",
       "score": 65.0,
       "fingerprint": ""
     },
@@ -927,6 +945,21 @@
       "setup": "The player drives a red SUV through city traffic.",
       "payoff": "The player arrives at the apartment building and gets out.",
       "evidence": "Driving the red SUV through the streets.",
+      "score": 60.0,
+      "fingerprint": ""
+    },
+    {
+      "id": "0ff6540ee40dac601ada",
+      "span": {
+        "source": "youtube:hwSg39yIBGU",
+        "start": 47014.05,
+        "end": 47028.05
+      },
+      "theme": "other",
+      "hook": "Lucia enters the gym and talks with a trainer about a booty workout.",
+      "setup": "Lucia approaches a trainer inside Ajax Gym who makes a remark about her workout.",
+      "payoff": "The trainer gives her advice on training and squats while interacting in the gym.",
+      "evidence": "Trainer says, \"It's a booty workout... and you got booty.\"",
       "score": 60.0,
       "fingerprint": ""
     }
@@ -1064,6 +1097,16 @@
     },
     {
       "span": {
+        "source": "twitch-vod:2935805716",
+        "start": 126.0,
+        "end": 420.0
+      },
+      "theme": "mission",
+      "story": "Jason and Lucia drive through Vice City, stop at a gas station, and explore the interior store and backrooms.",
+      "score": 88.0
+    },
+    {
+      "span": {
         "source": "youtube:OIeLbmyraRQ",
         "start": 13006.96,
         "end": 13322.96
@@ -1121,6 +1164,26 @@
       "theme": "discovery",
       "story": "Jason alters his appearance, evades police by sleeping, works out, drives a damaged truck to sell collectibles at a pawn shop, and explores various side activities.",
       "score": 86.0
+    },
+    {
+      "span": {
+        "source": "youtube:izXcd-bU72k",
+        "start": 14745.44,
+        "end": 15050.51
+      },
+      "theme": "discovery",
+      "story": "Lucia explores the beach, gets into multiple fist fights with NPCs, calls a taxi that refuses to skip travel due to a crime, and eventually takes a boat ride through the swamp.",
+      "score": 85.0
+    },
+    {
+      "span": {
+        "source": "youtube:dMfN68hBoc8",
+        "start": 2190.02,
+        "end": 2503.02
+      },
+      "theme": "comedy",
+      "story": "A collection of chaotic open-world interactions, including vehicle thefts, animal attacks, and hilarious physics glitches.",
+      "score": 85.0
     },
     {
       "span": {
@@ -1281,6 +1344,16 @@
       "theme": "chase",
       "story": "The player breaches the airport security gate in a truck, evades ground patrols across the tarmac, boards a private jet, and takes off into the skies while police issue air support alerts.",
       "score": 72.0
+    },
+    {
+      "span": {
+        "source": "youtube:hwSg39yIBGU",
+        "start": 47013.55,
+        "end": 47433.55
+      },
+      "theme": "other",
+      "story": "A chronological showcase of Lucia's various fitness routines, interactions with personal trainers, gym equipment usage, and cuts between different workout activities at Ajax Gym.",
+      "score": 70.0
     }
   ]
 }
