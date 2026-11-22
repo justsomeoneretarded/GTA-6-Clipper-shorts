@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-21T22:33:36Z",
+  "generated_at": "2026-11-22T14:05:47Z",
   "scanned": {
     "d66f80f00ab35d8f5532": "2026-11-18T12:29:44Z",
     "4f8b3e763c3765bfbfdf": "2026-11-18T12:29:55Z",
@@ -157,7 +157,23 @@
     "ca5b3f751043b81f1f11": "2026-11-21T22:27:32Z",
     "876133c3836eb6a1c044": "2026-11-21T22:27:38Z",
     "3b2bc90730f17e874bd5": "2026-11-21T22:28:42Z",
-    "cb5aa4b344712662d894": "2026-11-21T22:28:52Z"
+    "cb5aa4b344712662d894": "2026-11-21T22:28:52Z",
+    "39eff6d532f865e9d89d": "2026-11-22T13:50:05Z",
+    "942adba2e4b61f706884": "2026-11-22T13:50:48Z",
+    "0d1e502bc46f45db9969": "2026-11-22T13:50:48Z",
+    "4d9541cc80e11f4268bf": "2026-11-22T13:50:48Z",
+    "58c520b4c19514713adc": "2026-11-22T13:50:53Z",
+    "ec6a974ea9d255039350": "2026-11-22T13:52:05Z",
+    "655177218874d07ab94c": "2026-11-22T13:52:11Z",
+    "43facc4b5d897549778f": "2026-11-22T13:54:19Z",
+    "9ea1569c83804c262133": "2026-11-22T13:54:35Z",
+    "c07d47b6744308b261f4": "2026-11-22T13:54:49Z",
+    "437d20f73f393084a2c2": "2026-11-22T13:55:57Z",
+    "24d905d02a6ef2d521be": "2026-11-22T13:56:21Z",
+    "c087948e7a13c05c9434": "2026-11-22T13:56:32Z",
+    "f061cb63ca6f516437ea": "2026-11-22T13:56:36Z",
+    "dbe7c9909761bcf3428f": "2026-11-22T13:56:50Z",
+    "1823d140344fde230af8": "2026-11-22T13:57:03Z"
   },
   "sources": {
     "twitch-vod:2932809277": {
@@ -167,7 +183,7 @@
       "title": "GTA 6 LAUNCH STREAM! Playing GTA 6 For the First Time",
       "creator": "TGG_gta",
       "duration": 12085.0,
-      "views": 54911,
+      "views": 55067,
       "published": "2026-11-18T22:44:11Z",
       "rights": "unspecified",
       "anchors": [],
@@ -182,7 +198,7 @@
       "title": "GTA 6 LAUNCH STREAM! Playing GTA 6 For the First Time",
       "creator": "TGG_gta",
       "duration": 13109.0,
-      "views": 71073,
+      "views": 71348,
       "published": "2026-11-19T10:12:55Z",
       "rights": "unspecified",
       "anchors": [],
@@ -257,7 +273,7 @@
       "title": "Can You Live a Normal Life in GTA 6?",
       "creator": "Arean",
       "duration": 1399.0,
-      "views": 1702969,
+      "views": 2380157,
       "published": "2026-11-20T16:53:43Z",
       "rights": "unspecified",
       "anchors": [],
@@ -269,10 +285,10 @@
       "key": "youtube:5tdj53ioJ-c",
       "url": "https://www.youtube.com/watch?v=5tdj53ioJ-c",
       "platform": "youtube",
-      "title": "PLAYING GTA 6 FOR THE FIRST TIME (PART 3)",
+      "title": "🌴PLAYING GTA 6 FOR THE FIRST TIME🌴 (DAY 2)",
       "creator": "Kai Cenat Live",
       "duration": 42141.0,
-      "views": 4342865,
+      "views": 4568167,
       "published": "2026-11-19T12:54:38Z",
       "rights": "unspecified",
       "anchors": [],
@@ -347,7 +363,7 @@
       "title": "GTA 6 WTF and Funny Moments! #3",
       "creator": "Zynxize",
       "duration": 1171.0,
-      "views": 2259610,
+      "views": 3077443,
       "published": "2026-11-20T17:00:04Z",
       "rights": "unspecified",
       "anchors": [],
@@ -362,7 +378,7 @@
       "title": "🔴 LIVE! - GTA 6 EARLY ACCESS with TYPICAL GAMER! (PS5 PRO)",
       "creator": "Typical Gamer",
       "duration": 35745.0,
-      "views": 2819956,
+      "views": 2838068,
       "published": "2026-11-19T01:16:55Z",
       "rights": "unspecified",
       "anchors": [],
@@ -407,7 +423,7 @@
       "title": "🔴 BEATING GTA 6 RIGHT NOW 100% (FINAL MISSION)",
       "creator": "IShowSpeed",
       "duration": 22061.0,
-      "views": 22300943,
+      "views": 23277587,
       "published": "2026-11-20T12:46:26Z",
       "rights": "unspecified",
       "anchors": [],
@@ -439,6 +455,21 @@
       "duration": 492.0,
       "views": 585612,
       "published": "2026-11-18T23:14:23Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
+    "youtube:Ve2M5i_DSKI": {
+      "key": "youtube:Ve2M5i_DSKI",
+      "url": "https://www.youtube.com/watch?v=Ve2M5i_DSKI",
+      "platform": "youtube",
+      "title": "GTA 6 Gameplay Walkthrough FULL GAME [4K PS5 PRO] No Commentary",
+      "creator": "Shirrako",
+      "duration": 129958.0,
+      "views": 2264854,
+      "published": "2026-11-20T19:41:59Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
@@ -497,7 +528,7 @@
       "title": "🔴LIVE | GTA 6 | DAY 2 | VICE CITY | SUPER CARS/HYPER CARS | #1 GTA 6 DRIVER | #BUNGULATE",
       "creator": "TheBurntPeanut",
       "duration": 57359.0,
-      "views": 3063214,
+      "views": 3367742,
       "published": "2026-11-19T19:13:20Z",
       "rights": "unspecified",
       "anchors": [],
@@ -572,7 +603,7 @@
       "title": "🔴PLAYING GTA 6 RIGHT NOW GET IN HERE!",
       "creator": "IShowSpeed",
       "duration": 85282.0,
-      "views": 37521501,
+      "views": 37816176,
       "published": "2026-11-19T13:04:39Z",
       "rights": "unspecified",
       "anchors": [],
@@ -602,7 +633,7 @@
       "title": "IT'S FINALLY HERE | Grand Theft Auto 6 - Part 1",
       "creator": "jacksepticeye",
       "duration": 10485.0,
-      "views": 4259736,
+      "views": 4489535,
       "published": "2026-11-18T23:47:15Z",
       "rights": "unspecified",
       "anchors": [],
@@ -632,7 +663,7 @@
       "title": "🌴PLAYING GTA 6 FOR THE FIRST TIME🌴 (DAY 2)",
       "creator": "Kai Cenat Live",
       "duration": 41640.0,
-      "views": 2760180,
+      "views": 2778811,
       "published": "2026-11-20T01:04:50Z",
       "rights": "unspecified",
       "anchors": [],
@@ -642,6 +673,21 @@
     }
   },
   "moments": [
+    {
+      "id": "fa2e182648d13f4462c2",
+      "span": {
+        "source": "youtube:GMZzFJsf844",
+        "start": 630.67,
+        "end": 642.67
+      },
+      "theme": "discovery",
+      "hook": "A driver reacts in shock to an unexpected passenger inside his car.",
+      "setup": "The driver asks 'The hell is that?' as a cat emerges from the passenger seat.",
+      "payoff": "The cat climbs onto the driver and struggles with him before being thrown out of the car onto the road.",
+      "evidence": "Visual and audio footage from 17.5 to 29.5 seconds shows the character finding a cat in the car, fighting it off, and tossing it outside.",
+      "score": 89.0,
+      "fingerprint": "6818142424022100.40cc9c2cb4322c00.48c00d4808060000"
+    },
     {
       "id": "6e47796d9241802917f9",
       "span": {
@@ -765,122 +811,17 @@
   ],
   "pending": [
     {
-      "id": "3f4cc30346619922a129",
+      "id": "3745c85744bfdbfff210",
       "span": {
-        "source": "youtube:GMZzFJsf844",
-        "start": 464.0,
-        "end": 479.0
+        "source": "youtube:Ve2M5i_DSKI",
+        "start": 50090.13,
+        "end": 50129.13
       },
       "theme": "discovery",
-      "hook": "A peaceful fishing trip interrupted unexpectedly.",
-      "setup": "A character stands on a dock holding a fishing rod over the water.",
-      "payoff": "An NPC abruptly pushes the character off the dock into the water, sending them swimming.",
-      "evidence": "An NPC shoves the player off the dock into the water.",
-      "score": 80.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "a8a0ed037bcc9badbb60",
-      "span": {
-        "source": "youtube:1GeQU0SEC-E",
-        "start": 1165.57,
-        "end": 1207.57
-      },
-      "theme": "discovery",
-      "hook": "Grabbing quick cash from the floorboards.",
-      "setup": "The player is short on cash and checks their hidden stash under the floorboards.",
-      "payoff": "Jason retrieves all his savings, increasing his cash total significantly.",
-      "evidence": "I went to my personal stash and grabbed everything there.",
-      "score": 80.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "ed2632d166aaf4e565af",
-      "span": {
-        "source": "youtube:yX4DH_msPkI",
-        "start": 29122.6,
-        "end": 29150.1
-      },
-      "theme": "driving",
-      "hook": "Cruising through Vice City",
-      "setup": "Jason gets into a car and checks his phone.",
-      "payoff": "Jason receives a message about Partners in Crime status.",
-      "evidence": "Jason & Lucia's relationship has declined to Partners in Crime.",
-      "score": 78.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "b9aa44e44823c8929e89",
-      "span": {
-        "source": "youtube:XUQ7qoZjNBA",
-        "start": 24618.19,
-        "end": 24637.19
-      },
-      "theme": "driving",
-      "hook": "Choosing the getaway vehicle.",
-      "setup": "A countdown timer is displayed over three different vehicles in a garage.",
-      "payoff": "The armored truck is selected and speeds out of the garage.",
-      "evidence": "PICK YOUR GETAWAY VEHICLE",
-      "score": 75.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "036e3770f95e9c3c4eee",
-      "span": {
-        "source": "youtube:5tdj53ioJ-c",
-        "start": 12227.09,
-        "end": 12269.09
-      },
-      "theme": "mission",
-      "hook": "Choosing an outfit.",
-      "setup": "Jason and Lucia converse about what to wear.",
-      "payoff": "Lucia changes into a new dress and is ready.",
-      "evidence": "Lucia holding dresses to choose an outfit.",
-      "score": 70.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "1c4a7bb3f65e04eaed7c",
-      "span": {
-        "source": "youtube:5tdj53ioJ-c",
-        "start": 12421.09,
-        "end": 12458.09
-      },
-      "theme": "mission",
-      "hook": "Arriving at the restaurant.",
-      "setup": "Parking the motorcycle and walking towards the restaurant entrance.",
-      "payoff": "Entering the restaurant holding hands.",
-      "evidence": "Walking into the restaurant entrance together.",
-      "score": 70.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "13f138228368e1434208",
-      "span": {
-        "source": "youtube:HzzzoomJ-Os",
-        "start": 11876.88,
-        "end": 11907.88
-      },
-      "theme": "mission",
-      "hook": "Driving past Pearl House",
-      "setup": "Lucia and companion drive down the main strip passing landmarks",
-      "payoff": "They arrive at Delights and park outside",
-      "evidence": "Driving past signs like Pearl House and arriving at Delights parking lot",
-      "score": 70.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "c833fd77a825a63ba34c",
-      "span": {
-        "source": "youtube:OIeLbmyraRQ",
-        "start": 12854.91,
-        "end": 12874.91
-      },
-      "theme": "mission",
-      "hook": "The player opens the in-game phone to pay a steep fee.",
-      "setup": "Stopping the vehicle to access the buckme app on the smartphone.",
-      "payoff": "Funds are transferred to Lucretia Law Group.",
-      "evidence": "Mr. Gonzalez's Fee -150,000",
+      "hook": "A player checks their smartphone apps while driving.",
+      "setup": "Jason drives a silver sedan while interacting with his phone.",
+      "payoff": "The phone displays the 'BuckMe' finance app, text message conversations, and social media notifications.",
+      "evidence": "Phone screen shows 'buckme' app interface with checking account balance and transfer options.",
       "score": 70.0,
       "fingerprint": ""
     },
@@ -975,21 +916,6 @@
       "fingerprint": ""
     },
     {
-      "id": "1fd294e36364c6ba3ebb",
-      "span": {
-        "source": "youtube:hwSg39yIBGU",
-        "start": 26821.39,
-        "end": 26836.39
-      },
-      "theme": "discovery",
-      "hook": "Inventory management menu review",
-      "setup": "The player opens the weapon selection wheel while driving a red car in Vice City.",
-      "payoff": "The player opens the map menu to locate the Iron & Oak Ammu-Nation store.",
-      "evidence": "Inventory and map menus display HUD elements for 'JASON & LUCIA'.",
-      "score": 60.0,
-      "fingerprint": ""
-    },
-    {
       "id": "28449a032721d40bfb08",
       "span": {
         "source": "youtube:5tdj53ioJ-c",
@@ -1001,21 +927,6 @@
       "setup": "The player drives a red SUV through city traffic.",
       "payoff": "The player arrives at the apartment building and gets out.",
       "evidence": "Driving the red SUV through the streets.",
-      "score": 60.0,
-      "fingerprint": ""
-    },
-    {
-      "id": "ea476e152e23fed84588",
-      "span": {
-        "source": "youtube:OIeLbmyraRQ",
-        "start": 13049.91,
-        "end": 13079.91
-      },
-      "theme": "discovery",
-      "hook": "Checking map locations and active missions.",
-      "setup": "Opening the in-game map of Leonida to inspect pending tasks.",
-      "payoff": "Reviewing story objectives and optional missions.",
-      "evidence": "UNFINISHED BUSINESS The hard drive deal is being finalized.",
       "score": 60.0,
       "fingerprint": ""
     }
@@ -1210,6 +1121,16 @@
       "theme": "discovery",
       "story": "Jason alters his appearance, evades police by sleeping, works out, drives a damaged truck to sell collectibles at a pawn shop, and explores various side activities.",
       "score": 86.0
+    },
+    {
+      "span": {
+        "source": "youtube:Ve2M5i_DSKI",
+        "start": 49929.13,
+        "end": 50192.13
+      },
+      "theme": "mission",
+      "story": "Jason visits a smoke shop contact to offload stolen jewelry and receives a snap gun tool, then navigates the city while managing money and messages on his smartphone.",
+      "score": 85.0
     },
     {
       "span": {
