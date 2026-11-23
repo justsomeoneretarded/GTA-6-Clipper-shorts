@@ -11,6 +11,20 @@
         }
       ],
       "date": "2026-11-18T15:33:02Z"
+    },
+    {
+      "id": "ed42d8ae85ba6fadc86a",
+      "ranges": [
+        {
+          "source": "youtube:R97EoVD1nr4",
+          "start": 71.1,
+          "end": 83.9
+        }
+      ],
+      "fingerprints": [
+        "0008080101213100.00808484060a0f08.10989c92736a6c00"
+      ],
+      "date": "2026-11-23T08:51:34Z"
     }
   ],
   "rejected": [
