@@ -366,9 +366,11 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
     sources = {key: Source(**row) for key, row in previous.get("sources", {}).items()}
     for key, row in current.items():
         if row.published or key not in sources or not sources[key].published:
+            if key in sources and not row.recorded:
+                row.recorded = sources[key].recorded
             sources[key] = row
     oldest_source = source_cutoff(21)
-    sources = {key: row for key, row in sources.items() if row.published and row.published >= oldest_source}
+    sources = {key: row for key, row in sources.items() if row.footage_date and row.footage_date >= oldest_source}
     scanned = {key: value for key, value in previous.get("scanned", {}).items() if value >= dated(10)}
     sequence_only = mode == "condensed"
     leads = [] if sequence_only else [Moment.from_dict(row) for row in previous.get("pending", [])

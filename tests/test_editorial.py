@@ -83,11 +83,13 @@ class EditorialTests(unittest.TestCase):
     def test_twitch_clip_listing_uses_game_category(self):
         clip = {"title": "GTA VI now", "url": "https://www.twitch.tv/channel/clip/SomeSlug",
                 "createdAt": "2026-11-18T11:30:00Z", "durationSeconds": 30,
-                "game": {"name": "Grand Theft Auto VI"}, "video": {"id": "1234567890"}, "videoOffsetSeconds": 101}
+                "game": {"name": "Grand Theft Auto VI"}, "videoOffsetSeconds": 101,
+                "video": {"id": "1234567890", "publishedAt": "2026-11-18T10:00:00Z"}}
         earliest = "2026-11-18T11:00:00Z"
         found = listed_twitch_source(clip, "channel", clip=True, earliest=earliest)
         self.assertEqual(found.duration, 30)
         self.assertEqual((found.parent, found.parent_offset), ("twitch-vod:1234567890", 101.0))
+        self.assertEqual(found.footage_date, "2026-11-18T10:01:41Z")
         clip["game"]["name"] = "Grand Theft Auto V"
         self.assertIsNone(listed_twitch_source(clip, "channel", clip=True, earliest=earliest))
 

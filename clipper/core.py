@@ -92,10 +92,15 @@ class Source:
     parent: str = ""
     parent_offset: float | None = None
     recording: bool = False
+    recorded: str = ""
 
     @property
     def site(self) -> str:
         return self.platform.split("-", 1)[0]
+
+    @property
+    def footage_date(self) -> str:
+        return min(self.published, self.recorded) if self.recorded else self.published
 
 
 def source_url(url: str) -> Source | None:

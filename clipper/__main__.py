@@ -3,10 +3,11 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+from dataclasses import asdict
 from pathlib import Path
 
 from .core import VERSION, other_game_ranges, read_json, recent_rejections, write_json
-from .discovery import discover
+from .discovery import date_twitch_clips, discover
 from .editorial import build_catalog, merge_catalogs
 from .gemini import Gemini, ServiceError
 from .media import Downloads, youtube_cookie_file
@@ -59,6 +60,10 @@ def main() -> int:
                     report.append(f"Shared catalog added to discovery with {len(shared['moments'])} moments "
                                   f"and {len(shared['sequences'])} longer sequences.")
                 new_sources = discover(gemini, downloads, report)
+                old_clips = {key: source for key, source in sources_from(catalog).items()
+                             if source.platform == "twitch-clip" and not source.recorded and key not in new_sources}
+                date_twitch_clips(old_clips, report)
+                catalog["sources"].update({key: asdict(source) for key, source in old_clips.items()})
                 catalog = build_catalog(gemini, downloads, new_sources, catalog, report, mode=args.mode,
                                         rejected=recent_rejections(ledger), blocked=blocked)
                 write_json(state / "catalog.json", catalog)

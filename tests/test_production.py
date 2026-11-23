@@ -13,6 +13,19 @@ from clipper.production import MODES, EditorialRejection, approved_package, rend
 
 
 class ProductionEligibilityTests(unittest.TestCase):
+    @patch("clipper.core.now", return_value=datetime(2026, 11, 23, 12, tzinfo=UTC))
+    @patch("clipper.production.render_edit")
+    def test_new_twitch_clip_from_an_older_recording_misses_the_cutoff(self, render, clock):
+        source = source_url("https://clips.twitch.tv/FixtureReupload")
+        source.duration = 25
+        source.published = "2026-11-23T09:00:00Z"
+        source.recorded = "2026-11-18T12:00:00Z"
+        item = Moment(Range(source.key, 0, 20), "stunt", "Hook", "Setup", "Payoff", "Evidence", 95)
+        catalog = {"version": VERSION, "sources": {source.key: asdict(source)}, "moments": [item.to_dict()]}
+        with tempfile.TemporaryDirectory() as folder:
+            work = Path(folder)
+            render_batch("shorts", Mock(), Mock(), catalog, {}, work, work / "out", [])
+        render.assert_not_called()
     @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
     @patch("clipper.production.render_edit")
     def test_other_game_range_is_excluded_even_without_a_local_rejection(self, render, clock):

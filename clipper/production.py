@@ -181,7 +181,10 @@ def render_edit(edit: Edit, mode: str, title: str, downloads: Downloads, sources
             piece = staging / f"piece-{i:02}.mp4"
             render_piece(media, offset, cut.span.seconds, piece, size, cut.rank, cut.label)
             pieces.append(piece)
-            credit = {"creator": source.creator, "url": source.url, "source_title": source.title, "license_label": source.rights}
+            credit = {"creator": source.creator, "url": source.url, "source_title": source.title,
+                      "license_label": source.rights, "published_at": source.published}
+            if source.recorded:
+                credit["recorded_at"] = source.recorded
             if credit not in credits:
                 credits.append(credit)
             timestamps.append({"output_seconds": round(elapsed, 3), "source_url": source.url, "creator": source.creator,
@@ -264,7 +267,7 @@ def render_batch(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict,
                  small: bool = False, blocked: list[Range] | None = None) -> dict:
     saved_sources = sources_from(catalog)
     cutoff = source_cutoff(21)
-    sources = {key: item for key, item in saved_sources.items() if item.published and item.published >= cutoff}
+    sources = {key: item for key, item in saved_sources.items() if item.footage_date and item.footage_date >= cutoff}
     if len(sources) < len(saved_sources):
         report.append(f"The publication cutoff excluded {len(saved_sources) - len(sources)} saved sources from this batch.")
     target = 10 if mode == "shorts" else 2

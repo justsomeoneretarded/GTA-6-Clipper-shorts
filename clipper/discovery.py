@@ -6,6 +6,7 @@ import os
 import re
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
+from datetime import UTC, datetime, timedelta
 from urllib.parse import unquote, urlencode, urlsplit
 
 import requests
@@ -201,6 +202,22 @@ def youtube_search(downloads: Downloads, topic: str) -> list[Source]:
     return sources
 
 
+def attach_twitch_replay(clip: Source, row: dict) -> None:
+    video = row.get("video") or {}
+    offset = row.get("videoOffsetSeconds")
+    parent = source_url(f"https://www.twitch.tv/videos/{video.get('id', '')}")
+    if parent is None or type(offset) not in (int, float) or not 0 <= offset < 1_000_000:
+        return
+    clip.parent = parent.key
+    clip.parent_offset = float(offset)
+    try:
+        started = datetime.fromisoformat(video.get("publishedAt") or "")
+    except (TypeError, ValueError):
+        return
+    if started.tzinfo is not None:
+        clip.recorded = (started.astimezone(UTC) + timedelta(seconds=offset)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def listed_twitch_source(row: dict, channel: str, *, clip: bool, earliest: str) -> Source | None:
     game = (row.get("game") or {}).get("name") or ""
     title = row.get("title") or ""
@@ -221,12 +238,7 @@ def listed_twitch_source(row: dict, channel: str, *, clip: bool, earliest: str) 
     item.views = int(row.get("viewCount") or 0)
     item.published = published
     if clip:
-        video_id = (row.get("video") or {}).get("id", "")
-        offset = row.get("videoOffsetSeconds")
-        parent = source_url(f"https://www.twitch.tv/videos/{video_id}")
-        if parent and type(offset) in (int, float) and offset >= 0:
-            item.parent = parent.key
-            item.parent_offset = float(offset)
+        attach_twitch_replay(item, row)
     if not clip and row.get("status") == "RECORDING":
         item.recording = True
         # Give Twitch time to publish the final segments of the current replay.
@@ -247,6 +259,28 @@ def twitch_query(query: str) -> dict:
         return gql_query(query)["data"]
     except (ClickException, HTTPError, KeyError, TypeError, ValueError):
         raise ValueError("Twitch did not return public search results.") from None
+
+
+def date_twitch_clips(sources: dict[str, Source], report: list[str]) -> None:
+    undated = [item for item in sources.values() if item.platform == "twitch-clip" and not item.recorded]
+    batches = [undated[index:index + 20] for index in range(0, len(undated), 20)]
+
+    def check(batch: list[Source]) -> bool:
+        fields = [f'clip{index}: clip(slug: {json.dumps(item.key.split(":", 1)[1])}) '
+                  '{ videoOffsetSeconds video { id publishedAt } }' for index, item in enumerate(batch)]
+        try:
+            result = twitch_query("{ " + " ".join(fields) + " }")
+        except ValueError:
+            return False
+        for index, item in enumerate(batch):
+            attach_twitch_replay(item, result.get(f"clip{index}") or {})
+        return True
+
+    if batches:
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            errors = sum(not completed for completed in pool.map(check, batches))
+        if errors:
+            report.append(f"Twitch clip recording dates were unavailable for {errors} lookup batches.")
 
 
 def twitch_search_channels() -> list[str]:
@@ -349,6 +383,7 @@ def twitch_public_discovery(sources: dict[str, Source], report: list[str], days:
             count += len(items)
             for item in items:
                 add(sources, item)
+    date_twitch_clips(sources, report)
     peaks: dict[str, list[float]] = defaultdict(list)
     for clip in sorted((item for item in sources.values() if item.parent_offset is not None),
                        key=lambda item: item.views, reverse=True):
@@ -445,8 +480,9 @@ def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: i
     if skipped:
         report.append(f"Skipped {skipped} further YouTube metadata calls after repeated session challenges.")
     latest = dated()
-    recent = {key: item for key, item in sources.items() if item.published and earliest <= item.published <= latest}
-    stale = sum(bool(item.published and item.published < earliest) for item in sources.values())
+    recent = {key: item for key, item in sources.items()
+              if item.footage_date and earliest <= item.footage_date and item.published <= latest}
+    stale = sum(bool(item.footage_date and item.footage_date < earliest) for item in sources.values())
     undated = sum(not item.published for item in sources.values())
     if stale or undated:
         report.append(f"Skipped sources before the publication cutoff ({stale}) or with an unknown publication date ({undated}).")
