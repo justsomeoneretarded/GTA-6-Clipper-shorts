@@ -105,6 +105,18 @@
       "id": "3d63d1e11a15a8fbba82",
       "date": "2026-11-23T08:25:39Z",
       "reason": "The opening alone did not give a new viewer a reason to continue. Review observed The character approaches another NPC outside a building while speaking in Spanish, creating mild narrative curiosity about the interaction."
+    },
+    {
+      "id": "e94c2e906cbe6a9591d5",
+      "date": "2026-11-23T11:32:39Z",
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The footage is from GTA V modded to look like GTA VI, featuring a modded bike wheelie and crash sequence, making it ineligible.",
+      "other_game_ranges": [
+        {
+          "source": "twitch-clip:IntelligentCreativePeafowlJKanStyle-LbxyGkwatR3fTsu8",
+          "start": 0.0,
+          "end": 14.0
+        }
+      ]
     }
   ]
 }
