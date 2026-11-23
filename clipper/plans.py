@@ -5,7 +5,7 @@ from collections import Counter, defaultdict
 
 from .core import Cut, Edit, Moment, Range, Sequence, Source, clean, number, or_parent, overlap, same_footage
 from .editorial import GROUP_EDIT, SEQUENCE_EDIT, bounded, diversify, platform_rotation
-from .gemini import NUM, TEXT, Gemini, array, object_schema
+from .gemini import NUM, TEXT, Gemini, QuotaError, array, object_schema
 from .media import Downloads, MediaError, window_proxy
 
 RANK_CRITERIA = {
@@ -167,6 +167,9 @@ def group_plans(gemini: Gemini, downloads: Downloads, moments: list[Moment], sou
                 except UnavailableMoment as error:
                     unavailable.add(error.moment_id)
                     report.append(f"{theme} compilation source unavailable: {error}")
+                except QuotaError as error:
+                    report.append(f"Compilation planning paused: {error}")
+                    return
                 except (KeyError, ValueError, TypeError, MediaError) as error:
                     report.append(f"{theme} compilation plan: {error}")
                     break
@@ -237,6 +240,9 @@ def plans(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict, ledger
                 edit = condensed_plan(gemini, downloads, sequence, sources[sequence.span.source])
                 if edit:
                     yield edit
+            except QuotaError as error:
+                report.append(f"Condensed planning paused: {error}")
+                return
             except (KeyError, ValueError, TypeError, MediaError) as error:
                 report.append(f"{sequence.span.source} condensed plan: {error}")
         return

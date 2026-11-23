@@ -322,4 +322,4 @@ def render_batch(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict,
         report.append("The catalog ran short of distinct edits that passed review and met the source mix.")
     if not produced and len(rejected) == saved_rejections:
         return {}
-    return {"version": VERSION, "edits": history[-350:], "rejected": list(rejected.values())[-350:]}
+    return {"version": VERSION, "edits": history[-650:], "rejected": list(rejected.values())[-350:]}

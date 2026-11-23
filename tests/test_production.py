@@ -5,13 +5,29 @@ from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from clipper.core import VERSION, Cut, Edit, Moment, Range, Sequence, source_url
+from clipper.core import VERSION, Cut, Edit, Moment, Range, Sequence, read_json, source_url
 from clipper.editorial import COLD_OPEN
+from clipper.gemini import QuotaError
 from clipper.plans import single_moment
 from clipper.production import MODES, EditorialRejection, approved_package, render_batch
 
 
 class ProductionEligibilityTests(unittest.TestCase):
+    @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
+    @patch("clipper.plans.condensed_plan", side_effect=QuotaError("Daily quota reached."))
+    def test_planning_quota_still_writes_a_batch_manifest(self, planner, clock):
+        source = source_url("https://www.youtube.com/watch?v=TestGTA0001")
+        source.duration = 500
+        source.published = "2026-11-19T01:00:00Z"
+        sequence = Sequence(Range(source.key, 0, 380), "mission", "Story", 90)
+        catalog = {"version": VERSION, "sources": {source.key: asdict(source)}, "sequences": [sequence.to_dict()]}
+        report = []
+        with tempfile.TemporaryDirectory() as folder:
+            work = Path(folder)
+            render_batch("condensed", Mock(), Mock(unreachable={}), catalog, {}, work, work / "out", report)
+            self.assertEqual(read_json(work / "out/manifest.json")["generated"], 0)
+            self.assertTrue(any("planning paused" in line for line in report))
+
     @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
     @patch("clipper.production.render_edit")
     def test_export_history_identifies_a_reupload_on_another_platform(self, render, clock):
