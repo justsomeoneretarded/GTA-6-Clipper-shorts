@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-23T08:51:01Z",
+  "generated_at": "2026-11-23T11:23:35Z",
   "scanned": {
     "d66f80f00ab35d8f5532": "2026-11-18T12:29:44Z",
     "4f8b3e763c3765bfbfdf": "2026-11-18T12:29:55Z",
@@ -244,9 +244,63 @@
     "986f099a1d099b4bf796": "2026-11-23T08:42:52Z",
     "9034751ac24ec3eb85cf": "2026-11-23T08:43:25Z",
     "f185e8748b7767214e4d": "2026-11-23T08:43:25Z",
-    "d7b5a3708ffccd45177f": "2026-11-23T08:43:25Z"
+    "d7b5a3708ffccd45177f": "2026-11-23T08:43:25Z",
+    "cd4f9d2eb5dd0e5edf3f": "2026-11-23T11:02:13Z",
+    "de35716abebf61cd12ec": "2026-11-23T11:02:13Z",
+    "bb491f59f8457b1cd7d4": "2026-11-23T11:02:13Z",
+    "acfe9171a390725e3de4": "2026-11-23T11:02:50Z",
+    "de04f4cc0316abf81e52": "2026-11-23T11:02:50Z",
+    "69140ee37a27ecfe7282": "2026-11-23T11:02:50Z",
+    "e036af0d706ab33ab780": "2026-11-23T11:04:39Z",
+    "05243e48c8ff22509d29": "2026-11-23T11:05:05Z",
+    "b8ad4bd4af1c1805819d": "2026-11-23T11:05:05Z",
+    "8b66e91cd206b0a1b46d": "2026-11-23T11:05:05Z",
+    "6eea34f31eefb9588acb": "2026-11-23T11:05:32Z",
+    "c86604eadb5272569333": "2026-11-23T11:05:32Z",
+    "adb9e26ef98b36181f08": "2026-11-23T11:05:32Z",
+    "9c3ac4ec6c08a16eaf02": "2026-11-23T11:07:23Z",
+    "f2ec20daa44d70819b97": "2026-11-23T11:08:14Z",
+    "f4193c50bcb843973439": "2026-11-23T11:08:14Z",
+    "06420910b03333cd80be": "2026-11-23T11:08:14Z",
+    "804a46f908a0d18d4ca2": "2026-11-23T11:08:42Z",
+    "1df55772fe80d0fc27cf": "2026-11-23T11:08:42Z",
+    "abd34f4078b6185e6756": "2026-11-23T11:08:42Z",
+    "a5acb19c39d6c0fa9c69": "2026-11-23T11:10:22Z",
+    "0b83c0379e73e5c3c260": "2026-11-23T11:10:47Z",
+    "96e65c789aa127e98ed1": "2026-11-23T11:10:47Z",
+    "ca871dddd13bce6c6047": "2026-11-23T11:10:47Z",
+    "4dd29e5fb8f1da528bac": "2026-11-23T11:11:15Z",
+    "5f379851764418c03f98": "2026-11-23T11:11:15Z",
+    "c6407835752ab7d9b8da": "2026-11-23T11:11:15Z",
+    "9b8fc4593984d1634af8": "2026-11-23T11:12:17Z",
+    "14c5ab495e7aceb4c70b": "2026-11-23T11:12:36Z",
+    "353bd1fc2751e921fa4d": "2026-11-23T11:12:36Z",
+    "57c6a5c1a1eb36c332fb": "2026-11-23T11:12:36Z",
+    "ce433a7f3a6aa032e123": "2026-11-23T11:12:57Z",
+    "2eed10564d81df81c365": "2026-11-23T11:12:57Z",
+    "216426a3cf3b3cf5a537": "2026-11-23T11:14:22Z",
+    "23f1afa2dc7f99468460": "2026-11-23T11:16:13Z",
+    "a6f0f17fa33501829489": "2026-11-23T11:17:12Z",
+    "2e3f99a5a9b0ffb9076b": "2026-11-23T11:18:09Z",
+    "aadbb3473fe02bfe0a27": "2026-11-23T11:20:04Z",
+    "208a33d2c5b3e5334048": "2026-11-23T11:21:51Z"
   },
   "sources": {
+    "twitch-clip:IntelligentCreativePeafowlJKanStyle-LbxyGkwatR3fTsu8": {
+      "key": "twitch-clip:IntelligentCreativePeafowlJKanStyle-LbxyGkwatR3fTsu8",
+      "url": "https://clips.twitch.tv/IntelligentCreativePeafowlJKanStyle-LbxyGkwatR3fTsu8",
+      "platform": "twitch-clip",
+      "title": "after i make mistake",
+      "creator": "theteegoat",
+      "duration": 23.0,
+      "views": 1,
+      "published": "2026-11-23T03:57:39Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false
+    },
     "twitch-vod:2932809277": {
       "key": "twitch-vod:2932809277",
       "url": "https://www.twitch.tv/videos/2932809277",
@@ -301,21 +355,6 @@
       "duration": 30480.0,
       "views": 1445552,
       "published": "2026-11-19T17:58:07Z",
-      "rights": "unspecified",
-      "anchors": [],
-      "parent": "",
-      "parent_offset": null,
-      "recording": false
-    },
-    "twitch-vod:2935185818": {
-      "key": "twitch-vod:2935185818",
-      "url": "https://www.twitch.tv/videos/2935185818",
-      "platform": "twitch-vod",
-      "title": "[DROPS ON] UNBANNED GTA 6 RELEASE STREAM FOREVER WOW  BIG DAY HUGE DRAMA NEW GAMES BIG NEWS  REACTS !restedXP #WWMPartner | @asmongold247",
-      "creator": "zackrawrr",
-      "duration": 31051.0,
-      "views": 1393248,
-      "published": "2026-11-20T18:33:31Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
@@ -442,21 +481,6 @@
       "parent_offset": null,
       "recording": false
     },
-    "youtube:GMZzFJsf844": {
-      "key": "youtube:GMZzFJsf844",
-      "url": "https://www.youtube.com/watch?v=GMZzFJsf844",
-      "platform": "youtube",
-      "title": "GTA 6 WTF and Funny Moments! #3",
-      "creator": "Zynxize",
-      "duration": 1171.0,
-      "views": 3489667,
-      "published": "2026-11-20T17:00:04Z",
-      "rights": "unspecified",
-      "anchors": [],
-      "parent": "",
-      "parent_offset": null,
-      "recording": false
-    },
     "youtube:HzzzoomJ-Os": {
       "key": "youtube:HzzzoomJ-Os",
       "url": "https://www.youtube.com/watch?v=HzzzoomJ-Os",
@@ -496,21 +520,6 @@
       "duration": 22061.0,
       "views": 23944096,
       "published": "2026-11-20T12:46:26Z",
-      "rights": "unspecified",
-      "anchors": [],
-      "parent": "",
-      "parent_offset": null,
-      "recording": false
-    },
-    "youtube:QQV-0OUGxGs": {
-      "key": "youtube:QQV-0OUGxGs",
-      "url": "https://www.youtube.com/watch?v=QQV-0OUGxGs",
-      "platform": "youtube",
-      "title": "Whatever You Steal in GTA 6, You Keep!",
-      "creator": "MrBeast Gaming",
-      "duration": 1285.0,
-      "views": 19171570,
-      "published": "2026-11-20T20:43:18Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
@@ -772,21 +781,6 @@
       "parent_offset": null,
       "recording": false
     },
-    "youtube:xgZCLTZbvs8": {
-      "key": "youtube:xgZCLTZbvs8",
-      "url": "https://www.youtube.com/watch?v=xgZCLTZbvs8",
-      "platform": "youtube",
-      "title": "How REALISTIC Is GTA 6’s Emergency Response? | GTA 6 PS5 Pro Gameplay",
-      "creator": "GameV",
-      "duration": 481.0,
-      "views": 93169,
-      "published": "2026-11-19T01:12:32Z",
-      "rights": "unspecified",
-      "anchors": [],
-      "parent": "",
-      "parent_offset": null,
-      "recording": false
-    },
     "youtube:yX4DH_msPkI": {
       "key": "youtube:yX4DH_msPkI",
       "url": "https://www.youtube.com/watch?v=yX4DH_msPkI",
@@ -805,71 +799,20 @@
   },
   "moments": [
     {
-      "id": "fa2e182648d13f4462c2",
+      "id": "2101e3d27e57f973cd84",
       "span": {
-        "source": "youtube:GMZzFJsf844",
-        "start": 630.67,
-        "end": 642.67
+        "source": "twitch-clip:IntelligentCreativePeafowlJKanStyle-LbxyGkwatR3fTsu8",
+        "start": 0.0,
+        "end": 14.0
       },
-      "theme": "discovery",
-      "hook": "A driver reacts in shock to an unexpected passenger inside his car.",
-      "setup": "The driver asks 'The hell is that?' as a cat emerges from the passenger seat.",
-      "payoff": "The cat climbs onto the driver and struggles with him before being thrown out of the car onto the road.",
-      "evidence": "Visual and audio footage from 17.5 to 29.5 seconds shows the character finding a cat in the car, fighting it off, and tossing it outside.",
-      "score": 89.0,
-      "fingerprint": "6818142424022100.40cc9c2cb4322c00.48c00d4808060000",
-      "gta_vi_evidence": "",
-      "alternate_cuts": []
-    },
-    {
-      "id": "6e47796d9241802917f9",
-      "span": {
-        "source": "youtube:QQV-0OUGxGs",
-        "start": 950.45,
-        "end": 985.95
-      },
-      "theme": "mission",
-      "hook": "The player crashes the SUV directly in front of a police car.",
-      "setup": "The player exits the vehicle, walks into a ShoreFront bank, and confronts the guards.",
-      "payoff": "The player fights the guards, kicks open doors, plants explosives, and cracks the safe to steal money.",
-      "evidence": "The player enters the bank, fights off officers, kicks open the staff door, and opens the safe to collect cash.",
+      "theme": "chase",
+      "hook": "The motorcycle speeds across a bridge toward highway signs.",
+      "setup": "The player rides a motorcycle down the highway past road signs for Key Largo and Catalan Key.",
+      "payoff": "The motorcycle crashes, throwing the player onto the pavement before displaying the Wasted screen.",
+      "evidence": "The player rides a motorcycle, crashes into obstacles, gets thrown onto the ground, and a Wasted screen appears.",
       "score": 85.75,
-      "fingerprint": "1b9b8b8ecc677733.f3b2b3b32242b234.747171d1958cbc35",
-      "gta_vi_evidence": "",
-      "alternate_cuts": []
-    },
-    {
-      "id": "9b60e1746105acd25513",
-      "span": {
-        "source": "twitch-vod:2933884560",
-        "start": 25638.7,
-        "end": 25653.8
-      },
-      "theme": "mission",
-      "hook": "Lucia approaches a motel room door and initiates a tense conversation with Vicki.",
-      "setup": "Lucia introduces herself and asks Vicki to open the door.",
-      "payoff": "Vicki opens the door in response to Lucia's questioning.",
-      "evidence": "Lucia says 'Hola, perdona que te moleste. Vicki, ¿verdad?' and Vicki answers.",
-      "score": 85.25,
-      "fingerprint": "54343565c9e565a5.f575754dc96d6d29.ba1a7a5adac6e6e2",
-      "gta_vi_evidence": "",
-      "alternate_cuts": []
-    },
-    {
-      "id": "f3bbb4a6262936e74f45",
-      "span": {
-        "source": "youtube:8zpkGW2DGCo",
-        "start": 404.0,
-        "end": 425.0
-      },
-      "theme": "discovery",
-      "hook": "The player pulls into a Pollo Diablo drive-thru to interact with the menu.",
-      "setup": "The player navigates the pickup truck into the drive-thru lane and orders food from the digital kiosk.",
-      "payoff": "The player collects the Reverse Chicken Sandwich, eats it at the window, and receives a health buff.",
-      "evidence": "The interface displays 'Approach the speaker to order', followed by menu options including 'Reverse Chicken Sandwich ($10)' and a 'Health buffed' notification after consuming it.",
-      "score": 85.25,
-      "fingerprint": "cb135c6c77e8e1c0.e338e9a90db0f8d4.c3c9d8514c62eaca",
-      "gta_vi_evidence": "",
+      "fingerprint": "0f0f1f1f1f1b1f57.0f0f4f0e1f171757.0f0f4c4e676767cf",
+      "gta_vi_evidence": "Road signs pointing toward Key Largo and Catalan Key combined with the Wasted death screen confirm Grand Theft Auto VI footage.",
       "alternate_cuts": []
     },
     {
@@ -887,108 +830,6 @@
       "score": 84.0,
       "fingerprint": "0008080101213100.00808484060a0f08.10989c92736a6c00",
       "gta_vi_evidence": "The scene displays recognized character models and dialogue from Grand Theft Auto VI cinematic leaks/trailers.",
-      "alternate_cuts": []
-    },
-    {
-      "id": "57a7d5c2fdef2dbc33da",
-      "span": {
-        "source": "twitch-vod:2935185818",
-        "start": 420.0,
-        "end": 440.0
-      },
-      "theme": "podcast",
-      "hook": "He questions the quality of heavily funded games.",
-      "setup": "The speaker evaluates previous high-budget titles and their shortcomings.",
-      "payoff": "He explains how poor storytelling and progression affect major games.",
-      "evidence": "They were like objectively bad games... the storyline and the progression was bad.",
-      "score": 83.75,
-      "fingerprint": "265250708c0c00c0.265250708c0c00c0.265250708c0c00c0",
-      "gta_vi_evidence": "",
-      "alternate_cuts": []
-    },
-    {
-      "id": "1830c877a0a51560a2b6",
-      "span": {
-        "source": "youtube:dUYIMa2ifWM",
-        "start": 197.0,
-        "end": 209.5
-      },
-      "theme": "mission",
-      "hook": "The player exits a truck next to an overturned car on fire.",
-      "setup": "The player walks over to examine the flipped vehicle and retrieve a stash bag while NPCs run past.",
-      "payoff": "The player successfully grabs the stash bag from the wrecked car and flees on foot.",
-      "evidence": "The player character gets out of the truck at 16.0s, walks past the overturned car at 33.0s, picks up the stash bag at 35.8s, and runs away.",
-      "score": 83.0,
-      "fingerprint": "582b06892cf4c4dc.b62c8e2361e8d8e9.0e2f2c272126eeee",
-      "gta_vi_evidence": "",
-      "alternate_cuts": []
-    },
-    {
-      "id": "29970e23947074a9908b",
-      "span": {
-        "source": "twitch-vod:2933538555",
-        "start": 194.5,
-        "end": 204.5
-      },
-      "theme": "mission",
-      "hook": "Lucia drives into Watkins Auto Parts to lose police heat.",
-      "setup": "Lucia pulls into the auto shop garage while wanted by police.",
-      "payoff": "The heat clears just as she parks inside and steps out of the car.",
-      "evidence": "Video shows the car entering the garage at Watkins Auto Parts, the 'Heat cleared' notification appearing on screen, and Lucia getting out of the driver seat.",
-      "score": 82.75,
-      "fingerprint": "4240434010307070.e4e0e060e8e0b072.b0d6dc48e84d4dcd",
-      "gta_vi_evidence": "",
-      "alternate_cuts": []
-    },
-    {
-      "id": "f2ad98b08155f3acdddd",
-      "span": {
-        "source": "twitch-vod:2933884560",
-        "start": 25745.4,
-        "end": 25769.4
-      },
-      "theme": "mission",
-      "hook": "Lucia steps outside the motel room into the daylight.",
-      "setup": "Lucia leaves the initial room and walks along the motel exterior walkway past other residents.",
-      "payoff": "Lucia arrives at Jason's room and checks on him in bed.",
-      "evidence": "Lucia exits the room, walks down the motel corridor, passes Danny, and enters Jason's room.",
-      "score": 82.5,
-      "fingerprint": "4fc3074de60cd9d4.a63b99d9d1a3c3f2.80e0b2f6f1b0b395",
-      "gta_vi_evidence": "",
-      "alternate_cuts": []
-    },
-    {
-      "id": "c6b9adaa63453baf547d",
-      "span": {
-        "source": "twitch-vod:2935805716",
-        "start": 126.0,
-        "end": 148.0
-      },
-      "theme": "driving",
-      "hook": "Jason approaches a car and gets in with a prompt.",
-      "setup": "Jason joins Lucia outside, gets into the black sedan, and drives off across a bridge while music plays.",
-      "payoff": "The player drives the sedan across the bridge and laughs while navigating traffic.",
-      "evidence": "Jason says 'Yo...' and gets into the car, then drives away across the bridge.",
-      "score": 82.0,
-      "fingerprint": "043a6f0f850626e3.d0d238900038e0c0.fbff4f0e9c70f4f6",
-      "gta_vi_evidence": "",
-      "alternate_cuts": []
-    },
-    {
-      "id": "10acd9bceafe92fe34a7",
-      "span": {
-        "source": "youtube:xgZCLTZbvs8",
-        "start": 313.32,
-        "end": 353.32
-      },
-      "theme": "mission",
-      "hook": "Player hoists an unconscious NPC over their shoulder on a crowded beach.",
-      "setup": "The player carries the body across the sand, dodging beachgoers and obstacles while dialogue plays.",
-      "payoff": "The player carries the body all the way into the ocean water until a crime is reported.",
-      "evidence": "Carrying body from beach into the water leading to 'Crime reported' at 51.750 seconds.",
-      "score": 82.0,
-      "fingerprint": "ffffadfc5ddfefef.ff7fbf2f9b194fee.7f1f3f9f5fdfdfde",
-      "gta_vi_evidence": "",
       "alternate_cuts": []
     }
   ],
