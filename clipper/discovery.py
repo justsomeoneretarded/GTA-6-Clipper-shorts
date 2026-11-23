@@ -263,7 +263,8 @@ def twitch_query(query: str) -> dict:
 
 def date_twitch_clips(sources: dict[str, Source], report: list[str]) -> None:
     undated = [item for item in sources.values() if item.platform == "twitch-clip" and not item.recorded]
-    batches = [undated[index:index + 20] for index in range(0, len(undated), 20)]
+    batch_size = 10
+    batches = [undated[index:index + batch_size] for index in range(0, len(undated), batch_size)]
 
     def check(batch: list[Source]) -> bool:
         fields = [f'clip{index}: clip(slug: {json.dumps(item.key.split(":", 1)[1])}) '
