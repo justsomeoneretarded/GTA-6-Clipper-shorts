@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-23T11:23:35Z",
+  "generated_at": "2026-11-23T16:47:48Z",
   "scanned": {
     "d66f80f00ab35d8f5532": "2026-11-18T12:29:44Z",
     "4f8b3e763c3765bfbfdf": "2026-11-18T12:29:55Z",
@@ -283,23 +283,38 @@
     "a6f0f17fa33501829489": "2026-11-23T11:17:12Z",
     "2e3f99a5a9b0ffb9076b": "2026-11-23T11:18:09Z",
     "aadbb3473fe02bfe0a27": "2026-11-23T11:20:04Z",
-    "208a33d2c5b3e5334048": "2026-11-23T11:21:51Z"
+    "208a33d2c5b3e5334048": "2026-11-23T11:21:51Z",
+    "64224c02b765aeff3b8d": "2026-11-23T16:23:44Z",
+    "de7b7845b45b75196a54": "2026-11-23T16:23:48Z",
+    "fdb42e5c33155d2dd0de": "2026-11-23T16:24:13Z",
+    "66da497df8955fe82414": "2026-11-23T16:24:21Z",
+    "e2a213e113832312057b": "2026-11-23T16:24:28Z",
+    "a3832727ede19a6249c3": "2026-11-23T16:24:31Z",
+    "eff3fe2e61b3df59df2b": "2026-11-23T16:25:07Z",
+    "ad0f54f56ec1e78e9d60": "2026-11-23T16:29:53Z",
+    "5546c567c7aab03b9e50": "2026-11-23T16:36:27Z",
+    "23b7eb7d84d92a636142": "2026-11-23T16:36:40Z",
+    "32e09e472030d30f2c05": "2026-11-23T16:37:21Z",
+    "deb4bad21faf2230857a": "2026-11-23T16:37:27Z",
+    "dade641ea3d7ffb819c5": "2026-11-23T16:37:36Z",
+    "b7e822fe0e273f31b374": "2026-11-23T16:40:04Z"
   },
   "sources": {
-    "twitch-clip:IntelligentCreativePeafowlJKanStyle-LbxyGkwatR3fTsu8": {
-      "key": "twitch-clip:IntelligentCreativePeafowlJKanStyle-LbxyGkwatR3fTsu8",
-      "url": "https://clips.twitch.tv/IntelligentCreativePeafowlJKanStyle-LbxyGkwatR3fTsu8",
+    "twitch-clip:PiercingDaintyEyeballDansGame-E4ScXXg1iflvPuVr": {
+      "key": "twitch-clip:PiercingDaintyEyeballDansGame-E4ScXXg1iflvPuVr",
+      "url": "https://clips.twitch.tv/PiercingDaintyEyeballDansGame-E4ScXXg1iflvPuVr",
       "platform": "twitch-clip",
-      "title": "after i make mistake",
-      "creator": "theteegoat",
-      "duration": 23.0,
-      "views": 1,
-      "published": "2026-11-23T03:57:39Z",
+      "title": "たいじ「ケツでっかぁ♡プルンプルンでワロタ」",
+      "creator": "たいじ_たいちゃんねる",
+      "duration": 22.0,
+      "views": 1734,
+      "published": "2026-11-22T17:10:04Z",
       "rights": "unspecified",
       "anchors": [],
-      "parent": "",
-      "parent_offset": null,
-      "recording": false
+      "parent": "twitch-vod:2937143142",
+      "parent_offset": 26874.0,
+      "recording": false,
+      "recorded": "2026-11-22T17:09:15Z"
     },
     "twitch-vod:2932809277": {
       "key": "twitch-vod:2932809277",
@@ -314,7 +329,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "twitch-vod:2933538555": {
       "key": "twitch-vod:2933538555",
@@ -329,7 +345,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "twitch-vod:2933884560": {
       "key": "twitch-vod:2933884560",
@@ -344,7 +361,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "twitch-vod:2933941381": {
       "key": "twitch-vod:2933941381",
@@ -359,7 +377,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "twitch-vod:2935805716": {
       "key": "twitch-vod:2935805716",
@@ -374,7 +393,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:-UuHA1h-Cf8": {
       "key": "youtube:-UuHA1h-Cf8",
@@ -389,7 +409,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:1GeQU0SEC-E": {
       "key": "youtube:1GeQU0SEC-E",
@@ -404,7 +425,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:5tdj53ioJ-c": {
       "key": "youtube:5tdj53ioJ-c",
@@ -419,7 +441,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:8zpkGW2DGCo": {
       "key": "youtube:8zpkGW2DGCo",
@@ -434,7 +457,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:AbMP2JHRinA": {
       "key": "youtube:AbMP2JHRinA",
@@ -449,7 +473,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:CK6XFkFSoyc": {
       "key": "youtube:CK6XFkFSoyc",
@@ -464,7 +489,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:CukTYtF72KY": {
       "key": "youtube:CukTYtF72KY",
@@ -479,7 +505,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:HzzzoomJ-Os": {
       "key": "youtube:HzzzoomJ-Os",
@@ -494,7 +521,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:LHoHInbPkk0": {
       "key": "youtube:LHoHInbPkk0",
@@ -509,7 +537,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:OIeLbmyraRQ": {
       "key": "youtube:OIeLbmyraRQ",
@@ -518,13 +547,14 @@
       "title": "🔴 BEATING GTA 6 RIGHT NOW 100% (FINAL MISSION)",
       "creator": "IShowSpeed",
       "duration": 22061.0,
-      "views": 23944096,
+      "views": 24087836,
       "published": "2026-11-20T12:46:26Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:R97EoVD1nr4": {
       "key": "youtube:R97EoVD1nr4",
@@ -533,13 +563,14 @@
       "title": "GTA 6 Gameplay Walkthrough FULL GAME [4K PS5 PRO] - No Commentary",
       "creator": "MKIceAndFire",
       "duration": 104381.0,
-      "views": 1874295,
+      "views": 2148937,
       "published": "2026-11-22T06:42:11Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:SctVkyVR2IA": {
       "key": "youtube:SctVkyVR2IA",
@@ -554,7 +585,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:Ui5eAdG6a-I": {
       "key": "youtube:Ui5eAdG6a-I",
@@ -569,7 +601,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:Ve2M5i_DSKI": {
       "key": "youtube:Ve2M5i_DSKI",
@@ -584,7 +617,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:Wd-vKw3XYP0": {
       "key": "youtube:Wd-vKw3XYP0",
@@ -599,7 +633,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:XUQ7qoZjNBA": {
       "key": "youtube:XUQ7qoZjNBA",
@@ -608,13 +643,14 @@
       "title": "🔴LIVE | GTA 6 | DAY 2 | VICE CITY | SUPER CARS/HYPER CARS | #1 GTA 6 DRIVER | #BUNGULATE",
       "creator": "TheBurntPeanut",
       "duration": 40692.0,
-      "views": 2143930,
+      "views": 2152987,
       "published": "2026-11-20T22:39:48Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:YOxDxdVD4MY": {
       "key": "youtube:YOxDxdVD4MY",
@@ -629,7 +665,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:YylVwL4UIFU": {
       "key": "youtube:YylVwL4UIFU",
@@ -638,13 +675,14 @@
       "title": "🔴LIVE | GTA 6 | DAY 2 | VICE CITY | SUPER CARS/HYPER CARS | #1 GTA 6 DRIVER | #BUNGULATE",
       "creator": "TheBurntPeanut",
       "duration": 57359.0,
-      "views": 3397445,
+      "views": 3414748,
       "published": "2026-11-19T19:13:20Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:dMfN68hBoc8": {
       "key": "youtube:dMfN68hBoc8",
@@ -659,7 +697,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:dUYIMa2ifWM": {
       "key": "youtube:dUYIMa2ifWM",
@@ -674,7 +713,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:ey0qks0aQ-c": {
       "key": "youtube:ey0qks0aQ-c",
@@ -689,7 +729,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:gBLQ-t_tywk": {
       "key": "youtube:gBLQ-t_tywk",
@@ -704,7 +745,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:gZf-qhJt_SM": {
       "key": "youtube:gZf-qhJt_SM",
@@ -719,7 +761,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:hwSg39yIBGU": {
       "key": "youtube:hwSg39yIBGU",
@@ -728,13 +771,14 @@
       "title": "🔴PLAYING GTA 6 RIGHT NOW GET IN HERE!",
       "creator": "IShowSpeed",
       "duration": 85282.0,
-      "views": 37932974,
+      "views": 38040508,
       "published": "2026-11-19T13:04:39Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:izXcd-bU72k": {
       "key": "youtube:izXcd-bU72k",
@@ -743,13 +787,14 @@
       "title": "🔴EXPLORING VICE CITY - GTA 6 STREAM (EASTER EGGS)",
       "creator": "IShowSpeed",
       "duration": 20702.0,
-      "views": 9633908,
+      "views": 10010522,
       "published": "2026-11-22T16:04:37Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:oyHFwPNd_c4": {
       "key": "youtube:oyHFwPNd_c4",
@@ -764,7 +809,8 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:uZGnqBLC60Y": {
       "key": "youtube:uZGnqBLC60Y",
@@ -773,13 +819,14 @@
       "title": "IT'S FINALLY HERE | Grand Theft Auto 6 - Part 1",
       "creator": "jacksepticeye",
       "duration": 10485.0,
-      "views": 4813057,
+      "views": 4893843,
       "published": "2026-11-18T23:47:15Z",
       "rights": "unspecified",
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     },
     "youtube:yX4DH_msPkI": {
       "key": "youtube:yX4DH_msPkI",
@@ -794,25 +841,26 @@
       "anchors": [],
       "parent": "",
       "parent_offset": null,
-      "recording": false
+      "recording": false,
+      "recorded": ""
     }
   },
   "moments": [
     {
-      "id": "2101e3d27e57f973cd84",
+      "id": "e93ffa9bc11e806a69c2",
       "span": {
-        "source": "twitch-clip:IntelligentCreativePeafowlJKanStyle-LbxyGkwatR3fTsu8",
+        "source": "twitch-clip:PiercingDaintyEyeballDansGame-E4ScXXg1iflvPuVr",
         "start": 0.0,
-        "end": 14.0
+        "end": 21.75
       },
-      "theme": "chase",
-      "hook": "The motorcycle speeds across a bridge toward highway signs.",
-      "setup": "The player rides a motorcycle down the highway past road signs for Key Largo and Catalan Key.",
-      "payoff": "The motorcycle crashes, throwing the player onto the pavement before displaying the Wasted screen.",
-      "evidence": "The player rides a motorcycle, crashes into obstacles, gets thrown onto the ground, and a Wasted screen appears.",
-      "score": 85.75,
-      "fingerprint": "0f0f1f1f1f1b1f57.0f0f4f0e1f171757.0f0f4c4e676767cf",
-      "gta_vi_evidence": "Road signs pointing toward Key Largo and Catalan Key combined with the Wasted death screen confirm Grand Theft Auto VI footage.",
+      "theme": "other",
+      "hook": "Lucia wakes Jason up in bed and they exchange dialogue.",
+      "setup": "Lucia is trying to get up and leave while Jason tries to pull her back in bed.",
+      "payoff": "They wrestle playfully on the bed while discussing having more time.",
+      "evidence": "Jason and Lucia interacting and wrestling in bed.",
+      "score": 84.0,
+      "fingerprint": "f3f371786ccdeddc.67772f2c33636bf3.cde9e9e9e9e4c1c9",
+      "gta_vi_evidence": "The character models and setting match the official GTA VI promotional material.",
       "alternate_cuts": []
     },
     {
