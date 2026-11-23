@@ -360,7 +360,8 @@ def render_piece(media: Path, offset: float, length: float, destination: Path,
         inputs.extend(["-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo"])
     if height > width:
         framing = (f"[0:v]split=2[back][front];[back]scale={width}:{height}:force_original_aspect_ratio=increase,"
-                   f"crop={width}:{height},boxblur=20:1[blur];[front]scale={width}:{height}:"
+                   f"crop={width}:{height},boxblur=32:1,eq=brightness=-0.12:saturation=0.75[blur];"
+                   f"[front]scale={width}:{height}:"
                    "force_original_aspect_ratio=decrease:force_divisible_by=2[fit];[blur][fit]overlay=(W-w)/2:(H-h)/2")
     else:
         framing = (f"[0:v]scale={width}:{height}:force_original_aspect_ratio=decrease:"
@@ -404,14 +405,14 @@ class Captions:
         if self.model is None:
             from faster_whisper import WhisperModel
 
-            self.model = WhisperModel(os.getenv("WHISPER_MODEL") or "base", device="cpu",
+            self.model = WhisperModel(os.getenv("WHISPER_MODEL") or "small", device="cpu",
                                       compute_type="int8", cpu_threads=3)
         with tempfile.TemporaryDirectory(dir=media.parent) as work:
             samples = Path(work) / "audio.f32"
             ffmpeg("-i", str(media), "-map", "0:a:0", "-ac", "1", "-ar", "16000", "-f", "f32le", str(samples))
             audio = np.fromfile(samples, dtype="<f4")
         segments, _ = self.model.transcribe(audio, vad_filter=True, word_timestamps=True,
-                                            beam_size=3, condition_on_previous_text=False)
+                                            beam_size=5, condition_on_previous_text=False)
         captions = []
         for segment in segments:
             words = []
@@ -432,7 +433,8 @@ class Captions:
 
 def finish_video(source: Path, captions: Path, destination: Path, vertical: bool) -> None:
     if vertical and captions.stat().st_size:
-        video_filter = f"subtitles={captions.name}:force_style='FontName=DejaVu Sans,FontSize=17,Outline=2,MarginV=46,Alignment=2'"
+        video_filter = (f"subtitles={captions.name}:force_style='FontName=DejaVu Sans,FontSize=11,"
+                        "Outline=2,MarginL=20,MarginR=20,MarginV=44,Alignment=2'")
         ffmpeg("-i", str(source), "-vf", video_filter, "-c:v", "libx264", "-threads", "3",
                "-preset", "veryfast", "-crf", "19", "-c:a", "copy", "-movflags", "+faststart",
                str(destination), cwd=source.parent)
