@@ -9,7 +9,7 @@ from clipper.core import (
 from clipper.discovery import (
     SEARCH_TERMS, discover, grounding_source, listed_twitch_source, tavily_discovery, twitch_search_channels,
 )
-from clipper.editorial import bounded, build_catalog, merge_catalogs, score_cut, scout_windows, width_rotation
+from clipper.editorial import bounded, build_catalog, merge_catalogs, score_cut, scout_windows, scouting_batches, width_rotation
 from clipper.gemini import QuotaError, quota_error
 from clipper.media import MediaError
 from clipper.plans import condensed_plan, is_new
@@ -29,6 +29,18 @@ class EditorialTests(unittest.TestCase):
         self.assertEqual((result.start, result.end), (210, 225))
         with self.assertRaises(ValueError):
             bounded({"start": 10, "end": 100}, window.source, window)
+
+    def test_short_scouts_prioritize_viewer_clips_without_losing_either_platform(self):
+        youtube = source_url("https://www.youtube.com/watch?v=TestGTA0001")
+        replay = source_url("https://www.twitch.tv/videos/1234567890")
+        clips = [source_url(f"https://clips.twitch.tv/Fixture{number}") for number in range(6)]
+        sources = {item.key: item for item in (youtube, replay, *clips)}
+        windows = [Range(item.key, 0, 30) for item in sources.values()]
+        batches = scouting_batches(windows, sources, viewer_first=True)
+        self.assertEqual([batch[0].source for batch in batches], [youtube.key, clips[0].key, clips[3].key, replay.key])
+        self.assertEqual([len(batch) for batch in batches], [1, 3, 3, 1])
+        replay.duration = 2000
+        self.assertTrue(all(window.seconds == 150 for window in scout_windows(replay, width=150)))
 
     @patch("clipper.discovery.requests.get")
     def test_gemini_grounding_links_resolve_to_platform_sources(self, get):
@@ -269,7 +281,7 @@ class EditorialTests(unittest.TestCase):
     @patch("clipper.editorial.scout")
     def test_quota_pause_preserves_the_scouted_moment(self, scout, audition, clock):
         source = source_url("https://www.youtube.com/watch?v=TestGTA0001")
-        source.duration = 310
+        source.duration = 120
         source.published = dated(1)
         scout.return_value = {"subject": "gameplay", "gta_vi_evidence": "The player controls Lucia in GTA VI.",
                               "sequences": [], "moments": [

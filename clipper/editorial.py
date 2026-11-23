@@ -24,7 +24,8 @@ SCOUT = object_schema({
     "sequences": array(object_schema({**TIMES, "theme": IDEA["theme"], "story": TEXT, "potential": NUM}), 2),
 })
 CLIP_SCOUT = object_schema({"clips": array(object_schema({"clip_id": TEXT, **SCOUT["properties"]}), 3)})
-ALT_CUT = object_schema({**TIMES, **IDEA, "time_to_hook": NUM, "confidence": NUM, "scores": SCORES})
+ALT_CUT = object_schema({**TIMES, **IDEA, "gta_vi_evidence": TEXT,
+                         "time_to_hook": NUM, "confidence": NUM, "scores": SCORES})
 AUDITION = object_schema({"genuine": BOOL, "gta_vi_evidence": TEXT, "standout": BOOL,
                           "reason": TEXT, "cuts": array(ALT_CUT, 3)})
 SEQUENCE_EDIT = object_schema({"idea": TEXT, "story": TEXT,
@@ -73,17 +74,17 @@ def bounded(row: dict, source: str, window: Range, *, end_tolerance: float = .15
     return Range(source, round(window.start + start, 3), round(min(window.end, window.start + end), 3))
 
 
-def scout_windows(source: Source) -> list[Range]:
-    if source.duration <= 420:
+def scout_windows(source: Source, *, width: int = 420) -> list[Range]:
+    if source.duration <= width:
         return [Range(source.key, 0, source.duration)]
-    tail = source.duration - 420
+    tail = source.duration - width
     span = int(digest(source.key, date.today().isoformat()), 16)
     rotating = .25 + (span % 500) / 1000
-    positions = [max(0, min(tail, anchor - 145)) for anchor in source.anchors[:2]]
+    positions = [max(0, min(tail, anchor - min(145, width // 3 + 5))) for anchor in source.anchors[:2]]
     positions.extend([min(70, tail * .12), tail * rotating, tail * .83])
     windows: list[Range] = []
     for offset in positions:
-        window = Range(source.key, round(offset, 2), round(offset + 420, 2))
+        window = Range(source.key, round(offset, 2), round(offset + width, 2))
         if not any(overlap(window, previous) >= .67 for previous in windows):
             windows.append(window)
     return windows
@@ -103,7 +104,7 @@ def platform_rotation[T](items: list[T], sources: dict[str, Source],
     return ordered
 
 
-def width_rotation(sources: dict[str, Source], used: dict[str, str]) -> list[Range]:
+def width_rotation(sources: dict[str, Source], used: dict[str, str], *, short_excerpts: bool = False) -> list[Range]:
     counts: Counter[str] = Counter()
     lists: list[list[Range]] = []
     for source in sorted(sources.values(), key=priority, reverse=True):
@@ -112,7 +113,8 @@ def width_rotation(sources: dict[str, Source], used: dict[str, str]) -> list[Ran
         creator = source.creator or source.key
         if counts[creator] >= 4:
             continue
-        windows = [window for window in scout_windows(source) if window.identity not in used]
+        windows = [window for window in scout_windows(source, width=150 if short_excerpts else 420)
+                   if window.identity not in used]
         if windows:
             counts[creator] += 1
             lists.append(windows)
@@ -124,6 +126,8 @@ def width_rotation(sources: dict[str, Source], used: dict[str, str]) -> list[Ran
                   for platform in ("youtube", "twitch-clip", "twitch-vod")]
         while any(groups):
             result.extend(group.pop(0) for group in groups if group)
+    if short_excerpts:
+        return platform_rotation(result, sources, lambda window: window.source)
     opening = result[:12]
     seen = {window.identity for window in opening}
     extra = [window for windows in lists[:12] for window in windows[1:] if window.identity not in seen]
@@ -133,7 +137,7 @@ def width_rotation(sources: dict[str, Source], used: dict[str, str]) -> list[Ran
     return platform_rotation(ordered, sources, lambda window: window.source)
 
 
-def scouting_batches(windows: list[Range], sources: dict[str, Source]) -> list[list[Range]]:
+def scouting_batches(windows: list[Range], sources: dict[str, Source], *, viewer_first: bool = False) -> list[list[Range]]:
     clips = deque(window for window in windows
                   if sources[window.source].platform == "twitch-clip" and window.seconds <= 60)
     clip_ids = {window.identity for window in clips}
@@ -146,6 +150,13 @@ def scouting_batches(windows: list[Range], sources: dict[str, Source]) -> list[l
                  if window.identity in clip_ids else [window])
         queued.update(span.identity for span in batch)
         batches.append(batch)
+    if viewer_first:
+        youtube = [batch for batch in batches if sources[batch[0].source].site == "youtube"]
+        clips = deque(batch for batch in batches if sources[batch[0].source].platform == "twitch-clip")
+        replays = deque(batch for batch in batches if sources[batch[0].source].platform == "twitch-vod")
+        batches = youtube
+        while clips or replays:
+            batches.extend(queue.popleft() for queue in (clips, clips, replays) if queue)
     return platform_rotation(batches, sources, lambda batch: batch[0].source)
 
 
@@ -234,6 +245,7 @@ def audition(gemini: Gemini, downloads: Downloads, source: Source, lead: Moment,
         "Find up to three alternative openings for the SAME event, for example the first action, "
         "a line that raises the stakes, or a quicker beginning. Each cut must contain the GTA VI evidence, the payoff, "
         "and enough context for cause and effect. Start spoken clips on a complete phrase and end after the thought lands. "
+        "For each cut, put precisely what confirms GTA VI inside that cut in its gta_vi_evidence. "
         "Score each 0–10 on hook (reason to stay by second 3), payoff, context, specificity, pace, and readability on a phone. "
         "A payoff of 6–7 is mildly interesting. Reserve 8 or higher for a specific, well-supported standout moment. "
         "Read the elapsed seconds clock in the top left for each edit boundary. Report time_to_hook from the start of the cut "
@@ -255,9 +267,11 @@ def audition(gemini: Gemini, downloads: Downloads, source: Source, lead: Moment,
                 raise ValueError("Cut length or timestamp fell outside the proposed moment.")
             if not all(clean(row[field], 350) for field in ("hook", "setup", "payoff", "evidence")):
                 raise ValueError("Cut lacked a specific hook, context, payoff, or evidence.")
+            proof = clean(row.get("gta_vi_evidence"), 500)
+            if not proof:
+                raise ValueError("GTA VI evidence fell outside the selected cut.")
             options.append(Moment(span, row["theme"], clean(row["hook"], 350), clean(row["setup"], 350),
-                                  clean(row["payoff"], 350), clean(row["evidence"], 500), score,
-                                  gta_vi_evidence=clean(reply["gta_vi_evidence"], 500)))
+                                  clean(row["payoff"], 350), clean(row["evidence"], 500), score, gta_vi_evidence=proof))
         except ValueError as error:
             failures[str(error)] += 1
         except (KeyError, TypeError):
@@ -340,7 +354,9 @@ def merge_catalogs(local: dict, shared: dict) -> dict:
 def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Source], previous: dict,
                   report: list[str], *, mode: str = "shorts") -> dict:
     floor = float(os.getenv("MIN_MOMENT_SCORE") or 70)
-    scout_limit = int(os.getenv("SCOUT_WINDOWS") or (28 if search_enabled() else 16))
+    short_edits = mode in {"shorts", "ranked"}
+    default_scout_limit = 28 if search_enabled() else (20 if short_edits else 16)
+    scout_limit = int(os.getenv("SCOUT_WINDOWS") or default_scout_limit)
     verify_limit = int(os.getenv("AUDITION_MOMENTS") or (34 if search_enabled() else 20))
     sources = {key: Source(**row) for key, row in previous.get("sources", {}).items()}
     for key, row in current.items():
@@ -356,8 +372,8 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
     limited = False
     scout_sources = {key: sources[key] for key in current if key in sources
                      and (not sequence_only or sources[key].duration >= 260)}
-    windows = width_rotation(scout_sources, scanned)
-    batches = deque(scouting_batches(windows, sources)[:scout_limit * 2])
+    windows = width_rotation(scout_sources, scanned, short_excerpts=short_edits)
+    batches = deque(scouting_batches(windows, sources, viewer_first=short_edits)[:scout_limit * 2])
     queued_windows = sum(len(batch) for batch in batches)
     scouting_slots: Counter[str] = Counter()
     reviewed: Counter[str] = Counter()
