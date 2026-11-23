@@ -412,7 +412,7 @@ class Captions:
             ffmpeg("-i", str(media), "-map", "0:a:0", "-ac", "1", "-ar", "16000", "-f", "f32le", str(samples))
             audio = np.fromfile(samples, dtype="<f4")
         segments, _ = self.model.transcribe(audio, vad_filter=True, word_timestamps=True,
-                                            beam_size=5, condition_on_previous_text=False)
+                                            beam_size=3, condition_on_previous_text=False)
         captions = []
         for segment in segments:
             words = []
