@@ -60,11 +60,18 @@ def youtube_cookie_file(secret: str, report: list[str]):
 def youtube_error(stderr: str) -> str:
     detail = stderr.casefold()
     for fragment, reason in (
+        ("sign in to confirm your age", "This YouTube video has an age restriction."),
         ("sign in to confirm", "YouTube asked to sign in to confirm this request."),
+        ("cookies have expired", "YouTube rejected the saved session cookies."),
         ("cookies are no longer valid", "YouTube rejected the saved session cookies."),
         ("requested format is not available", "YouTube did not offer the requested video format."),
         ("no video formats found", "YouTube did not return any downloadable video formats."),
         ("video is not available", "This YouTube video is not available to the runner."),
+        ("video is unavailable", "This YouTube video is not available to the runner."),
+        ("video unavailable", "This YouTube video is not available to the runner."),
+        ("private video", "This YouTube video is private."),
+        ("members-only", "This YouTube video is restricted to channel members."),
+        ("ffmpeg exited with code -11", "FFmpeg crashed while cutting the YouTube stream."),
         ("ffmpeg is not installed", "FFmpeg is required for this YouTube request."),
         ("timed out", "The authenticated YouTube request timed out."),
     ):
@@ -74,10 +81,15 @@ def youtube_error(stderr: str) -> str:
     if status and "ffmpeg" in detail:
         return f"FFmpeg received HTTP {status.group(1)} while reading YouTube media."
     if status:
-        return f"YouTube returned HTTP {status.group(1)} for the authenticated request."
+        return f"YouTube returned HTTP {status.group(1)} for this request."
     if "ffmpeg" in detail:
         return "FFmpeg could not read the YouTube media."
-    return "The authenticated YouTube request failed."
+    return "yt-dlp could not open this YouTube source."
+
+
+def youtube_session_blocked(error: Exception) -> bool:
+    return str(error).startswith(("YouTube asked to sign in", "YouTube rejected the saved session",
+                                  "YouTube returned HTTP 429"))
 
 
 def run(args: list[str], *, timeout: int = 240, cwd: Path | None = None,
@@ -130,6 +142,29 @@ def publication_date(metadata: dict) -> str:
     return ""
 
 
+def twitch_replay_section(source: Source, span: Range, directory: Path, timeout: int) -> None:
+    from twitchdl.playlists import enumerate_vods, filter_vods, load_m3u8
+
+    cache = directory / "segments"
+    run(["twitch-dl", "download", "--quality", "source", "--overwrite", "--no-join",
+         "--start", timestamp(span.start), "--end", timestamp(span.end), "--cache-dir", str(cache),
+         "--output", str(directory / "video.mp4"), source.url], timeout=timeout)
+    original = cache / "playlist.m3u8"
+    local = cache / "playlist_downloaded.m3u8"
+    if not original.is_file() or not local.is_file():
+        raise MediaError("Twitch did not return the requested replay segments.")
+    playlist = load_m3u8(original.read_text(encoding="utf-8"))
+    segments, trim_start, _ = filter_vods(enumerate_vods(playlist), int(span.start), int(span.end))
+    if sum(segment.duration for segment in segments) - (trim_start or 0) < span.seconds - 1:
+        raise MediaError("The Twitch replay has insufficient archived media for this range.")
+    # The first downloaded segment may start before the requested cut. Decode the
+    # local segments so that the first output frame matches the requested source time.
+    ffmpeg("-protocol_whitelist", "file,crypto,data", "-i", str(local), "-ss", f"{trim_start or 0:.3f}",
+           "-t", f"{span.seconds:.3f}", "-map", "0:v:0", "-map", "0:a:0?", "-sn", "-dn",
+           "-c:v", "libx264", "-threads", "3", "-preset", "ultrafast", "-crf", "18", "-pix_fmt", "yuv420p",
+           "-c:a", "aac", "-b:a", "160k", str(directory / "video.mp4"), timeout=240)
+
+
 class Downloads:
     def __init__(self, directory: Path, fixtures: dict[str, Path] | None = None,
                  *, youtube_cookies: Path | None = None):
@@ -138,18 +173,20 @@ class Downloads:
         self.windows: dict[str, list[tuple[Range, Path]]] = {}
         self.fixtures = fixtures or {}
         self.unreachable: dict[str, str] = {}
+        self.failed_windows: dict[str, str] = {}
         self.youtube_cookies = youtube_cookies
         self.full_limit = int(os.getenv("FULL_DOWNLOAD_MAX_SECONDS") or 3600)
         self.format = "bv*[height<=1080][ext=mp4]+ba[ext=m4a]/b[height<=1080][ext=mp4]/b[height<=1080]/b"
 
     def ytdlp(self, url: str, extra: list[str], *, timeout: int) -> str:
         source = source_url(url)
-        authenticated = self.youtube_cookies and (url.startswith("ytsearch") or source and source.platform == "youtube")
+        youtube = (bool(re.match(r"ytsearch\d*:", url)) or url.startswith("https://www.youtube.com/results?")
+                   or source is not None and source.platform == "youtube")
         args = ["yt-dlp", "--ignore-config", "--no-playlist", "--no-progress", "--no-warnings",
                 "--socket-timeout", "20", "--retries", "2", "--js-runtimes", "node"]
-        if authenticated:
+        if youtube and self.youtube_cookies:
             args.extend(["--cookies", str(self.youtube_cookies)])
-        return run([*args, *extra, url], timeout=timeout, summarize_error=youtube_error if authenticated else None)
+        return run([*args, *extra, url], timeout=timeout, summarize_error=youtube_error if youtube else None)
 
     def metadata(self, source: Source) -> None:
         result = json.loads(self.ytdlp(source.url, ["--dump-single-json", "--skip-download"], timeout=65))
@@ -173,7 +210,7 @@ class Downloads:
             return target
         with tempfile.TemporaryDirectory(dir=self.directory) as work:
             temporary = Path(work)
-            native_youtube = whole and source.platform == "youtube" and self.youtube_cookies
+            native_youtube = whole and source.platform == "youtube"
             media_format = "b[height<=1080][ext=mp4]/b[ext=mp4]/b" if native_youtube else self.format
             options = ["-f", media_format, "--merge-output-format", "mp4", "--remux-video", "mp4",
                        "-o", str(temporary / "video.%(ext)s")]
@@ -183,10 +220,7 @@ class Downloads:
                 options += ["--download-sections", f"*{span.start:.3f}-{span.end:.3f}", "--force-keyframes-at-cuts"]
             timeout = 75 if source.platform == "twitch-clip" else (420 if whole else 180)
             if not whole and source.platform == "twitch-vod" and (source.recording or shutil.which("twitch-dl")):
-                run(["twitch-dl", "download", "--quality", "source", "--overwrite",
-                     "--start", timestamp(span.start), "--end", timestamp(span.end),
-                     "--cache-dir", str(temporary / "segments/{id}/{quality}"),
-                     "--output", str(temporary / "video.mp4"), source.url], timeout=timeout)
+                twitch_replay_section(source, span, temporary, timeout)
             else:
                 try:
                     self.ytdlp(source.url, options, timeout=timeout)
@@ -223,44 +257,63 @@ class Downloads:
             return self._fetch(source, span, whole=True), span.start
         coverage = (Range(span.source, math.floor(span.start), math.ceil(span.end))
                     if source.platform == "twitch-vod" else span)
+        if coverage.identity in self.failed_windows:
+            raise MediaError(self.failed_windows[coverage.identity])
         try:
             file = self._fetch(source, coverage, whole=False)
         except MediaError as section_failure:
             failure = str(section_failure).casefold()
-            blocked = any(reason in failure for reason in ("403", "sign in", "bot", "not available", "private"))
-            ffmpeg_youtube = source.platform == "youtube" and self.youtube_cookies and "ffmpeg" in failure
+            blocked = youtube_session_blocked(section_failure) or any(reason in failure for reason in (
+                "403", "sign in", "not available", "private", "age restriction", "channel members"))
+            ffmpeg_youtube = source.platform == "youtube" and "ffmpeg" in failure
             if source.recording or source.duration > self.full_limit or (blocked and not ffmpeg_youtube):
-                if blocked or source.platform != "twitch-vod":
+                if blocked and not ffmpeg_youtube:
                     self.unreachable[source.key] = str(section_failure)
+                else:
+                    self.failed_windows[coverage.identity] = str(section_failure)
                 raise
             try:
                 return self._fetch(source, span, whole=True), span.start
             except MediaError as full_failure:
-                self.unreachable[source.key] = str(full_failure)
+                self.failed_windows[coverage.identity] = str(full_failure)
                 raise
         self.windows.setdefault(source.key, []).append((coverage, file))
         return file, span.start - coverage.start
 
 
-def proxy(source_path: Path, start: float, length: float, destination: Path, *, fps: int = 8) -> Path:
+def proxy(source_path: Path, start: float, length: float, destination: Path, *, fps: int = 8,
+          timecode: bool = False) -> Path:
     if destination.exists():
         return destination
     bitrate = max(68, min(500, int(87_000 / length) - 44))
     width = 640 if length <= 300 else 480
-    ffmpeg("-ss", f"{start:.3f}", "-i", str(source_path), "-t", f"{length:.3f}",
-           "-vf", f"scale='min({width},iw)':-2,fps={fps}", "-c:v", "libx264", "-threads", "2",
-           "-preset", "veryfast", "-b:v", f"{bitrate}k", "-maxrate", f"{bitrate}k",
-           "-bufsize", f"{bitrate * 2}k", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "40k",
-           "-ac", "1", "-movflags", "+faststart", str(destination))
+    filters = f"scale='min({width},iw)':-2,fps={fps}"
+    clock = destination.with_suffix(".time.srt")
+    if timecode:
+        clock.write_text("".join(f"{second + 1}\n{srt_time(second)} --> {srt_time(min(second + 1, length))}\n"
+                                 f"{second}s\n\n" for second in range(math.ceil(length))), encoding="utf-8")
+        filters += (f",subtitles={clock.name}:force_style='FontName=DejaVu Sans,FontSize=22,Alignment=7,"
+                    "MarginL=10,MarginV=8,BorderStyle=3,Outline=2,BackColour=&H48000000'")
+    try:
+        ffmpeg("-ss", f"{start:.3f}", "-i", str(source_path.resolve()), "-t", f"{length:.3f}",
+               "-vf", filters, "-c:v", "libx264", "-threads", "2",
+               "-preset", "veryfast", "-b:v", f"{bitrate}k", "-maxrate", f"{bitrate}k",
+               "-bufsize", f"{bitrate * 2}k", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "40k",
+               "-ac", "1", "-movflags", "+faststart", str(destination.resolve()), cwd=destination.parent)
+    finally:
+        if timecode:
+            clock.unlink(missing_ok=True)
     return destination
 
 
-def window_proxy(downloads: Downloads, source: Source, span: Range, *, fps: int = 8) -> Path:
-    path = downloads.directory / f"proxy-{span.identity}-{fps}.mp4"
+def window_proxy(downloads: Downloads, source: Source, span: Range, *, fps: int = 8,
+                 timecode: bool = False) -> Path:
+    suffix = "-timecode" if timecode else ""
+    path = downloads.directory / f"proxy-{span.identity}-{fps}{suffix}.mp4"
     if path.exists():
         return path
     media, offset = downloads.get(source, span)
-    return proxy(media, offset, span.seconds, path, fps=fps)
+    return proxy(media, offset, span.seconds, path, fps=fps, timecode=timecode)
 
 
 def fingerprint(path: Path, start: float, length: float) -> str:

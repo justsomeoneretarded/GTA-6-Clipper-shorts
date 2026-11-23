@@ -6,13 +6,13 @@ import os
 import re
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
-from urllib.parse import unquote, urlsplit
+from urllib.parse import unquote, urlencode, urlsplit
 
 import requests
 
 from .core import Source, dated, duration_text, source_cutoff, source_url
 from .gemini import Gemini, ServiceError, search_enabled
-from .media import Downloads, MediaError, run
+from .media import Downloads, MediaError, run, youtube_session_blocked
 
 SEARCH_TERMS = ("GTA 6", "GTA VI", "GTA", "GTA stream", "GTA game", "GTA live")
 YOUTUBE = "https://www.googleapis.com/youtube/v3"
@@ -174,9 +174,31 @@ def grounding_source(link: str) -> Source | None:
 
 
 def youtube_search(downloads: Downloads, topic: str) -> list[Source]:
-    response = downloads.ytdlp(f"ytsearch15:{topic}", ["--flat-playlist", "--dump-single-json"], timeout=55)
-    rows = json.loads(response).get("entries", [])
-    return [item for row in rows if row and (item := source_url(f"https://www.youtube.com/watch?v={row.get('id', '')}"))]
+    # YouTube's results filter combines upload-date sorting and video results.
+    query = urlencode({"search_query": topic, "sp": "CAISAhAB"})
+    options = ["--flat-playlist", "--dump-single-json", "--playlist-end", "15"]
+    try:
+        result = downloads.ytdlp(f"https://www.youtube.com/results?{query}", options, timeout=55)
+        rows = json.loads(result).get("entries", [])
+    except MediaError as error:
+        if youtube_session_blocked(error):
+            raise
+        rows = []
+    if not rows:
+        result = downloads.ytdlp(f"ytsearch15:{topic}", options, timeout=55)
+        rows = json.loads(result).get("entries", [])
+    sources = []
+    for row in rows:
+        if not row or row.get("live_status") in {"is_live", "is_upcoming"}:
+            continue
+        item = source_url(f"https://www.youtube.com/watch?v={row.get('id', '')}")
+        if item:
+            item.title = str(row.get("title") or "")
+            item.creator = str(row.get("uploader") or "")
+            item.duration = float(row.get("duration") or 0)
+            item.views = int(row.get("view_count") or 0)
+            sources.append(item)
+    return sources
 
 
 def listed_twitch_source(row: dict, channel: str, *, clip: bool, earliest: str) -> Source | None:
@@ -350,12 +372,17 @@ def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: i
         except (KeyError, ValueError) as error:
             report.append(f"YouTube discovery: {error}")
     if not searched_youtube:
+        search_blocks = 0
         for term in SEARCH_TERMS:
             try:
                 for item in youtube_search(downloads, term):
                     add(sources, item)
             except (MediaError, ValueError) as error:
                 report.append(f"YouTube search {term!r}: {error}")
+                search_blocks += youtube_session_blocked(error)
+                if search_blocks >= 2:
+                    report.append("Paused YouTube searching after repeated session challenges.")
+                    break
     if twitch_client and twitch_secret:
         try:
             twitch_discovery(sources, twitch_client, twitch_secret, days)
@@ -376,12 +403,12 @@ def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: i
             try:
                 downloads.metadata(item)
             except (MediaError, ValueError) as error:
-                if item.platform == "youtube" and "sign in to confirm" in str(error).casefold():
+                if item.platform == "youtube" and youtube_session_blocked(error):
                     youtube_blocks += 1
                 report.append(f"{item.key} metadata: {error}")
                 sources.pop(item.key, None)
     if skipped:
-        report.append(f"Skipped {skipped} further YouTube metadata calls after repeated sign-in challenges.")
+        report.append(f"Skipped {skipped} further YouTube metadata calls after repeated session challenges.")
     latest = dated()
     recent = {key: item for key, item in sources.items() if item.published and earliest <= item.published <= latest}
     stale = sum(bool(item.published and item.published < earliest) for item in sources.values())
@@ -391,7 +418,7 @@ def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: i
     # YouTube's replay graph is optional; the API and coverage sweep supply the baseline.
     replay_targets = sorted((item for item in recent.values() if item.platform == "youtube" and item.duration > 420
                              and not item.anchors), key=priority, reverse=True)
-    for item in replay_targets[:4]:
+    for item in replay_targets[:4] if youtube_blocks < 2 else ():
         try:
             duration = item.duration
             downloads.metadata(item)

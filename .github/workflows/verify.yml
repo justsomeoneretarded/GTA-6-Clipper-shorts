@@ -20,7 +20,7 @@ jobs:
       - name: Install fixture dependencies
         run: |
           bash scripts/setup-media.sh
-          python -m pip install 'requests>=2.32,<3'
+          python -m pip install 'requests>=2.32,<3' 'twitch-dl==3.3.2'
       - name: Check selection rules and render every editor
         run: |
           python -m unittest discover -s tests -v

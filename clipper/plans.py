@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from collections import Counter, defaultdict
 
-from .core import Cut, Edit, Moment, Range, Sequence, Source, clean, or_parent, overlap
+from .core import Cut, Edit, Moment, Range, Sequence, Source, clean, number, or_parent, overlap
 from .editorial import GROUP_EDIT, SEQUENCE_EDIT, bounded, diversify, platform_rotation
 from .gemini import NUM, TEXT, Gemini, array, object_schema
 from .media import Downloads, MediaError, window_proxy
@@ -18,6 +18,12 @@ RANK_CRITERIA = {
     "radio": "how well the in-game audio fits the moment, supported by the footage",
 }
 COMPACT = object_schema({"cuts": array(object_schema({"start": NUM, "end": NUM, "reason": TEXT}), 2)})
+
+
+class UnavailableMoment(MediaError):
+    def __init__(self, moment: Moment, error: MediaError):
+        super().__init__(f"{moment.span.source} at {moment.span.start:.2f}s: {error}")
+        self.moment_id = moment.identity
 
 
 def previous_ranges(ledger: dict, sources: dict[str, Source]) -> list[Range]:
@@ -36,7 +42,7 @@ def is_new(span: Range, prior: list[Range], sources: dict[str, Source]) -> bool:
 
 def single_moment(moment: Moment) -> Edit:
     context = f"Opening: {moment.hook} Setup: {moment.setup} Payoff: {moment.payoff} Evidence: {moment.evidence}"
-    return Edit([Cut(moment.span)], moment.theme, moment.hook, context)
+    return Edit([Cut(moment.span)], moment.theme, moment.hook, context, moment.gta_vi_evidence)
 
 
 def compact_for_rank(gemini: Gemini, downloads: Downloads, item: Moment, source: Source) -> Range:
@@ -87,7 +93,8 @@ def group_plan(gemini: Gemini, downloads: Downloads, group: list[Moment], source
     ordering = (
         f"Choose exactly 3 comparable entries and order them #3, #2, #1 using {criteria}. "
         f"Use {youtube_count} YouTube and {3 - youtube_count} Twitch entries. "
-        "Each entry needs its own standout payoff. The viewer should be able to see why #1 wins. "
+        "Open on the stakes or payoff setup of #3. Each entry needs its own standout payoff. "
+        "The viewer should be able to see why #1 wins. "
         "Labels are short editorial captions."
         if ranked else
         "Choose 4 or 6 entries with equal YouTube and Twitch counts. Start with a strong scene and build "
@@ -116,12 +123,18 @@ def group_plan(gemini: Gemini, downloads: Downloads, group: list[Moment], source
     for index, entry in enumerate(entries):
         item = table[entry["id"]]
         source = sources[item.span.source]
-        if ranked:
-            span = compact_for_rank(gemini, downloads, item, source)
-        else:
-            span = expand_for_themed(gemini, downloads, item, source)
+        try:
+            span = (compact_for_rank(gemini, downloads, item, source) if ranked
+                    else expand_for_themed(gemini, downloads, item, source))
+        except MediaError:
+            span = item.span
+        try:
+            downloads.get(source, span)
+        except MediaError as error:
+            raise UnavailableMoment(item, error) from None
         cuts.append(Cut(span, clean(entry["label"], 54), len(entries) - index if ranked else None))
-    edit = Edit(cuts, theme, clean(reply["idea"], 180), clean(reply["context"], 600))
+    proof = " ".join(table[entry["id"]].gta_vi_evidence for entry in entries)
+    edit = Edit(cuts, theme, clean(reply["idea"], 180), clean(reply["context"], 600), clean(proof, 1250))
     return (edit, ids) if not ranked or 24 <= edit.seconds <= 88 else None
 
 
@@ -133,51 +146,73 @@ def group_plans(gemini: Gemini, downloads: Downloads, moments: list[Moment], sou
     needed = 3 if ranked else 4
     groups = [diversify(group, sources) for group in by_theme.values() if len(group) >= needed]
     groups.sort(key=lambda group: sum(item.score for item in group[:needed]) / needed, reverse=True)
+    unavailable = set()
     for available in groups[:5]:
         theme = available[0].theme
         for youtube_count in ((2, 1) if ranked else (2, 2)):
-            group = platform_rotation(available, sources, lambda item: item.span.source)[:12]
-            counts = Counter(sources[item.span.source].site for item in group)
-            if counts["youtube"] < youtube_count or counts["twitch"] < needed - youtube_count:
-                continue
-            try:
-                proposal = group_plan(gemini, downloads, group, sources, ranked, youtube_count)
-                if proposal:
-                    edit, used = proposal
-                    available = [item for item in available if item.identity not in used]
-                    yield edit
-            except (KeyError, ValueError, TypeError, MediaError) as error:
-                report.append(f"{theme} compilation plan: {error}")
+            for _ in range(3):
+                readable = [item for item in available if item.identity not in unavailable
+                            and item.span.source not in downloads.unreachable]
+                group = platform_rotation(readable, sources, lambda item: item.span.source)[:12]
+                counts = Counter(sources[item.span.source].site for item in group)
+                if counts["youtube"] < youtube_count or counts["twitch"] < needed - youtube_count:
+                    break
+                try:
+                    proposal = group_plan(gemini, downloads, group, sources, ranked, youtube_count)
+                    if proposal:
+                        edit, used = proposal
+                        available = [item for item in available if item.identity not in used]
+                        yield edit
+                    break
+                except UnavailableMoment as error:
+                    unavailable.add(error.moment_id)
+                    report.append(f"{theme} compilation source unavailable: {error}")
+                except (KeyError, ValueError, TypeError, MediaError) as error:
+                    report.append(f"{theme} compilation plan: {error}")
+                    break
+
+
+def sequence_cuts(reply: dict, window: Range, *, retry: bool = False) -> list[Cut]:
+    offset = window.start if reply.get("time_basis") == "source" else 0
+    cuts = []
+    for row in reply["cuts"]:
+        try:
+            local = ({key: number(row[key], offset, window.end + 1) - offset for key in ("start", "end")}
+                     if offset else row)
+            span = bounded(local, window.source, window, end_tolerance=1)
+            if span.seconds < 5 or cuts and span.start < cuts[-1].span.end:
+                raise ValueError("The edit has undersized, overlapping, or out-of-order cuts.")
+            cuts.append(Cut(span, clean(row["beat"], 68)))
+        except (KeyError, TypeError, ValueError):
+            if not retry:
+                raise
+    return cuts
 
 
 def condensed_plan(gemini: Gemini, downloads: Downloads, sequence: Sequence, source: Source) -> Edit | None:
-    media = window_proxy(downloads, source, sequence.span)
+    media = window_proxy(downloads, source, sequence.span, timecode=True)
     prompt = (
         f"Edit one complete chronological GTA VI sequence within this {sequence.span.seconds:.1f}s excerpt. "
         f"The initial scout's story was {sequence.story!r}; confirm and correct it using the source. "
         "Keep a strong opening, required dialogue and cause/effect, escalation, and an ending viewers can understand. "
         "Keep transitions that explain how the next beat happens. Remove loading, idle travel, menus, routine interactions, "
         "and repeated attempts unless a specific detail changes the stakes or advances the story. "
-        f"Return at most ten ordered, non-overlapping ranges in excerpt-local seconds. "
-        f"The first frame is 0 and the end is {sequence.span.seconds:.2f}. "
+        "Read the elapsed seconds clock in the top left for every boundary. "
+        f"Return at most ten ordered, non-overlapping ranges using that clock, with time_basis set to excerpt. "
+        f"The first frame is 0 and the end is {sequence.span.seconds:.2f}s. "
         "Keep at least 240 seconds total with an honest payoff. Empty cuts are valid if there is too little real material. "
         "Label each kept range with its narrative beat. The edit idea should be a specific viewable premise."
     )
     video = gemini.video(media, fps=1.5)
     reply = gemini.json(prompt, SEQUENCE_EDIT, [video])
     try:
-        spans = [bounded(row, source.key, sequence.span, end_tolerance=1) for row in reply["cuts"]]
-    except ValueError:
+        cuts = sequence_cuts(reply, sequence.span)
+    except (KeyError, TypeError, ValueError):
         reply = gemini.json(prompt + (
-            f" The earlier timings fell outside the excerpt. Use 0–{sequence.span.seconds:.2f} seconds only. "
-            "Convert from source timestamps if needed. Return an empty cuts list if you cannot locate the scenes."
+            f" The earlier ranges were invalid. Read the clock shown in the video and use "
+            f"ordered ranges within 0–{sequence.span.seconds:.2f}s. Return no cuts if you cannot locate the scenes."
         ), SEQUENCE_EDIT, [video])
-        spans = [bounded(row, source.key, sequence.span, end_tolerance=1) for row in reply["cuts"]]
-    cuts: list[Cut] = []
-    for row, span in zip(reply["cuts"], spans):
-        if span.seconds < 5 or cuts and span.start < cuts[-1].span.end:
-            return None
-        cuts.append(Cut(span, clean(row["beat"], 68)))
+        cuts = sequence_cuts(reply, sequence.span, retry=True)
     if not cuts:
         return None
     edit = Edit(cuts, sequence.theme, clean(reply["idea"], 180), clean(reply["story"], 520))
@@ -185,13 +220,19 @@ def condensed_plan(gemini: Gemini, downloads: Downloads, sequence: Sequence, sou
 
 
 def plans(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict, ledger: dict,
-          sources: dict[str, Source], report: list[str]):
+          sources: dict[str, Source], report: list[str], rejected: dict):
     earlier = previous_ranges(ledger, sources)
     if mode == "condensed":
-        sequences = [Sequence.from_dict(row) for row in catalog["sequences"] if row["span"]["source"] in sources]
-        for sequence in sequences[:12]:
-            if not is_new(sequence.span, earlier, sources):
+        sequences = [Sequence.from_dict(row) for row in catalog["sequences"] if row["span"]["source"] in sources
+                     and is_new(Range(**row["span"]), earlier, sources)]
+        ordered = platform_rotation(sequences, sources, lambda item: item.span.source)
+        attempts = 0
+        for sequence in ordered:
+            if sequence.span.source in downloads.unreachable:
                 continue
+            if attempts >= 16:
+                break
+            attempts += 1
             try:
                 edit = condensed_plan(gemini, downloads, sequence, sources[sequence.span.source])
                 if edit:
@@ -202,7 +243,14 @@ def plans(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict, ledger
     moments = [Moment.from_dict(row) for row in catalog["moments"]
                if row["span"]["source"] in sources and is_new(Range(**row["span"]), earlier, sources)]
     if mode == "shorts":
-        ordered = platform_rotation(diversify(moments, sources), sources, lambda item: item.span.source)
-        yield from (single_moment(moment) for moment in ordered)
+        primary, reserve = [], []
+        for moment in diversify(moments, sources):
+            options = [single_moment(cut) for cut in (moment, *moment.alternate_cuts)
+                       if is_new(cut.span, earlier, sources)]
+            options = [edit for edit in options if edit.identity not in rejected]
+            if options:
+                primary.append(options[0])
+                reserve.extend(options[1:])
+        yield from platform_rotation(primary + reserve, sources, lambda edit: edit.cuts[0].span.source)
     else:
         yield from group_plans(gemini, downloads, moments, sources, report, mode == "ranked")

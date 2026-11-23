@@ -7,10 +7,34 @@ from unittest.mock import Mock, patch
 
 from clipper.core import VERSION, Cut, Edit, Moment, Range, Sequence, source_url
 from clipper.editorial import COLD_OPEN
-from clipper.production import MODES, approved_package, render_batch
+from clipper.plans import single_moment
+from clipper.production import MODES, EditorialRejection, approved_package, render_batch
 
 
 class ProductionEligibilityTests(unittest.TestCase):
+    @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
+    @patch("clipper.production.render_edit")
+    def test_empty_batch_saves_rejection_and_next_batch_uses_alternate_cut(self, render, clock):
+        source = source_url("https://www.youtube.com/watch?v=TestGTA0001")
+        source.duration = 500
+        source.published = "2026-11-19T01:00:00Z"
+        first = Moment(Range(source.key, 10, 30), "comedy", "Opening", "Setup", "Payoff", "Evidence", 92)
+        second = Moment(Range(source.key, 15, 32), "comedy", "Opening", "Setup", "Payoff", "Evidence", 90)
+        first.alternate_cuts = [second]
+        catalog = {"version": VERSION, "sources": {source.key: asdict(source)}, "moments": [first.to_dict()]}
+        render.side_effect = EditorialRejection("Opening too slow.")
+        with tempfile.TemporaryDirectory() as folder:
+            work = Path(folder)
+            with patch.dict("os.environ", {"MAX_RENDER_ATTEMPTS": "1"}):
+                ledger = render_batch("shorts", Mock(), Mock(), catalog, {}, work, work / "first", [])
+            self.assertEqual(ledger["edits"], [])
+            self.assertEqual(ledger["rejected"][0]["id"], single_moment(first).identity)
+            render.reset_mock(side_effect=True)
+            render.return_value = {"directory": "short-01"}
+            ledger = render_batch("shorts", Mock(), Mock(), catalog, ledger, work, work / "second", [])
+        render.assert_called_once()
+        self.assertEqual(ledger["edits"][0]["id"], single_moment(second).identity)
+
     @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
     @patch("clipper.production.render_edit")
     def test_all_editors_skip_pre_cutoff_sources_from_an_older_catalog(self, render, clock):

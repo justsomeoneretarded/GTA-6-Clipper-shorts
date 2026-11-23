@@ -154,6 +154,8 @@ class Moment:
     evidence: str
     score: float
     fingerprint: str = ""
+    gta_vi_evidence: str = ""
+    alternate_cuts: list[Moment] = field(default_factory=list)
 
     @property
     def identity(self) -> str:
@@ -164,7 +166,9 @@ class Moment:
 
     @classmethod
     def from_dict(cls, row: dict) -> Moment:
-        return cls(Range(**row["span"]), row["theme"], row["hook"], row["setup"], row["payoff"], row["evidence"], row["score"], row.get("fingerprint", ""))
+        return cls(Range(**row["span"]), row["theme"], row["hook"], row["setup"], row["payoff"], row["evidence"],
+                   row["score"], row.get("fingerprint", ""), row.get("gta_vi_evidence", ""),
+                   [cls.from_dict(cut) for cut in row.get("alternate_cuts", [])])
 
 
 @dataclass
@@ -195,6 +199,7 @@ class Edit:
     theme: str
     idea: str
     context: str
+    gta_vi_evidence: str = ""
 
     @property
     def identity(self) -> str:

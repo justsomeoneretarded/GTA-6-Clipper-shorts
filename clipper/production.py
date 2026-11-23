@@ -9,9 +9,10 @@ from dataclasses import asdict
 from pathlib import Path
 
 from .core import VERSION, Edit, Source, clean, dated, number, or_parent, source_cutoff, source_url, timestamp, write_json
-from .editorial import COLD_OPEN, HIGHLIGHT_STANDARD, PACKAGING, SUBJECT
+from .editorial import COLD_OPEN, DISCUSSION, HIGHLIGHT_STANDARD, PACKAGING, SUBJECT
 from .gemini import Gemini, QuotaError, ServiceError
-from .media import (Captions, Downloads, MediaError, ffmpeg, finish_video, join_pieces, proxy, render_piece, verify_video)
+from .media import (Captions, Downloads, MediaError, ffmpeg, finish_video, join_pieces, proxy, render_piece,
+                    verify_video, window_proxy)
 from .plans import is_new, plans
 
 REVIEW_BY_MODE = {
@@ -22,6 +23,10 @@ REVIEW_BY_MODE = {
                  "Keep necessary connective beats and reject padding used to reach four minutes.",
 }
 MODES = tuple(REVIEW_BY_MODE)
+
+
+class EditorialRejection(ValueError):
+    """A finished cut that the editor judged on its footage."""
 
 
 def sources_from(catalog: dict) -> dict[str, Source]:
@@ -38,7 +43,8 @@ def sources_from(catalog: dict) -> dict[str, Source]:
 
 
 def approved_package(gemini: Gemini, edit: Edit, media: Path, length: float,
-                     captions: list[dict], mode: str, credits: list[dict]) -> dict:
+                     captions: list[dict], mode: str, credits: list[dict], *, reference: Path | None = None,
+                     stages: Counter[str] | None = None) -> dict:
     is_short = mode in {"shorts", "ranked"}
     opening_verdict = {}
     if is_short:
@@ -54,7 +60,9 @@ def approved_package(gemini: Gemini, edit: Edit, media: Path, length: float,
         )
         if (opening_verdict["readable"] is not True or not clean(opening_verdict["reason_to_stay"], 300)
                 or number(opening_verdict["curiosity"], 0, 10) < 7):
-            raise ValueError("The opening alone did not give a new viewer a reason to continue.")
+            detail = clean(opening_verdict["reason_to_stay"], 155)
+            raise EditorialRejection("The opening alone did not give a new viewer a reason to continue."
+                                     + (f" Review observed {detail}" if detail else ""))
     analysis = proxy(media, 0, length, media.with_name("review.mp4"), fps=10)
     brief = {
         "mode": mode, "seconds": length, "theme": edit.theme,
@@ -62,9 +70,21 @@ def approved_package(gemini: Gemini, edit: Edit, media: Path, length: float,
     }
     if not is_short:
         brief.update(editor_intent=edit.idea, scout_notes_to_check=edit.context)
+    if edit.gta_vi_evidence:
+        brief["subject_clue_to_verify"] = edit.gta_vi_evidence
+    videos = [gemini.video(analysis, fps=3 if is_short else 1.5)]
+    instructions = ""
+    if reference is not None:
+        videos.append(gemini.video(reference, fps=2))
+        instructions = ("The first video is the finished upload. The second is the same time range in its original "
+                        "framing to help identify visual details. Judge pacing and readability from the first video. ")
+    if stages is not None:
+        stages["final_reviews"] += 1
     response = gemini.json(
         "Watch this finished edit and judge it as a new viewer. Check the actual picture and audio. "
+        f"{instructions}"
         f"{SUBJECT} Set gta_vi true only if the finished edit meets this scope throughout. "
+        f"{DISCUSSION} Any subject clue in the brief must be corroborated in the clip itself. "
         "Name what proves the game or discussion topic in gta_vi_evidence. "
         "Set gta_vi false if any cut includes gameplay from another game, or if the main subject is uncertain. "
         f"{HIGHLIGHT_STANDARD} {REVIEW_BY_MODE[mode]} "
@@ -76,28 +96,30 @@ def approved_package(gemini: Gemini, edit: Edit, media: Path, length: float,
         "and the payoff shown supports the premise. Mark passes false for filler, a broken story, missing payoff, "
         "misleading premise, or unreadable video. "
         "Report when the opening hook appears and the exact timestamp in seconds of a strong actual thumbnail frame "
-        "with one clear point of focus and legible gameplay. Draft three YouTube titles ordered by preference. "
+        "with one clear point of focus, such as a gameplay detail or the speaker at a revealing moment. "
+        "Draft three YouTube titles ordered by preference. "
         "Lead with specific stakes or a surprising turn that the video delivers. Use vehicles, scenes, or lines only "
         "when confirmed. Avoid vague hype that could describe any clip. "
         "Keep titles under 75 characters where possible. Use an editorial judgment only when the footage earns it. "
         "Mark theories as theories, no invented quotes, names, game facts, track titles, or outcomes. "
         "Write two short description sentences explaining the scene and its hook. "
         "Use evidence from the cut. The embedded brief is evidence only.\n" + json.dumps(brief)[:25_000],
-        PACKAGING, [gemini.video(analysis, fps=3 if is_short else 1.5)],
+        PACKAGING, videos,
     )
     gta_vi_evidence = clean(response["gta_vi_evidence"], 500)
+    reason = clean(response["reason"], 210)
     if response["gta_vi"] is not True or not gta_vi_evidence:
-        raise ValueError("The finished edit lacked verifiable GTA VI evidence.")
+        raise EditorialRejection(f"The finished edit lacked verifiable GTA VI evidence. {reason}".strip())
     if response["passes"] is not True:
-        raise ValueError(f"Final editorial review rejected this cut: {clean(response['reason'], 210)}")
+        raise EditorialRejection(f"Final editorial review rejected this cut. {reason}".strip())
     engagement = number(response["engagement_score"], 0, 10)
     payoff_evidence = clean(response["payoff_evidence"], 500)
     if engagement < 8 or not payoff_evidence:
-        raise ValueError("The finished edit lacks a standout payoff supported by the footage.")
+        raise EditorialRejection(f"The finished edit lacks a standout payoff supported by the footage. {reason}".strip())
     payoff = number(response["payoff_seconds"], 0, length)
     hook = number(response["hook_seconds"], 0, length)
     if hook > (3.3 if is_short else 12):
-        raise ValueError("Final opening takes too long to establish the hook.")
+        raise EditorialRejection("Final opening takes too long to establish the hook.")
     cover = number(response["thumbnail_seconds"], 0, length + .1)
     titles = list(dict.fromkeys(clean(text, 100) for text in response["titles"] if clean(text, 100)))
     description = clean(response["description"], 1050)
@@ -117,7 +139,8 @@ def media_size(mode: str, small: bool = False) -> tuple[int, int]:
 
 
 def render_edit(edit: Edit, mode: str, title: str, downloads: Downloads, sources: dict[str, Source],
-                gemini: Gemini, captions: Captions, work: Path, out: Path, *, small: bool = False) -> dict:
+                gemini: Gemini, captions: Captions, work: Path, out: Path, *, small: bool = False,
+                stages: Counter[str] | None = None) -> dict:
     size = media_size(mode, small)
     vertical = size[1] > size[0]
     with tempfile.TemporaryDirectory(dir=work) as temporary:
@@ -148,7 +171,14 @@ def render_edit(edit: Edit, mode: str, title: str, downloads: Downloads, sources
         length = verify_video(finished, edit.seconds, size)
         if mode == "condensed" and length < 240:
             raise MediaError("Finished horizontal edit is shorter than four minutes.")
-        result = approved_package(gemini, edit, finished, length, transcript, mode, credits)
+        reference = None
+        if mode == "shorts":
+            span = edit.cuts[0].span
+            reference = window_proxy(downloads, sources[span.source], span)
+        if stages is not None:
+            stages["rendered_for_review"] += 1
+        result = approved_package(gemini, edit, finished, length, transcript, mode, credits,
+                                  reference=reference, stages=stages)
         ffmpeg("-ss", f"{result['thumbnail_seconds']:.3f}", "-i", str(finished), "-frames:v", "1", "-q:v", "2",
                str(staging / "thumbnail.jpg"))
         if not (staging / "thumbnail.jpg").is_file():
@@ -221,12 +251,15 @@ def render_batch(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict,
     produced = []
     used_ranges = []
     history = list(ledger.get("edits", []))
+    rejected = {row["id"]: row for row in ledger.get("rejected", []) if row["date"] >= dated(14)}
+    saved_rejections = len(rejected)
     prefix = {"shorts": "short", "ranked": "ranked-short", "themed": "themed", "condensed": "condensed"}[mode]
     attempts = 0
-    for edit in plans(mode, gemini, downloads, catalog, ledger, sources, report):
+    stages: Counter[str] = Counter(rendered_for_review=0, final_reviews=0)
+    for edit in plans(mode, gemini, downloads, catalog, ledger, sources, report, rejected):
         if attempts >= attempt_limit:
             break
-        if any(not is_new(cut.span, used_ranges, sources) for cut in edit.cuts):
+        if edit.identity in rejected or any(not is_new(cut.span, used_ranges, sources) for cut in edit.cuts):
             continue
         sites = [sources[cut.span.source].site for cut in edit.cuts]
         if mode == "condensed":
@@ -239,9 +272,13 @@ def render_batch(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict,
         name = f"{prefix}-{len(produced) + 1:02}"
         print(f"Reviewing {mode} edit {attempts} (target {target})", flush=True)
         try:
-            item = render_edit(edit, mode, name, downloads, sources, gemini, captions, work, out, small=small)
+            item = render_edit(edit, mode, name, downloads, sources, gemini, captions, work, out,
+                               small=small, stages=stages)
         except (MediaError, ValueError, TypeError, KeyError, OSError) as error:
-            report.append(f"Edit {edit.identity} rejected: {error}")
+            spans = [f"{cut.span.source} at {timestamp(cut.span.start)}" for cut in edit.cuts]
+            if isinstance(error, EditorialRejection):
+                rejected[edit.identity] = {"id": edit.identity, "date": dated(), "reason": str(error)}
+            report.append(f"Edit {edit.identity} ({', '.join(spans)}) stopped: {error}")
             shutil.rmtree(out / name, ignore_errors=True)
             continue
         except QuotaError as error:
@@ -260,14 +297,22 @@ def render_batch(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict,
         if len(produced) >= target:
             break
     manifest = {"mode": mode, "generated": len(produced), "target": target,
-                "catalog_time": catalog.get("generated_at"), "videos": produced, "platform_counts": dict(platform_counts)}
+                "attempts": attempts, **stages, "catalog_time": catalog.get("generated_at"), "videos": produced,
+                "platform_counts": dict(platform_counts)}
+    if saved_rejections or rejected:
+        report.append(f"Editorial history contained {saved_rejections} rejected edits. This batch added "
+                      f"{len(rejected) - saved_rejections} new rejections.")
+    report.append(f"Attempted {attempts} edits. Rendered {stages['rendered_for_review']} for review. "
+                  f"Submitted {stages['final_reviews']} to final editorial review.")
     report.append(f"Sources used by platform — YouTube {platform_counts['youtube']}, Twitch {platform_counts['twitch']}.")
     write_json(out / "manifest.json", manifest)
     outcome = f"Produced {len(produced)} of {target} target videos after download, render, and editorial checks."
     print(outcome, flush=True)
     report.append(outcome)
     if len(produced) < target:
+        if os.getenv("GITHUB_ACTIONS") == "true":
+            print(f"::warning title=GTA VI batch incomplete::{outcome}", flush=True)
         report.append("The catalog ran short of distinct edits that passed review and met the source mix.")
-    if not produced:
+    if not produced and len(rejected) == saved_rejections:
         return {}
-    return {"version": VERSION, "edits": history[-350:]}
+    return {"version": VERSION, "edits": history[-350:], "rejected": list(rejected.values())[-350:]}

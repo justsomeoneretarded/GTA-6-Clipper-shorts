@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from clipper.core import Range, source_url
-from clipper.media import Downloads, MediaError, publication_date, youtube_cookie_file
+from clipper.media import Downloads, MediaError, publication_date, youtube_cookie_file, youtube_error
 
 
 EXPORT = (
@@ -72,16 +72,25 @@ class YouTubeCookieTests(unittest.TestCase):
                 self.assertEqual(downloads.get(source, span), (file, 10))
             self.assertTrue(fetch.call_args.kwargs["whole"])
 
+    def test_missing_video_and_ffmpeg_crash_have_distinct_reasons(self):
+        self.assertIn("not available", youtube_error("ERROR: [youtube] Video unavailable. This content isn’t available."))
+        self.assertIn("crashed", youtube_error("ERROR: ffmpeg exited with code -11"))
+
 
 class TwitchReplayTests(unittest.TestCase):
     @patch("clipper.media.video_duration", return_value=13)
     @patch("clipper.media.run")
-    def test_recording_replay_uses_a_bounded_download_and_keeps_fractional_offsets(self, run, duration):
-        def write_media(args, **kwargs):
-            Path(args[args.index("--output") + 1]).touch()
-            return ""
+    @patch("clipper.media.ffmpeg")
+    def test_recording_replay_uses_a_bounded_download_and_keeps_fractional_offsets(self, ffmpeg, run, duration):
+        def write_playlists(args, **kwargs):
+            cache = Path(args[args.index("--cache-dir") + 1])
+            cache.mkdir()
+            playlist = "#EXTM3U\n" + "".join(f"#EXTINF:6,\n{number}.ts\n" for number in range(5))
+            (cache / "playlist.m3u8").write_text(playlist, encoding="utf-8")
+            (cache / "playlist_downloaded.m3u8").touch()
 
-        run.side_effect = write_media
+        run.side_effect = write_playlists
+        ffmpeg.side_effect = lambda *args, **kwargs: Path(args[-1]).touch()
         with tempfile.TemporaryDirectory() as folder:
             downloads = Downloads(Path(folder))
             source = source_url("https://www.twitch.tv/videos/1234567890")
@@ -90,8 +99,12 @@ class TwitchReplayTests(unittest.TestCase):
             file, offset = downloads.get(source, Range(source.key, 10.25, 22.75))
             command = run.call_args.args[0]
             self.assertEqual(command[0], "twitch-dl")
+            self.assertIn("--no-join", command)
             self.assertEqual(command[command.index("--start") + 1], "00:00:10")
             self.assertEqual(command[command.index("--end") + 1], "00:00:23")
+            cut = ffmpeg.call_args.args
+            self.assertEqual(cut[cut.index("-ss") + 1], "4.000")
+            self.assertEqual(cut[cut.index("-t") + 1], "13.000")
             self.assertEqual(offset, 0.25)
             self.assertEqual(downloads.get(source, Range(source.key, 12, 21)), (file, 2))
             self.assertEqual(run.call_count, 1)

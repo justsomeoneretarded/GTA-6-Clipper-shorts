@@ -26,7 +26,9 @@ SCOUT = object_schema({
 CLIP_SCOUT = object_schema({"clips": array(object_schema({"clip_id": TEXT, **SCOUT["properties"]}), 3)})
 ALT_CUT = object_schema({**TIMES, **IDEA, "time_to_hook": NUM, "confidence": NUM, "scores": SCORES})
 AUDITION = object_schema({"genuine": BOOL, "gta_vi_evidence": TEXT, "standout": BOOL, "cuts": array(ALT_CUT, 3)})
-SEQUENCE_EDIT = object_schema({"idea": TEXT, "story": TEXT, "cuts": array(object_schema({**TIMES, "beat": TEXT}), 10)})
+SEQUENCE_EDIT = object_schema({"idea": TEXT, "story": TEXT,
+                               "time_basis": {"type": "string", "enum": ["excerpt", "source"]},
+                               "cuts": array(object_schema({**TIMES, "beat": TEXT}), 10)})
 GROUP_EDIT = object_schema({"idea": TEXT, "theme": IDEA["theme"], "context": TEXT,
                             "entries": array(object_schema({"id": TEXT, "label": TEXT}), 6)})
 COLD_OPEN = object_schema({"reason_to_stay": TEXT, "readable": BOOL, "curiosity": NUM})
@@ -40,6 +42,11 @@ SUBJECT = (
     "Reject GTA V, GTA Online, other games, fan-made GTA VI lookalikes, trailers alone, menus, and uncertain footage. "
     "Base the decision on concrete visual or audible evidence. Treat titles, metadata, and creator names as leads only. "
     "For a mixed source, suggest ranges that stay within the GTA VI material."
+)
+DISCUSSION = (
+    "For commentary or a podcast, a specific spoken GTA VI claim and the reasoning, reveal, sharp reply, or punchline "
+    "that completes it can establish subject and payoff. The clip needs enough of the exchange to understand why it "
+    "matters. General gaming talk and claims that depend entirely on the source title do not qualify."
 )
 HOOKS = (
     "Look for scenes with a question, surprise, tension, joke, or striking action immediately and a visible/audible payoff. "
@@ -162,7 +169,7 @@ def scout(gemini: Gemini, downloads: Downloads, source: Source, window: Range, *
         f"Scout this {window.seconds:.1f}s excerpt at source time {timestamp(window.start)}. "
         "Every start/end you report must be seconds FROM THE START OF THIS EXCERPT (0 = first frame provided). "
         f"Source metadata, for orientation only: {source.creator!r}, {source.title[:200]!r}. "
-        f"{SUBJECT} {HOOKS} {HIGHLIGHT_STANDARD} {assignment} "
+        f"{SUBJECT} {DISCUSSION} {HOOKS} {HIGHLIGHT_STANDARD} {assignment} "
         "State the visual or audible GTA VI evidence in gta_vi_evidence. Use subject other if you cannot confirm it. "
         "For each cut name the opening, needed setup, payoff and an observable frame or line as evidence. "
         "Use the theme that best describes it. Potential is a 0–100 estimate. "
@@ -199,7 +206,7 @@ def scout_clips(gemini: Gemini, downloads: Downloads, sources: dict[str, Source]
     lengths = ", ".join(f"{key} ({window.seconds:.1f}s)" for key, window in clips.items())
     reply = gemini.json(
         f"The attached clips are separate inputs in this order: {lengths}. Review each on its own. "
-        f"{SUBJECT} {HOOKS} {HIGHLIGHT_STANDARD} "
+        f"{SUBJECT} {DISCUSSION} {HOOKS} {HIGHLIGHT_STANDARD} "
         "Return one result per input using its numbered clip_id. Use seconds from the start of that clip. "
         "For each result identify the subject and directly observed game evidence. Propose up to two distinct "
         "10–58 second highlights with setup and payoff. Leave sequences empty and return no moments for a weak clip.",
@@ -220,10 +227,11 @@ def audition(gemini: Gemini, downloads: Downloads, source: Source, lead: Moment,
         f"Independently verify the proposed highlight around {candidate:.2f}–{end:.2f} seconds in this local excerpt. "
         f"An initial scout thought this was the payoff: {lead.payoff!r}. Correct it from the evidence. "
         f"{SUBJECT} Return genuine false if GTA VI cannot be confirmed and state the evidence in gta_vi_evidence. "
-        f"{HOOKS} {HIGHLIGHT_STANDARD} Set standout true only when the event itself delivers that value. "
+        f"{DISCUSSION} {HOOKS} {HIGHLIGHT_STANDARD} Set standout true only when the event itself delivers that value. "
         "If it is routine or the payoff is unclear, set standout false and return no cuts. "
         "Find up to three alternative openings for the SAME event, for example the first action, "
-        "a line that raises the stakes, or a quicker beginning. Each cut must contain the payoff and preserve cause and effect. "
+        "a line that raises the stakes, or a quicker beginning. Each cut must contain the GTA VI evidence, the payoff, "
+        "and enough context for cause and effect. Start spoken clips on a complete phrase and end after the thought lands. "
         "Score each 0–10 on hook (reason to stay by second 3), payoff, context, specificity, pace, and readability on a phone. "
         "A payoff of 6–7 is mildly interesting. Reserve 8 or higher for a specific, well-supported standout moment. "
         "Report actual seconds from the start of this excerpt, time_to_hook from the start of that cut, "
@@ -243,12 +251,16 @@ def audition(gemini: Gemini, downloads: Downloads, source: Source, lead: Moment,
             if not all(clean(row[field], 350) for field in ("hook", "setup", "payoff", "evidence")):
                 continue
             options.append(Moment(span, row["theme"], clean(row["hook"], 350), clean(row["setup"], 350),
-                                  clean(row["payoff"], 350), clean(row["evidence"], 500), score))
+                                  clean(row["payoff"], 350), clean(row["evidence"], 500), score,
+                                  gta_vi_evidence=clean(reply["gta_vi_evidence"], 500)))
         except (KeyError, TypeError, ValueError):
             continue
     if not options:
         return None
-    best = max(options, key=lambda item: (item.score, -item.span.seconds))
+    options.sort(key=lambda item: (item.score, -item.span.seconds), reverse=True)
+    best = options[0]
+    best.alternate_cuts = [item for item in options[1:] if abs(item.span.start - best.span.start) >= 1
+                           or abs(item.span.end - best.span.end) >= 1]
     best.fingerprint = fingerprint(media, best.span.start - window.start, best.span.seconds)
     return best
 
@@ -399,9 +411,12 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
     verified: list[Moment] = []
     distinct_leads = [item for item in dedupe(leads, sources) if not any(duplicate(item, old, sources) for old in previous_moments)]
     auditions = [] if limited else platform_rotation(diversify(distinct_leads, sources), sources,
-                                                     lambda item: item.span.source)[:verify_limit]
+                                                     lambda item: item.span.source)[:verify_limit * 2]
     attempted: set[str] = set()
+    audition_calls = 0
     for index, lead in enumerate(auditions, 1):
+        if audition_calls >= verify_limit:
+            break
         print(f"Audition {index}/{len(auditions)}: {lead.span.source} at {timestamp(lead.span.start)}", flush=True)
         try:
             checked = audition(gemini, downloads, sources[lead.span.source], lead, floor)
@@ -411,8 +426,12 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
             report.append(f"Auditions paused: {error}")
             limited = True
             break
-        except (KeyError, ValueError, TypeError, MediaError) as error:
+        except MediaError as error:
+            report.append(f"{lead.span.source} audition media {timestamp(lead.span.start)}: {error}")
+            continue
+        except (KeyError, ValueError, TypeError) as error:
             report.append(f"{lead.span.source} audition {timestamp(lead.span.start)}: {error}")
+        audition_calls += 1
         attempted.add(lead.identity)
     if not limited:
         try:
@@ -427,13 +446,14 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
     for sequence in sorted(new_sequences + sequences, key=lambda row: row.score, reverse=True):
         if not any(overlap(sequence.span, other.span) >= .70 for other in sequence_pool):
             sequence_pool.append(sequence)
-    sequence_pool = sequence_pool[:55]
+    sequence_pool = platform_rotation(sequence_pool, sources, lambda item: item.span.source)[:55]
     referenced = {item.span.source for item in [*pool, *pending, *sequence_pool]}
     for key in list(referenced):
         if sources[key].parent in sources:
             referenced.add(sources[key].parent)
     report.append(f"Discovery found {len(current)} sources. There were {len(leads)} proposed moments, including saved candidates. "
-                  f"Auditions verified {len(verified)} new moments, with {len(pending)} saved for later. "
+                  f"Auditions reviewed {audition_calls} proposals and verified {len(verified)} new moments, "
+                  f"with {len(pending)} proposals saved for later. "
                   f"The catalog contains {len(sequence_pool)} longer sequences.")
     return {"version": VERSION, "generated_at": dated(), "scanned": scanned,
             "sources": {key: asdict(sources[key]) for key in sorted(referenced)},

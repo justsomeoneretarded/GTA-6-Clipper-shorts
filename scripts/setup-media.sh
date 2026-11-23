@@ -1,6 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [[ ${GITHUB_ACTIONS:-} == true ]] && command -v apt-get >/dev/null; then
+  # The static fallback crashes when opening remote streams on Ubuntu's hosted runners.
+  if [[ ! -x /usr/bin/ffmpeg || ! -x /usr/bin/ffprobe ]]; then
+    sudo apt-get update -qq -o Acquire::Retries=3
+    sudo apt-get install -y --no-install-recommends ffmpeg
+  fi
+  tools="${RUNNER_TEMP:?}/gta6-distro-media"
+  mkdir -p "$tools"
+  ln -sf /usr/bin/ffmpeg /usr/bin/ffprobe "$tools/"
+  printf '%s\n' "$tools" >> "${GITHUB_PATH:?}"
+  exit 0
+fi
+
 if command -v ffmpeg >/dev/null && command -v ffprobe >/dev/null; then
   exit 0
 fi

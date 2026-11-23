@@ -151,5 +151,5 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
 
-      - name: Remember successfully packaged cuts
+      - name: Remember packaged cuts and editorial rejections
         run: bash "$ENGINE_DIR/scripts/state.sh" save-ledger "$PROJECT_DIR" "$STATE_DIR"
