@@ -18,6 +18,9 @@ from pathlib import Path
 
 from .core import Range, Source, digest, read_json, source_url, timestamp, write_json
 
+WHISPER_SMALL_REVISION = "536b0662742c02347bc0e980a01041f333bce120"
+WHISPER_MODEL_FILES = ("config.json", "tokenizer.json", "vocabulary.txt", "model.bin")
+
 
 class MediaError(RuntimeError):
     pass
@@ -429,9 +432,22 @@ class Captions:
 
         if self.model is None:
             from faster_whisper import WhisperModel
+            from huggingface_hub import hf_hub_download
+            from huggingface_hub.errors import HfHubHTTPError, LocalEntryNotFoundError
 
-            self.model = WhisperModel(os.getenv("WHISPER_MODEL") or "small", device="cpu",
-                                      compute_type="int8", cpu_threads=3)
+            model = os.getenv("WHISPER_MODEL") or "small"
+            try:
+                if model == "small":
+                    files = [Path(hf_hub_download("Systran/faster-whisper-small", filename,
+                                                  revision=WHISPER_SMALL_REVISION, token=False))
+                             for filename in WHISPER_MODEL_FILES]
+                    model = str(files[-1].parent)
+                self.model = WhisperModel(model, device="cpu", compute_type="int8", cpu_threads=3)
+            except (HfHubHTTPError, LocalEntryNotFoundError, OSError, RuntimeError) as error:
+                response = getattr(error, "response", None)
+                status = getattr(response, "status_code", None)
+                detail = f" (Hugging Face HTTP {status})" if status else ""
+                raise MediaError(f"The runner could not load the caption model{detail}.") from None
         with tempfile.TemporaryDirectory(dir=media.parent) as work:
             samples = Path(work) / "audio.f32"
             ffmpeg("-i", str(media), "-map", "0:a:0", "-ac", "1", "-ar", "16000", "-f", "f32le", str(samples))

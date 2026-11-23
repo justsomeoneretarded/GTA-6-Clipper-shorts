@@ -137,6 +137,13 @@ jobs:
       - name: Save this editor's timestamp catalog
         run: bash "$ENGINE_DIR/scripts/state.sh" save-catalog "$PROJECT_DIR" "$STATE_DIR"
 
+      - name: Restore the caption model
+        id: caption-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: ${{ runner.temp }}/whisper/hub/models--Systran--faster-whisper-small
+          key: whisper-small-536b0662742c02347bc0e980a01041f333bce120
+
       - name: Render and review the videos
         env:
           HF_HOME: ${{ runner.temp }}/whisper
@@ -144,6 +151,24 @@ jobs:
         working-directory: engine
         run: |
           python -m clipper render --mode "$MODE" --state "$STATE_DIR" --work "$WORK_DIR" --output "$OUTPUT_DIR"
+
+      - name: Check that the caption model is complete
+        id: caption-model
+        if: steps.caption-cache.outputs.cache-hit != 'true'
+        env:
+          MODEL_FILES: ${{ runner.temp }}/whisper/hub/models--Systran--faster-whisper-small/snapshots/536b0662742c02347bc0e980a01041f333bce120
+        run: |
+          if [[ -s "$MODEL_FILES/model.bin" && -s "$MODEL_FILES/tokenizer.json" &&
+                -s "$MODEL_FILES/config.json" && -s "$MODEL_FILES/vocabulary.txt" ]]; then
+            echo 'ready=true' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Cache the complete caption model
+        if: steps.caption-model.outputs.ready == 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ runner.temp }}/whisper/hub/models--Systran--faster-whisper-small
+          key: whisper-small-536b0662742c02347bc0e980a01041f333bce120
 
       - name: Package videos and upload notes
         if: ${{ always() && !cancelled() }}
