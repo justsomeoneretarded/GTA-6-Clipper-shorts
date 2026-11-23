@@ -31,7 +31,14 @@
     {
       "id": "dce3d53b7bfc53ac3c8e",
       "date": "2026-11-23T08:13:58Z",
-      "reason": "The finished edit lacked verifiable GTA VI evidence. The edit uses modded GTA V footage rather than confirmed Grand Theft Auto VI gameplay, failing the scope requirement."
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The edit uses modded GTA V footage rather than confirmed Grand Theft Auto VI gameplay, failing the scope requirement.",
+      "other_game_ranges": [
+        {
+          "source": "youtube:GMZzFJsf844",
+          "start": 630.67,
+          "end": 642.67
+        }
+      ]
     },
     {
       "id": "0fe0e3120af52e467a18",
@@ -41,7 +48,14 @@
     {
       "id": "7ad5d85d7a49734b533e",
       "date": "2026-11-23T08:17:22Z",
-      "reason": "The finished edit lacked verifiable GTA VI evidence. The clip features GTA V modded gameplay instead of official GTA VI footage."
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The clip features GTA V modded gameplay instead of official GTA VI footage.",
+      "other_game_ranges": [
+        {
+          "source": "youtube:QQV-0OUGxGs",
+          "start": 950.45,
+          "end": 985.95
+        }
+      ]
     },
     {
       "id": "4fbd61214fdd9cff245f",
@@ -56,12 +70,26 @@
     {
       "id": "81f2eebee3db1f790e5f",
       "date": "2026-11-23T08:20:17Z",
-      "reason": "The finished edit lacked verifiable GTA VI evidence. The footage is from a GTA V roleplay server rather than confirmed Grand Theft Auto VI."
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The footage is from a GTA V roleplay server rather than confirmed Grand Theft Auto VI.",
+      "other_game_ranges": [
+        {
+          "source": "twitch-vod:2935805716",
+          "start": 126.0,
+          "end": 148.0
+        }
+      ]
     },
     {
       "id": "c1279af31d03b0c1bded",
       "date": "2026-11-23T08:21:26Z",
-      "reason": "The finished edit lacked verifiable GTA VI evidence. The clip features Grand Theft Auto V gameplay rather than confirmed Grand Theft Auto VI footage, violating scope requirements."
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The clip features Grand Theft Auto V gameplay rather than confirmed Grand Theft Auto VI footage, violating scope requirements.",
+      "other_game_ranges": [
+        {
+          "source": "youtube:dUYIMa2ifWM",
+          "start": 197.0,
+          "end": 209.5
+        }
+      ]
     },
     {
       "id": "c0970b0caabd9807b29b",
