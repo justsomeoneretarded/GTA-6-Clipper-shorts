@@ -352,7 +352,7 @@ def merge_catalogs(local: dict, shared: dict) -> dict:
 
 
 def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Source], previous: dict,
-                  report: list[str], *, mode: str = "shorts") -> dict:
+                  report: list[str], *, mode: str = "shorts", rejected: dict | None = None) -> dict:
     floor = float(os.getenv("MIN_MOMENT_SCORE") or 70)
     short_edits = mode in {"shorts", "ranked"}
     default_scout_limit = 28 if search_enabled() else (20 if short_edits else 16)
@@ -435,6 +435,18 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
     report.append(f"Excerpts reviewed — YouTube {reviewed['youtube']}, Twitch {reviewed['twitch']}.")
     previous_moments = [] if sequence_only else [Moment.from_dict(row) for row in previous.get("moments", [])
                                                 if row["span"]["source"] in sources]
+    if mode == "shorts" and rejected:
+        retained = []
+        for moment in previous_moments:
+            candidates = [cut for cut in (moment, *moment.alternate_cuts) if digest([cut.identity]) not in rejected]
+            if candidates:
+                chosen, *alternates = candidates
+                chosen.alternate_cuts = alternates
+                retained.append(chosen)
+        removed = len(previous_moments) - len(retained)
+        if removed:
+            report.append(f"Removed {removed} moments with rejected cuts from the shortlist.")
+        previous_moments = retained
     verified: list[Moment] = []
     distinct_leads = [item for item in dedupe(leads, sources) if not any(duplicate(item, old, sources) for old in previous_moments)]
     auditions = [] if limited else platform_rotation(diversify(distinct_leads, sources), sources,

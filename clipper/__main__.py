@@ -5,7 +5,7 @@ import os
 import sys
 from pathlib import Path
 
-from .core import VERSION, read_json, write_json
+from .core import VERSION, read_json, recent_rejections, write_json
 from .discovery import discover
 from .editorial import build_catalog, merge_catalogs
 from .gemini import Gemini, ServiceError
@@ -45,6 +45,7 @@ def main() -> int:
         with youtube_cookie_file(youtube_cookies, report) as cookie_file:
             downloads = Downloads(work / "media", youtube_cookies=cookie_file)
             catalog = read_json(state / "catalog.json", {"version": VERSION, "moments": [], "sequences": [], "sources": {}})
+            ledger = read_json(state / "ledger.json", {})
             if args.stage == "discover":
                 sources_from(catalog)
                 shared = read_json(state / "shared-catalog.json") if args.mode != "shorts" else None
@@ -54,10 +55,10 @@ def main() -> int:
                     report.append(f"Shared catalog added to discovery with {len(shared['moments'])} moments "
                                   f"and {len(shared['sequences'])} longer sequences.")
                 new_sources = discover(gemini, downloads, report)
-                catalog = build_catalog(gemini, downloads, new_sources, catalog, report, mode=args.mode)
+                catalog = build_catalog(gemini, downloads, new_sources, catalog, report, mode=args.mode,
+                                        rejected=recent_rejections(ledger))
                 write_json(state / "catalog.json", catalog)
             else:
-                ledger = read_json(state / "ledger.json", {})
                 pending = render_batch(args.mode, gemini, downloads, catalog, ledger, work, output, report)
                 if pending:
                     write_json(state / "next-ledger.json", pending)

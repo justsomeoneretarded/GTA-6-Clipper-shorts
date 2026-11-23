@@ -8,7 +8,7 @@ from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
 
-from .core import (VERSION, Edit, Source, clean, dated, number, or_parent, same_footage, source_cutoff,
+from .core import (VERSION, Edit, Source, clean, dated, number, or_parent, recent_rejections, same_footage, source_cutoff,
                    source_url, timestamp, write_json)
 from .editorial import COLD_OPEN, DISCUSSION, HIGHLIGHT_STANDARD, PACKAGING, SUBJECT
 from .gemini import Gemini, QuotaError, ServiceError
@@ -253,7 +253,7 @@ def render_batch(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict,
     used_ranges = []
     used_footage = set()
     history = list(ledger.get("edits", []))
-    rejected = {row["id"]: row for row in ledger.get("rejected", []) if row["date"] >= dated(14)}
+    rejected = recent_rejections(ledger)
     saved_rejections = len(rejected)
     prefix = {"shorts": "short", "ranked": "ranked-short", "themed": "themed", "condensed": "condensed"}[mode]
     attempts = 0

@@ -25,6 +25,11 @@ def dated(days_ago: int = 0) -> str:
     return (now() - timedelta(days=days_ago)).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def recent_rejections(ledger: dict) -> dict:
+    cutoff = dated(14)
+    return {row["id"]: row for row in ledger.get("rejected", []) if row["date"] >= cutoff}
+
+
 def source_cutoff(days: int) -> str:
     earliest = NOVEMBER_18_CUTOFF if os.getenv("INCLUDE_NOV18") == "true" else GTA_VI_PUBLICATION_CUTOFF
     return max(earliest, dated(days))

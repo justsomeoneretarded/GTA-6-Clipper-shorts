@@ -12,7 +12,7 @@ from clipper.discovery import (
 from clipper.editorial import bounded, build_catalog, merge_catalogs, score_cut, scout_windows, scouting_batches, width_rotation
 from clipper.gemini import QuotaError, quota_error
 from clipper.media import MediaError
-from clipper.plans import condensed_plan, is_new
+from clipper.plans import condensed_plan, is_new, single_moment
 
 
 class EditorialTests(unittest.TestCase):
@@ -41,6 +41,21 @@ class EditorialTests(unittest.TestCase):
         self.assertEqual([len(batch) for batch in batches], [1, 3, 3, 1])
         replay.duration = 2000
         self.assertTrue(all(window.seconds == 150 for window in scout_windows(replay, width=150)))
+
+    @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
+    @patch("clipper.editorial.audition")
+    def test_rejected_short_does_not_hide_an_overlapping_recut(self, audition, clock):
+        source = source_url("https://www.youtube.com/watch?v=TestGTA0001")
+        source.duration = 120
+        source.published = dated(1)
+        rejected = Moment(Range(source.key, 20, 40), "comedy", "Hook", "Setup", "Payoff", "Evidence", 92)
+        recut = Moment(Range(source.key, 18, 47), "comedy", "Hook", "Setup", "Payoff", "Evidence", 90)
+        audition.return_value = recut
+        previous = {"sources": {source.key: asdict(source)}, "moments": [rejected.to_dict()],
+                    "pending": [recut.to_dict()]}
+        catalog = build_catalog(Mock(), Mock(), {}, previous, [], rejected={single_moment(rejected).identity: {}})
+        audition.assert_called_once()
+        self.assertEqual([row["id"] for row in catalog["moments"]], [recut.identity])
 
     @patch("clipper.discovery.requests.get")
     def test_gemini_grounding_links_resolve_to_platform_sources(self, get):
