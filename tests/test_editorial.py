@@ -307,6 +307,19 @@ class EditorialTests(unittest.TestCase):
         self.assertEqual(gemini.json.call_count, 2)
         self.assertEqual(edit.cuts[0].span, Range(source.key, 1010, 1260))
 
+    @patch("clipper.plans.window_proxy")
+    def test_condensed_plan_checks_context_around_the_scouted_story(self, proxy):
+        source = source_url("https://www.twitch.tv/videos/1234567890")
+        source.duration = 900
+        sequence = Sequence(Range(source.key, 200, 460), "mission", "A mission", 90)
+        model = Mock()
+        model.json.return_value = {"time_basis": "excerpt", "idea": "Mission", "story": "Closes the story",
+                                   "cuts": [{"start": 40, "end": 160, "beat": "Setup"},
+                                            {"start": 200, "end": 325, "beat": "Outcome"}]}
+        edit = condensed_plan(model, Mock(), sequence, source)
+        self.assertEqual(proxy.call_args.args[2], Range(source.key, 120, 540))
+        self.assertEqual(edit.seconds, 245)
+
     @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
     @patch("clipper.editorial.audition", side_effect=QuotaError("quota"))
     @patch("clipper.editorial.scout")

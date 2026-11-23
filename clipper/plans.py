@@ -192,34 +192,43 @@ def sequence_cuts(reply: dict, window: Range, *, retry: bool = False) -> list[Cu
     return cuts
 
 
-def condensed_plan(gemini: Gemini, downloads: Downloads, sequence: Sequence, source: Source) -> Edit | None:
-    media = window_proxy(downloads, source, sequence.span, fps=4, timecode=True)
+def condensed_plan(gemini: Gemini, downloads: Downloads, sequence: Sequence, source: Source) -> Edit:
+    window = sequence.span
+    if source.duration > window.seconds:
+        length = min(source.duration, max(420, window.seconds))
+        start = max(0, min(window.start - (length - window.seconds) / 2, source.duration - length))
+        window = Range(source.key, start, start + length)
+    media = window_proxy(downloads, source, window, fps=4, timecode=True)
     prompt = (
-        f"Edit one complete chronological GTA VI sequence within this {sequence.span.seconds:.1f}s excerpt. "
+        f"Edit one complete chronological GTA VI sequence within this {window.seconds:.1f}s excerpt. "
         f"The initial scout's story was {sequence.story!r}; confirm and correct it using the source. "
+        f"That story was found around {sequence.span.start - window.start:.1f}–{sequence.span.end - window.start:.1f}s. "
+        "Use the surrounding footage if it completes the setup or payoff of the same storyline. "
         "Keep a strong opening, required dialogue and cause/effect, escalation, and an ending viewers can understand. "
         "Keep transitions that explain how the next beat happens. Remove loading, idle travel, menus, routine interactions, "
         "and repeated attempts unless a specific detail changes the stakes or advances the story. "
         "Read the elapsed seconds clock in the top left for every boundary. "
         f"Return at most ten ordered, non-overlapping ranges using that clock, with time_basis set to excerpt. "
-        f"The first frame is 0 and the end is {sequence.span.seconds:.2f}s. "
+        f"The first frame is 0 and the end is {window.seconds:.2f}s. "
         "Keep at least 240 seconds total with an honest payoff. Empty cuts are valid if there is too little real material. "
         "Label each kept range with its narrative beat. The edit idea should be a specific viewable premise."
     )
     video = gemini.video(media, fps=1.5)
     reply = gemini.json(prompt, SEQUENCE_EDIT, [video])
     try:
-        cuts = sequence_cuts(reply, sequence.span)
+        cuts = sequence_cuts(reply, window)
     except (KeyError, TypeError, ValueError):
         reply = gemini.json(prompt + (
             f" The earlier ranges were invalid. Read the clock shown in the video and use "
-            f"ordered ranges within 0–{sequence.span.seconds:.2f}s. Return no cuts if you cannot locate the scenes."
+            f"ordered ranges within 0–{window.seconds:.2f}s. Return no cuts if you cannot locate the scenes."
         ), SEQUENCE_EDIT, [video])
-        cuts = sequence_cuts(reply, sequence.span, retry=True)
+        cuts = sequence_cuts(reply, window, retry=True)
     if not cuts:
-        return None
+        raise ValueError("Review found no usable chronological story in the replay excerpt.")
     edit = Edit(cuts, sequence.theme, clean(reply["idea"], 180), clean(reply["story"], 520))
-    return edit if edit.seconds >= 240 else None
+    if edit.seconds < 240:
+        raise ValueError(f"Review identified {edit.seconds:.0f}s of usable story, below the 240s target.")
+    return edit
 
 
 def plans(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict, ledger: dict,
@@ -237,9 +246,7 @@ def plans(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict, ledger
                 break
             attempts += 1
             try:
-                edit = condensed_plan(gemini, downloads, sequence, sources[sequence.span.source])
-                if edit:
-                    yield edit
+                yield condensed_plan(gemini, downloads, sequence, sources[sequence.span.source])
             except QuotaError as error:
                 report.append(f"Condensed planning paused: {error}")
                 return
