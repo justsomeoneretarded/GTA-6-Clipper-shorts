@@ -57,6 +57,20 @@ class EditorialTests(unittest.TestCase):
         audition.assert_called_once()
         self.assertEqual([row["id"] for row in catalog["moments"]], [recut.identity])
 
+    @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
+    @patch("clipper.editorial.scout", return_value={"subject": "other"})
+    @patch("clipper.editorial.audition", return_value=None)
+    def test_a_viewer_clip_can_get_individual_review_without_bypassing_the_quality_gate(self, audition, scout, clock):
+        item = source_url("https://clips.twitch.tv/FixtureReserve")
+        item.duration = 30
+        item.published = dated(1)
+        item.parent = "twitch-vod:1234567890"
+        item.parent_offset = 15
+        catalog = build_catalog(Mock(), Mock(), {item.key: item}, {}, [])
+        audition.assert_called_once()
+        self.assertEqual(audition.call_args.args[3].span, Range(item.key, 0, 30))
+        self.assertEqual(catalog["moments"], [])
+
     @patch("clipper.discovery.requests.get")
     def test_gemini_grounding_links_resolve_to_platform_sources(self, get):
         response = get.return_value.__enter__.return_value

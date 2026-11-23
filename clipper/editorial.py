@@ -235,9 +235,11 @@ def audition(gemini: Gemini, downloads: Downloads, source: Source, lead: Moment,
     media = window_proxy(downloads, source, window, fps=12, timecode=True)
     candidate = lead.span.start - window.start
     end = lead.span.end - window.start
+    lead_note = (f"An initial scout thought this was the payoff: {lead.payoff!r}. Correct it from the evidence. "
+                 if lead.payoff else "This is a viewer-created clip. Establish what happens from the footage. ")
     prompt = (
         f"Independently verify the proposed highlight around {candidate:.2f}–{end:.2f} seconds in this local excerpt. "
-        f"An initial scout thought this was the payoff: {lead.payoff!r}. Correct it from the evidence. "
+        f"{lead_note}"
         f"{SUBJECT} Return genuine false if GTA VI cannot be confirmed and state the evidence in gta_vi_evidence. "
         f"{DISCUSSION} {HOOKS} {HIGHLIGHT_STANDARD} Set standout true only when the event itself delivers that value. "
         "If it is routine or the payoff is unclear, set standout false and return no cuts. "
@@ -377,6 +379,7 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
     queued_windows = sum(len(batch) for batch in batches)
     scouting_slots: Counter[str] = Counter()
     reviewed: Counter[str] = Counter()
+    viewer_clips: list[Range] = []
     print(f"Discovered {len(current)} sources. Up to {queued_windows} windows are queued for scouting.", flush=True)
     for index in range(scout_limit * 2):
         if not batches or sum(scouting_slots.values()) >= scout_limit:
@@ -396,6 +399,9 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
                 scouting_slots[site] -= 1
             for window, reply in replies:
                 item = sources[window.source]
+                if (short_edits and item.platform == "twitch-clip" and item.parent_offset is not None
+                        and 10 <= window.seconds <= 58):
+                    viewer_clips.append(window)
                 if reply["subject"] in {"gameplay", "discussion"} and clean(reply["gta_vi_evidence"], 500):
                     for row in () if sequence_only else reply["moments"]:
                         try:
@@ -433,6 +439,13 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
                 report.append("Continuing with one clip at a time after the grouped review failed.")
     report.append(f"Scouting slots used — YouTube {scouting_slots['youtube']}, Twitch {scouting_slots['twitch']}.")
     report.append(f"Excerpts reviewed — YouTube {reviewed['youtube']}, Twitch {reviewed['twitch']}.")
+    if not limited and viewer_clips:
+        twitch_leads = {item.span.source for item in leads if sources[item.span.source].site == "twitch"}
+        reserve_slots = max(0, min(6, verify_limit // 2) - len(twitch_leads))
+        reserves = [window for window in viewer_clips if window.source not in twitch_leads][:reserve_slots]
+        leads.extend(Moment(span, "other", "", "", "", "", 55) for span in reserves)
+        if reserves:
+            report.append(f"Added {len(reserves)} viewer clips for individual review with the remaining audition budget.")
     previous_moments = [] if sequence_only else [Moment.from_dict(row) for row in previous.get("moments", [])
                                                 if row["span"]["source"] in sources]
     if mode == "shorts" and rejected:
