@@ -107,6 +107,8 @@ class TwitchReplayTests(unittest.TestCase):
             self.assertEqual(cut[cut.index("-t") + 1], "13.000")
             self.assertEqual(offset, 0.25)
             self.assertEqual(downloads.get(source, Range(source.key, 12, 21)), (file, 2))
+            restarted = Downloads(Path(folder))
+            self.assertEqual(restarted.get(source, Range(source.key, 13, 20)), (file, 3))
             self.assertEqual(run.call_count, 1)
 
     def test_failed_recording_section_does_not_download_the_entire_stream(self):

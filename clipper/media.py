@@ -12,10 +12,11 @@ import tempfile
 import textwrap
 from collections.abc import Callable
 from contextlib import contextmanager
+from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
 
-from .core import Range, Source, digest, source_url, timestamp
+from .core import Range, Source, digest, read_json, source_url, timestamp, write_json
 
 
 class MediaError(RuntimeError):
@@ -171,6 +172,14 @@ class Downloads:
         self.directory = directory.resolve()
         self.directory.mkdir(parents=True, exist_ok=True)
         self.windows: dict[str, list[tuple[Range, Path]]] = {}
+        for index in self.directory.glob("*.section.json"):
+            try:
+                span = Range(**read_json(index))
+                media = self.directory / f"{span.identity}.mp4"
+                if media.is_file() and index.name == f"{span.identity}.section.json":
+                    self.windows.setdefault(span.source, []).append((span, media))
+            except (OSError, TypeError, ValueError):
+                continue
         self.fixtures = fixtures or {}
         self.unreachable: dict[str, str] = {}
         self.failed_windows: dict[str, str] = {}
@@ -278,6 +287,7 @@ class Downloads:
                 self.failed_windows[coverage.identity] = str(full_failure)
                 raise
         self.windows.setdefault(source.key, []).append((coverage, file))
+        write_json(self.directory / f"{coverage.identity}.section.json", asdict(coverage))
         return file, span.start - coverage.start
 
 
