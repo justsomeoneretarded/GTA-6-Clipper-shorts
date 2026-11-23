@@ -418,19 +418,30 @@ def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: i
     report.append(f"YouTube discovery collected {youtube_links} video {link_label}.")
     youtube_blocks = 0
     skipped = 0
-    for item in list(sources.values()):
-        if not item.duration or not item.published:
-            if item.platform == "youtube" and youtube_blocks >= 2:
-                skipped += 1
-                sources.pop(item.key, None)
-                continue
-            try:
-                downloads.metadata(item)
-            except (MediaError, ValueError) as error:
-                if item.platform == "youtube" and youtube_session_blocked(error):
-                    youtube_blocks += 1
-                report.append(f"{item.key} metadata: {error}")
-                sources.pop(item.key, None)
+    pending = [item for item in sources.values() if not item.duration or not item.published]
+
+    def inspect(item: Source) -> Exception | None:
+        try:
+            downloads.metadata(item)
+        except (MediaError, ValueError) as error:
+            return error
+        return None
+
+    with ThreadPoolExecutor(max_workers=3) as pool:
+        for start in range(0, len(pending), 3):
+            batch = []
+            for item in pending[start:start + 3]:
+                if item.platform == "youtube" and youtube_blocks >= 2:
+                    skipped += 1
+                    sources.pop(item.key, None)
+                else:
+                    batch.append(item)
+            for item, error in zip(batch, pool.map(inspect, batch)):
+                if error is not None:
+                    if item.platform == "youtube" and youtube_session_blocked(error):
+                        youtube_blocks += 1
+                    report.append(f"{item.key} metadata: {error}")
+                    sources.pop(item.key, None)
     if skipped:
         report.append(f"Skipped {skipped} further YouTube metadata calls after repeated session challenges.")
     latest = dated()

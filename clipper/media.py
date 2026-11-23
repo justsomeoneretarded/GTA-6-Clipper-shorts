@@ -194,7 +194,13 @@ class Downloads:
         args = ["yt-dlp", "--ignore-config", "--no-playlist", "--no-progress", "--no-warnings",
                 "--socket-timeout", "20", "--retries", "2", "--js-runtimes", "node"]
         if youtube and self.youtube_cookies:
-            args.extend(["--cookies", str(self.youtube_cookies)])
+            # yt-dlp rewrites its cookie jar on exit. Keep each invocation independent.
+            with tempfile.TemporaryDirectory(prefix="gta6-yt-dlp-") as directory:
+                cookie_file = Path(directory) / "cookies.txt"
+                shutil.copyfile(self.youtube_cookies, cookie_file)
+                cookie_file.chmod(0o600)
+                return run([*args, "--cookies", str(cookie_file), *extra, url], timeout=timeout,
+                           summarize_error=youtube_error)
         return run([*args, *extra, url], timeout=timeout, summarize_error=youtube_error if youtube else None)
 
     def metadata(self, source: Source) -> None:

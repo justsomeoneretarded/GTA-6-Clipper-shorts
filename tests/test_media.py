@@ -42,13 +42,26 @@ class YouTubeCookieTests(unittest.TestCase):
     @patch("clipper.media.run", return_value="{}")
     def test_only_youtube_commands_receive_cookie_path(self, run):
         with tempfile.TemporaryDirectory() as folder, youtube_cookie_file(EXPORT, []) as path:
+            active_jars = []
+
+            def check_jar(args, **kwargs):
+                if "--cookies" in args:
+                    jar = Path(args[args.index("--cookies") + 1])
+                    self.assertEqual(jar.stat().st_mode & 0o777, 0o600)
+                    self.assertEqual(jar.read_text(), path.read_text())
+                    active_jars.append(jar)
+                return "{}"
+
+            run.side_effect = check_jar
             downloads = Downloads(Path(folder), youtube_cookies=path)
             downloads.ytdlp("ytsearch1:GTA VI", [], timeout=20)
-            self.assertIn(str(path), run.call_args.args[0])
+            self.assertIn("--cookies", run.call_args.args[0])
             downloads.ytdlp("https://www.youtube.com/watch?v=TestGTA0001", [], timeout=20)
             self.assertIn("--cookies", run.call_args.args[0])
             downloads.ytdlp("https://clips.twitch.tv/FixtureClip", [], timeout=20)
             self.assertNotIn("--cookies", run.call_args.args[0])
+            self.assertEqual(len(set(active_jars)), 2)
+            self.assertTrue(all(not jar.exists() for jar in active_jars))
 
     @patch("clipper.media.subprocess.run", side_effect=subprocess.CalledProcessError(
         1, ["yt-dlp"], stderr="Server returned 403 Forbidden with fixture-cookie\nFFmpeg failed\n"))
