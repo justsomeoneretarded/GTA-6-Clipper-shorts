@@ -220,6 +220,13 @@ def listed_twitch_source(row: dict, channel: str, *, clip: bool, earliest: str) 
     item.duration = float(row.get("durationSeconds" if clip else "lengthSeconds") or 0)
     item.views = int(row.get("viewCount") or 0)
     item.published = published
+    if clip:
+        video_id = (row.get("video") or {}).get("id", "")
+        offset = row.get("videoOffsetSeconds")
+        parent = source_url(f"https://www.twitch.tv/videos/{video_id}")
+        if parent and type(offset) in (int, float) and offset >= 0:
+            item.parent = parent.key
+            item.parent_offset = float(offset)
     if not clip and row.get("status") == "RECORDING":
         item.recording = True
         # Give Twitch time to publish the final segments of the current replay.
@@ -269,8 +276,9 @@ def twitch_category() -> tuple[list[str], list[dict]]:
         streams(first: 8) { edges { node { broadcaster { login } } } }
         clips(first: 32, criteria: {period: LAST_DAY, sort: VIEWS_DESC}) {
             edges { node {
-                title createdAt durationSeconds viewCount url game { name }
+                title createdAt durationSeconds viewCount url videoOffsetSeconds game { name }
                 broadcaster { login displayName }
+                video { id title lengthSeconds viewCount publishedAt status game { name } owner { displayName } }
             } }
         }
     } }
@@ -301,6 +309,9 @@ def twitch_public_discovery(sources: dict[str, Source], report: list[str], days:
             if item:
                 add(sources, item)
                 category_count += 1
+                parent = listed_twitch_source(row.get("video") or {}, item.creator, clip=False, earliest=earliest)
+                if parent:
+                    add(sources, parent)
         report.append(f"Twitch GTA VI category listed {len(live_channels)} live channels and {category_count} recent clips.")
     except (KeyError, TypeError, ValueError) as error:
         report.append(f"Twitch category discovery: {error}")
@@ -338,7 +349,20 @@ def twitch_public_discovery(sources: dict[str, Source], report: list[str], days:
             count += len(items)
             for item in items:
                 add(sources, item)
+    peaks: dict[str, list[float]] = defaultdict(list)
+    for clip in sorted((item for item in sources.values() if item.parent_offset is not None),
+                       key=lambda item: item.views, reverse=True):
+        replay = sources.get(clip.parent)
+        offset = clip.parent_offset
+        if (replay and offset is not None and offset < replay.duration
+                and all(abs(offset - prior) >= 90 for prior in peaks[replay.key])):
+            peaks[replay.key].append(offset)
+    for key, offsets in peaks.items():
+        replay = sources[key]
+        replay.anchors = list(dict.fromkeys([*offsets[:3], *replay.anchors]))
     report.append(f"Twitch checked {len(channels)} channels and found {count} recent GTA VI clips and replays.")
+    if peaks:
+        report.append(f"Viewer clips supplied replay timestamps for {len(peaks)} Twitch streams.")
 
 
 def discover(gemini: Gemini, downloads: Downloads, report: list[str], *, days: int = 7) -> dict[str, Source]:

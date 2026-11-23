@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from collections import Counter, defaultdict
 
-from .core import Cut, Edit, Moment, Range, Sequence, Source, clean, number, or_parent, overlap
+from .core import Cut, Edit, Moment, Range, Sequence, Source, clean, number, or_parent, overlap, same_footage
 from .editorial import GROUP_EDIT, SEQUENCE_EDIT, bounded, diversify, platform_rotation
 from .gemini import NUM, TEXT, Gemini, array, object_schema
 from .media import Downloads, MediaError, window_proxy
@@ -42,7 +42,7 @@ def is_new(span: Range, prior: list[Range], sources: dict[str, Source]) -> bool:
 
 def single_moment(moment: Moment) -> Edit:
     context = f"Opening: {moment.hook} Setup: {moment.setup} Payoff: {moment.payoff} Evidence: {moment.evidence}"
-    return Edit([Cut(moment.span)], moment.theme, moment.hook, context, moment.gta_vi_evidence)
+    return Edit([Cut(moment.span, fingerprint=moment.fingerprint)], moment.theme, moment.hook, context, moment.gta_vi_evidence)
 
 
 def compact_for_rank(gemini: Gemini, downloads: Downloads, item: Moment, source: Source) -> Range:
@@ -132,7 +132,7 @@ def group_plan(gemini: Gemini, downloads: Downloads, group: list[Moment], source
             downloads.get(source, span)
         except MediaError as error:
             raise UnavailableMoment(item, error) from None
-        cuts.append(Cut(span, clean(entry["label"], 54), len(entries) - index if ranked else None))
+        cuts.append(Cut(span, clean(entry["label"], 54), len(entries) - index if ranked else None, item.fingerprint))
     proof = " ".join(table[entry["id"]].gta_vi_evidence for entry in entries)
     edit = Edit(cuts, theme, clean(reply["idea"], 180), clean(reply["context"], 600), clean(proof, 1250))
     return (edit, ids) if not ranked or 24 <= edit.seconds <= 88 else None
@@ -242,6 +242,8 @@ def plans(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict, ledger
         return
     moments = [Moment.from_dict(row) for row in catalog["moments"]
                if row["span"]["source"] in sources and is_new(Range(**row["span"]), earlier, sources)]
+    published = {fp for edit in ledger.get("edits", []) for fp in edit.get("fingerprints", [])}
+    moments = [item for item in moments if not any(same_footage(item.fingerprint, fp) for fp in published)]
     if mode == "shorts":
         primary, reserve = [], []
         for moment in diversify(moments, sources):

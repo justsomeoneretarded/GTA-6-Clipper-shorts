@@ -8,7 +8,8 @@ from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
 
-from .core import VERSION, Edit, Source, clean, dated, number, or_parent, source_cutoff, source_url, timestamp, write_json
+from .core import (VERSION, Edit, Source, clean, dated, number, or_parent, same_footage, source_cutoff,
+                   source_url, timestamp, write_json)
 from .editorial import COLD_OPEN, DISCUSSION, HIGHLIGHT_STANDARD, PACKAGING, SUBJECT
 from .gemini import Gemini, QuotaError, ServiceError
 from .media import (Captions, Downloads, MediaError, ffmpeg, finish_video, join_pieces, proxy, render_piece,
@@ -250,6 +251,7 @@ def render_batch(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict,
     captions = captions if captions is not None else Captions()
     produced = []
     used_ranges = []
+    used_footage = set()
     history = list(ledger.get("edits", []))
     rejected = {row["id"]: row for row in ledger.get("rejected", []) if row["date"] >= dated(14)}
     saved_rejections = len(rejected)
@@ -260,6 +262,9 @@ def render_batch(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict,
         if attempts >= attempt_limit:
             break
         if edit.identity in rejected or any(not is_new(cut.span, used_ranges, sources) for cut in edit.cuts):
+            continue
+        fingerprints = [cut.fingerprint for cut in edit.cuts if cut.fingerprint]
+        if any(same_footage(fp, previous) for fp in fingerprints for previous in used_footage):
             continue
         sites = [sources[cut.span.source].site for cut in edit.cuts]
         if mode == "condensed":
@@ -293,7 +298,9 @@ def render_batch(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict,
         platform_counts.update(counts)
         edit_counts[primary] += 1
         used_ranges.extend(or_parent(cut.span, sources) for cut in edit.cuts)
-        history.append({"id": edit.identity, "ranges": [asdict(cut.span) for cut in edit.cuts], "date": dated()})
+        used_footage.update(fingerprints)
+        history.append({"id": edit.identity, "ranges": [asdict(cut.span) for cut in edit.cuts],
+                        "fingerprints": fingerprints, "date": dated()})
         if len(produced) >= target:
             break
     manifest = {"mode": mode, "generated": len(produced), "target": target,

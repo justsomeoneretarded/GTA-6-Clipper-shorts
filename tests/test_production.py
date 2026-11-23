@@ -14,6 +14,23 @@ from clipper.production import MODES, EditorialRejection, approved_package, rend
 class ProductionEligibilityTests(unittest.TestCase):
     @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
     @patch("clipper.production.render_edit")
+    def test_export_history_identifies_a_reupload_on_another_platform(self, render, clock):
+        source = source_url("https://clips.twitch.tv/FixtureReupload")
+        source.duration = 30
+        source.published = "2026-11-19T01:00:00Z"
+        scene = "1010101010101010.2020202020202020.3030303030303030"
+        item = Moment(Range(source.key, 0, 25), "comedy", "Opening", "Setup", "Payoff", "Evidence", 90, scene)
+        catalog = {"version": VERSION, "sources": {source.key: asdict(source)}, "moments": [item.to_dict()]}
+        ledger = {"edits": [{"id": "prior-export", "fingerprints": [scene], "ranges": [
+            {"source": "youtube:TestGTA0001", "start": 60, "end": 85},
+        ]}]}
+        with tempfile.TemporaryDirectory() as folder:
+            work = Path(folder)
+            self.assertEqual(render_batch("shorts", Mock(), Mock(), catalog, ledger, work, work / "out", []), {})
+        render.assert_not_called()
+
+    @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
+    @patch("clipper.production.render_edit")
     def test_empty_batch_saves_rejection_and_next_batch_uses_alternate_cut(self, render, clock):
         source = source_url("https://www.youtube.com/watch?v=TestGTA0001")
         source.duration = 500

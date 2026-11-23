@@ -220,7 +220,7 @@ def scout_clips(gemini: Gemini, downloads: Downloads, sources: dict[str, Source]
 
 def audition(gemini: Gemini, downloads: Downloads, source: Source, lead: Moment, floor: float) -> Moment | None:
     window = Range(source.key, max(0, lead.span.start - 14), min(source.duration, lead.span.end + 15))
-    media = window_proxy(downloads, source, window, fps=12)
+    media = window_proxy(downloads, source, window, fps=12, timecode=True)
     candidate = lead.span.start - window.start
     end = lead.span.end - window.start
     prompt = (
@@ -234,7 +234,7 @@ def audition(gemini: Gemini, downloads: Downloads, source: Source, lead: Moment,
         "and enough context for cause and effect. Start spoken clips on a complete phrase and end after the thought lands. "
         "Score each 0–10 on hook (reason to stay by second 3), payoff, context, specificity, pace, and readability on a phone. "
         "A payoff of 6–7 is mildly interesting. Reserve 8 or higher for a specific, well-supported standout moment. "
-        "Report actual seconds from the start of this excerpt, time_to_hook from the start of that cut, "
+        "Read the elapsed seconds clock in the top left for each edit boundary. Report time_to_hook from the start of the cut "
         "and confidence 0–1. Reject slow openings, unseen payoffs, unrelated material, and inaccurate claims."
     )
     reply = gemini.json(prompt, AUDITION, [gemini.video(media, fps=4)])
@@ -261,7 +261,10 @@ def audition(gemini: Gemini, downloads: Downloads, source: Source, lead: Moment,
     best = options[0]
     best.alternate_cuts = [item for item in options[1:] if abs(item.span.start - best.span.start) >= 1
                            or abs(item.span.end - best.span.end) >= 1]
-    best.fingerprint = fingerprint(media, best.span.start - window.start, best.span.seconds)
+    original, offset = downloads.get(source, window)
+    best.fingerprint = fingerprint(original, offset + best.span.start - window.start, best.span.seconds)
+    for alternate in best.alternate_cuts:
+        alternate.fingerprint = best.fingerprint
     return best
 
 

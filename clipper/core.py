@@ -108,7 +108,7 @@ def source_url(url: str) -> Source | None:
             video = segments[0]
         elif segments[0] == "watch":
             video = parse_qs(parts.query).get("v", [""])[0]
-        elif len(segments) == 2 and segments[0] == "live":
+        elif len(segments) == 2 and segments[0] in {"live", "shorts"}:
             video = segments[1]
         else:
             return None
@@ -191,6 +191,7 @@ class Cut:
     span: Range
     label: str = ""
     rank: int | None = None
+    fingerprint: str = ""
 
 
 @dataclass
@@ -224,11 +225,17 @@ def or_parent(span: Range, sources: dict[str, Source]) -> Range:
     return span
 
 
+def same_footage(first: str, second: str) -> bool:
+    if not first or not second:
+        return False
+    try:
+        pairs = zip(first.split("."), second.split("."), strict=True)
+        distances = [(int(a, 16) ^ int(b, 16)).bit_count() for a, b in pairs]
+    except ValueError:
+        return False
+    return len(distances) == 3 and max(distances) <= 9 and sum(distances) <= 16
+
+
 def duplicate(first: Moment, second: Moment, sources: dict[str, Source]) -> bool:
-    if overlap(or_parent(first.span, sources), or_parent(second.span, sources)) >= .45:
-        return True
-    if first.fingerprint and second.fingerprint:
-        hashes = zip(first.fingerprint.split("."), second.fingerprint.split("."), strict=True)
-        distances = [(int(a, 16) ^ int(b, 16)).bit_count() for a, b in hashes]
-        return max(distances) <= 9 and sum(distances) <= 16
-    return False
+    return (overlap(or_parent(first.span, sources), or_parent(second.span, sources)) >= .45
+            or same_footage(first.fingerprint, second.fingerprint))

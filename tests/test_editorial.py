@@ -19,6 +19,7 @@ class EditorialTests(unittest.TestCase):
     def test_canonical_urls(self):
         link = source_url("https://youtu.be/TestGTA0001?si=foo")
         self.assertEqual(link.url, "https://www.youtube.com/watch?v=TestGTA0001")
+        self.assertEqual(source_url("https://www.youtube.com/shorts/TestGTA0001"), link)
         self.assertIsNone(source_url("https://www.youtube.com.example.org/watch?v=TestGTA0001"))
         self.assertIsNone(source_url("https://["))
 
@@ -41,9 +42,11 @@ class EditorialTests(unittest.TestCase):
     def test_twitch_clip_listing_uses_game_category(self):
         clip = {"title": "GTA VI now", "url": "https://www.twitch.tv/channel/clip/SomeSlug",
                 "createdAt": "2026-11-18T11:30:00Z", "durationSeconds": 30,
-                "game": {"name": "Grand Theft Auto VI"}}
+                "game": {"name": "Grand Theft Auto VI"}, "video": {"id": "1234567890"}, "videoOffsetSeconds": 101}
         earliest = "2026-11-18T11:00:00Z"
-        self.assertEqual(listed_twitch_source(clip, "channel", clip=True, earliest=earliest).duration, 30)
+        found = listed_twitch_source(clip, "channel", clip=True, earliest=earliest)
+        self.assertEqual(found.duration, 30)
+        self.assertEqual((found.parent, found.parent_offset), ("twitch-vod:1234567890", 101.0))
         clip["game"]["name"] = "Grand Theft Auto V"
         self.assertIsNone(listed_twitch_source(clip, "channel", clip=True, earliest=earliest))
 
