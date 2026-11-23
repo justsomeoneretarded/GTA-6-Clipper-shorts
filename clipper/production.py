@@ -8,8 +8,8 @@ from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
 
-from .core import (VERSION, Edit, Source, clean, dated, number, or_parent, recent_rejections, same_footage, source_cutoff,
-                   source_url, timestamp, write_json)
+from .core import (VERSION, Edit, Range, Source, clean, dated, number, or_parent, recent_rejections, same_footage,
+                   source_cutoff, source_url, timestamp, write_json)
 from .editorial import COLD_OPEN, DISCUSSION, HIGHLIGHT_STANDARD, PACKAGING, SUBJECT
 from .gemini import Gemini, QuotaError, ServiceError
 from .media import (Captions, Downloads, MediaError, ffmpeg, finish_video, join_pieces, proxy, render_piece,
@@ -28,6 +28,10 @@ MODES = tuple(REVIEW_BY_MODE)
 
 class EditorialRejection(ValueError):
     """A finished cut that the editor judged on its footage."""
+
+    def __init__(self, message: str, *, other_game: bool = False):
+        super().__init__(message)
+        self.other_game = other_game
 
 
 def sources_from(catalog: dict) -> dict[str, Source]:
@@ -71,6 +75,13 @@ def approved_package(gemini: Gemini, edit: Edit, media: Path, length: float,
     }
     if not is_short:
         brief.update(editor_intent=edit.idea, scout_notes_to_check=edit.context)
+    if mode in {"themed", "ranked"}:
+        scene_time = 0.0
+        brief["scenes"] = []
+        for index, cut in enumerate(edit.cuts, 1):
+            brief["scenes"].append({"number": index, "start": round(scene_time, 3),
+                                    "end": round(scene_time + cut.span.seconds, 3)})
+            scene_time += cut.span.seconds
     if edit.gta_vi_evidence:
         brief["subject_clue_to_verify"] = edit.gta_vi_evidence
     videos = [gemini.video(analysis, fps=3 if is_short else 1.5)]
@@ -88,7 +99,11 @@ def approved_package(gemini: Gemini, edit: Edit, media: Path, length: float,
         f"{DISCUSSION} Any subject clue in the brief must be corroborated in the clip itself. "
         "Name an observed character, interface, mission, or line of dialogue that proves the game or discussion topic "
         "in gta_vi_evidence. Visual polish and similarity to a trailer are insufficient. "
-        "Set gta_vi false if any cut includes gameplay from another game, or if the main subject is uncertain. "
+        "Set contains_other_game true when you see gameplay from another game, including GTA V mods or roleplay. "
+        "Set gta_vi false if any cut includes another game or has an uncertain subject. "
+        "For a compilation with numbered scenes in the brief, independently check every specified time range. "
+        "Return one scene_checks row per scene with verified scope and specific genuine GTA VI evidence. "
+        "For a single scene or one continuous replay, leave scene_checks empty. "
         f"{HIGHLIGHT_STANDARD} {REVIEW_BY_MODE[mode]} "
         "Score engagement from 0 to 10 using the actual edit. Use 5 or below for routine material, 6–7 for a mildly "
         "interesting or incomplete cut, and 8 or above only for an edit that earns sustained interest and delivers. "
@@ -112,14 +127,21 @@ def approved_package(gemini: Gemini, edit: Edit, media: Path, length: float,
     )
     gta_vi_evidence = clean(response["gta_vi_evidence"], 500)
     reason = clean(response["reason"], 210)
-    if response["gta_vi"] is not True or not gta_vi_evidence:
-        raise EditorialRejection(f"The finished edit lacked verifiable GTA VI evidence. {reason}".strip())
+    other_game = response.get("contains_other_game") is True
+    if other_game or response["gta_vi"] is not True or not gta_vi_evidence:
+        raise EditorialRejection(f"The finished edit lacked verifiable GTA VI evidence. {reason}".strip(),
+                                 other_game=other_game)
     if response["passes"] is not True:
         raise EditorialRejection(f"Final editorial review rejected this cut. {reason}".strip())
     engagement = number(response["engagement_score"], 0, 10)
     payoff_evidence = clean(response["payoff_evidence"], 500)
     if engagement < 8 or not payoff_evidence:
         raise EditorialRejection(f"The finished edit lacks a standout payoff supported by the footage. {reason}".strip())
+    if mode in {"themed", "ranked"}:
+        checks = response.get("scene_checks", [])
+        verified = {row["number"] for row in checks if row["gta_vi"] is True and clean(row["evidence"], 200)}
+        if len(checks) != len(edit.cuts) or verified != set(range(1, len(edit.cuts) + 1)):
+            raise EditorialRejection("Final review could not verify GTA VI material in every compilation scene.")
     payoff = number(response["payoff_seconds"], 0, length)
     hook = number(response["hook_seconds"], 0, length)
     if hook > (3.3 if is_short else 12):
@@ -238,7 +260,8 @@ def upload_notes(info: dict) -> str:
 
 
 def render_batch(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict, ledger: dict,
-                 work: Path, out: Path, report: list[str], *, captions: Captions | None = None, small: bool = False) -> dict:
+                 work: Path, out: Path, report: list[str], *, captions: Captions | None = None,
+                 small: bool = False, blocked: list[Range] | None = None) -> dict:
     saved_sources = sources_from(catalog)
     cutoff = source_cutoff(21)
     sources = {key: item for key, item in saved_sources.items() if item.published and item.published >= cutoff}
@@ -261,10 +284,11 @@ def render_batch(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict,
     prefix = {"shorts": "short", "ranked": "ranked-short", "themed": "themed", "condensed": "condensed"}[mode]
     attempts = 0
     stages: Counter[str] = Counter(rendered_for_review=0, final_reviews=0)
-    for edit in plans(mode, gemini, downloads, catalog, ledger, sources, report, rejected):
+    blocked = blocked or []
+    for edit in plans(mode, gemini, downloads, catalog, ledger, sources, report, rejected, blocked):
         if attempts >= attempt_limit:
             break
-        if edit.identity in rejected or any(not is_new(cut.span, used_ranges, sources) for cut in edit.cuts):
+        if edit.identity in rejected or any(not is_new(cut.span, used_ranges + blocked, sources) for cut in edit.cuts):
             continue
         fingerprints = [cut.fingerprint for cut in edit.cuts if cut.fingerprint]
         if any(same_footage(fp, previous) for fp in fingerprints for previous in used_footage):
@@ -285,7 +309,12 @@ def render_batch(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict,
         except (MediaError, ValueError, TypeError, KeyError, OSError) as error:
             spans = [f"{cut.span.source} at {timestamp(cut.span.start)}" for cut in edit.cuts]
             if isinstance(error, EditorialRejection):
-                rejected[edit.identity] = {"id": edit.identity, "date": dated(), "reason": str(error)}
+                row = {"id": edit.identity, "date": dated(), "reason": str(error)}
+                if mode == "shorts" and error.other_game:
+                    spans_to_exclude = [or_parent(cut.span, sources) for cut in edit.cuts]
+                    row["other_game_ranges"] = [asdict(span) for span in spans_to_exclude]
+                    blocked.extend(spans_to_exclude)
+                rejected[edit.identity] = row
             report.append(f"Edit {edit.identity} ({', '.join(spans)}) stopped: {error}")
             shutil.rmtree(out / name, ignore_errors=True)
             continue

@@ -80,7 +80,7 @@ class YouTubeCookieTests(unittest.TestCase):
             span = Range(source.key, 10, 35)
             file = Path(folder) / "fixture.mp4"
             with patch.object(downloads, "_fetch", side_effect=[
-                MediaError("FFmpeg received HTTP 403 while reading YouTube media."), file,
+                MediaError("FFmpeg received HTTP 403 while reading YouTube media."), (file, span),
             ]) as fetch:
                 self.assertEqual(downloads.get(source, span), (file, 10))
             self.assertTrue(fetch.call_args.kwargs["whole"])
@@ -91,7 +91,7 @@ class YouTubeCookieTests(unittest.TestCase):
 
 
 class TwitchReplayTests(unittest.TestCase):
-    @patch("clipper.media.video_duration", return_value=13)
+    @patch("clipper.media.video_duration", return_value=18)
     @patch("clipper.media.run")
     @patch("clipper.media.ffmpeg")
     def test_recording_replay_uses_a_bounded_download_and_keeps_fractional_offsets(self, ffmpeg, run, duration):
@@ -116,12 +116,11 @@ class TwitchReplayTests(unittest.TestCase):
             self.assertEqual(command[command.index("--start") + 1], "00:00:10")
             self.assertEqual(command[command.index("--end") + 1], "00:00:23")
             cut = ffmpeg.call_args.args
-            self.assertEqual(cut[cut.index("-ss") + 1], "4.000")
-            self.assertEqual(cut[cut.index("-t") + 1], "13.000")
-            self.assertEqual(offset, 0.25)
-            self.assertEqual(downloads.get(source, Range(source.key, 12, 21)), (file, 2))
+            self.assertEqual(cut[cut.index("-c") + 1], "copy")
+            self.assertEqual(offset, 4.25)
+            self.assertEqual(downloads.get(source, Range(source.key, 12, 21)), (file, 6))
             restarted = Downloads(Path(folder))
-            self.assertEqual(restarted.get(source, Range(source.key, 13, 20)), (file, 3))
+            self.assertEqual(restarted.get(source, Range(source.key, 13, 20)), (file, 7))
             self.assertEqual(run.call_count, 1)
 
     def test_failed_recording_section_does_not_download_the_entire_stream(self):
@@ -143,8 +142,9 @@ class TwitchReplayTests(unittest.TestCase):
             source.recording = True
             source.duration = 700
             file = Path(folder) / "earlier.mp4"
-            with patch.object(downloads, "_fetch", side_effect=[MediaError("Section length mismatch"), file]) as fetch:
+            available = Range(source.key, 80, 130)
+            with patch.object(downloads, "_fetch", side_effect=[MediaError("Section length mismatch"), (file, available)]) as fetch:
                 with self.assertRaises(MediaError):
                     downloads.get(source, Range(source.key, 500, 650))
-                self.assertEqual(downloads.get(source, Range(source.key, 80, 130)), (file, 0))
+                self.assertEqual(downloads.get(source, available), (file, 0))
                 self.assertEqual(fetch.call_count, 2)

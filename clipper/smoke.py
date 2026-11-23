@@ -23,7 +23,10 @@ class FixtureModel:
         if schema is COLD_OPEN:
             return {"reason_to_stay": "Fixture opening", "readable": True, "curiosity": 9}
         if schema is PACKAGING:
-            return {"gta_vi": True, "gta_vi_evidence": "Synthetic editorial fixture",
+            brief = json.loads(prompt.rsplit("\n", 1)[-1])
+            return {"gta_vi": True, "gta_vi_evidence": "Synthetic editorial fixture", "contains_other_game": False,
+                    "scene_checks": [{"number": scene["number"], "gta_vi": True, "evidence": "Synthetic footage"}
+                                     for scene in brief.get("scenes", [])],
                     "passes": True, "reason": "Synthetic fixture", "hook_seconds": 0.5,
                     "engagement_score": 9, "payoff_evidence": "Synthetic payoff", "payoff_seconds": 10,
                     "thumbnail_seconds": 2, "titles": ["Fixture video", "Alternate fixture"],

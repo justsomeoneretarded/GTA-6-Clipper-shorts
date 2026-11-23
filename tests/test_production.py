@@ -14,6 +14,32 @@ from clipper.production import MODES, EditorialRejection, approved_package, rend
 
 class ProductionEligibilityTests(unittest.TestCase):
     @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
+    @patch("clipper.production.render_edit")
+    def test_other_game_range_is_excluded_even_without_a_local_rejection(self, render, clock):
+        source = source_url("https://www.youtube.com/watch?v=TestGTA0001")
+        source.duration = 90
+        source.published = "2026-11-20T13:00:00Z"
+        flagged = Range(source.key, 20, 35)
+        item = Moment(Range(source.key, 18, 38), "comedy", "Hook", "Setup", "Payoff", "Evidence", 90)
+        catalog = {"version": VERSION, "sources": {source.key: asdict(source)}, "moments": [item.to_dict()]}
+        with tempfile.TemporaryDirectory() as folder:
+            work = Path(folder)
+            render_batch("shorts", Mock(), Mock(), catalog, {}, work, work / "out", [], blocked=[flagged])
+        render.assert_not_called()
+
+    @patch("clipper.production.proxy", return_value=Path("fixture-review.mp4"))
+    def test_compilation_requires_game_evidence_for_every_scene(self, proxy):
+        gemini = Mock()
+        edit = Edit([Cut(Range("youtube:fixture", 0, 20)), Cut(Range("twitch-vod:fixture", 0, 20))],
+                    "mission", "Title", "Context")
+        gemini.json.return_value = {"gta_vi": True, "gta_vi_evidence": "Lucia appears in the first scene.",
+                                    "passes": True, "reason": "Strong edit", "engagement_score": 9,
+                                    "payoff_evidence": "Lucia escapes through an alley.",
+                                    "scene_checks": [{"number": 1, "gta_vi": True, "evidence": "Lucia is visible."}]}
+        with self.assertRaisesRegex(EditorialRejection, "every compilation scene"):
+            approved_package(gemini, edit, Path("fixture.mp4"), 40, [], "themed", [])
+
+    @patch("clipper.core.now", return_value=datetime(2026, 11, 21, 12, tzinfo=UTC))
     @patch("clipper.plans.condensed_plan", side_effect=QuotaError("Daily quota reached."))
     def test_planning_quota_still_writes_a_batch_manifest(self, planner, clock):
         source = source_url("https://www.youtube.com/watch?v=TestGTA0001")

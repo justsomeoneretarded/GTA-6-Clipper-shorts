@@ -34,7 +34,9 @@ SEQUENCE_EDIT = object_schema({"idea": TEXT, "story": TEXT,
 GROUP_EDIT = object_schema({"idea": TEXT, "theme": IDEA["theme"], "context": TEXT,
                             "entries": array(object_schema({"id": TEXT, "label": TEXT}), 6)})
 COLD_OPEN = object_schema({"reason_to_stay": TEXT, "readable": BOOL, "curiosity": NUM})
-PACKAGING = object_schema({"gta_vi": BOOL, "gta_vi_evidence": TEXT, "passes": BOOL, "reason": TEXT,
+PACKAGING = object_schema({"gta_vi": BOOL, "gta_vi_evidence": TEXT, "contains_other_game": BOOL,
+                           "scene_checks": array(object_schema({"number": NUM, "gta_vi": BOOL, "evidence": TEXT}), 6),
+                           "passes": BOOL, "reason": TEXT,
                            "engagement_score": NUM, "payoff_evidence": TEXT, "payoff_seconds": NUM,
                            "hook_seconds": NUM, "thumbnail_seconds": NUM,
                            "titles": array(TEXT, 3), "description": TEXT})
@@ -195,7 +197,7 @@ def scout(gemini: Gemini, downloads: Downloads, source: Source, window: Range, *
             return gemini.json(prompt, SCOUT, [gemini.youtube(source.url, window.start, window.end)])
         except ValueError:
             pass
-    media = window_proxy(downloads, source, window)
+    media = window_proxy(downloads, source, window, fps=4)
     return gemini.json(prompt, SCOUT, [gemini.video(media, fps=1.5)])
 
 
@@ -354,7 +356,8 @@ def merge_catalogs(local: dict, shared: dict) -> dict:
 
 
 def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Source], previous: dict,
-                  report: list[str], *, mode: str = "shorts", rejected: dict | None = None) -> dict:
+                  report: list[str], *, mode: str = "shorts", rejected: dict | None = None,
+                  blocked: list[Range] | None = None) -> dict:
     floor = float(os.getenv("MIN_MOMENT_SCORE") or 70)
     short_edits = mode in {"shorts", "ranked"}
     default_scout_limit = 28 if search_enabled() else (20 if short_edits else 16)
@@ -448,6 +451,11 @@ def build_catalog(gemini: Gemini, downloads: Downloads, current: dict[str, Sourc
             report.append(f"Added {len(reserves)} viewer clips for individual review with the remaining audition budget.")
     previous_moments = [] if sequence_only else [Moment.from_dict(row) for row in previous.get("moments", [])
                                                 if row["span"]["source"] in sources]
+    if blocked:
+        previous_moments = [item for item in previous_moments
+                            if not any(overlap(or_parent(item.span, sources), off_topic) >= .55 for off_topic in blocked)]
+        leads = [item for item in leads
+                 if not any(overlap(or_parent(item.span, sources), off_topic) >= .55 for off_topic in blocked)]
     if mode == "shorts" and rejected:
         retained = []
         for moment in previous_moments:

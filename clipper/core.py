@@ -149,6 +149,10 @@ class Range:
         return digest(self.source, round(self.start, 1), round(self.end, 1))
 
 
+def other_game_ranges(ledger: dict) -> list[Range]:
+    return [Range(**span) for row in recent_rejections(ledger).values() for span in row.get("other_game_ranges", [])]
+
+
 @dataclass
 class Moment:
     span: Range

@@ -5,7 +5,7 @@ import os
 import sys
 from pathlib import Path
 
-from .core import VERSION, read_json, recent_rejections, write_json
+from .core import VERSION, other_game_ranges, read_json, recent_rejections, write_json
 from .discovery import discover
 from .editorial import build_catalog, merge_catalogs
 from .gemini import Gemini, ServiceError
@@ -46,6 +46,10 @@ def main() -> int:
             downloads = Downloads(work / "media", youtube_cookies=cookie_file)
             catalog = read_json(state / "catalog.json", {"version": VERSION, "moments": [], "sequences": [], "sources": {}})
             ledger = read_json(state / "ledger.json", {})
+            shared_ledger = read_json(state / "shared-ledger.json", {})
+            blocked = other_game_ranges(ledger) + other_game_ranges(shared_ledger)
+            if blocked:
+                report.append(f"Excluded {len(blocked)} previously identified ranges showing other games.")
             if args.stage == "discover":
                 sources_from(catalog)
                 shared = read_json(state / "shared-catalog.json") if args.mode != "shorts" else None
@@ -56,10 +60,10 @@ def main() -> int:
                                   f"and {len(shared['sequences'])} longer sequences.")
                 new_sources = discover(gemini, downloads, report)
                 catalog = build_catalog(gemini, downloads, new_sources, catalog, report, mode=args.mode,
-                                        rejected=recent_rejections(ledger))
+                                        rejected=recent_rejections(ledger), blocked=blocked)
                 write_json(state / "catalog.json", catalog)
             else:
-                pending = render_batch(args.mode, gemini, downloads, catalog, ledger, work, output, report)
+                pending = render_batch(args.mode, gemini, downloads, catalog, ledger, work, output, report, blocked=blocked)
                 if pending:
                     write_json(state / "next-ledger.json", pending)
     except (ServiceError, ValueError, OSError) as error:

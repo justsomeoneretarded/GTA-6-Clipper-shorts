@@ -123,6 +123,10 @@ jobs:
             printf '# Shared catalog unavailable\n\nThis editor will search for footage directly.\n' \
               > "$OUTPUT_DIR/catalog-report.md"
           fi
+          if ! gh api "repos/$CATALOG_REPOSITORY/contents/ledger.json?ref=clipper-state" \
+            -H 'Accept: application/vnd.github.raw+json' > "$STATE_DIR/shared-ledger.json"; then
+            rm -f "$STATE_DIR/shared-ledger.json"
+          fi
 
       - name: Discover footage and audition cuts
         env:

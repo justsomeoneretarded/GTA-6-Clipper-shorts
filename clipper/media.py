@@ -143,7 +143,7 @@ def publication_date(metadata: dict) -> str:
     return ""
 
 
-def twitch_replay_section(source: Source, span: Range, directory: Path, timeout: int) -> None:
+def twitch_replay_section(source: Source, span: Range, directory: Path, timeout: int) -> Range:
     from twitchdl.playlists import enumerate_vods, filter_vods, load_m3u8
 
     cache = directory / "segments"
@@ -156,14 +156,16 @@ def twitch_replay_section(source: Source, span: Range, directory: Path, timeout:
         raise MediaError("Twitch did not return the requested replay segments.")
     playlist = load_m3u8(original.read_text(encoding="utf-8"))
     segments, trim_start, _ = filter_vods(enumerate_vods(playlist), int(span.start), int(span.end))
-    if sum(segment.duration for segment in segments) - (trim_start or 0) < span.seconds - 1:
+    total = sum(segment.duration for segment in segments)
+    first = span.start - (trim_start or 0)
+    if first + total < span.end - .25:
         raise MediaError("The Twitch replay has insufficient archived media for this range.")
-    # The first downloaded segment may start before the requested cut. Decode the
-    # local segments so that the first output frame matches the requested source time.
-    ffmpeg("-protocol_whitelist", "file,crypto,data", "-i", str(local), "-ss", f"{trim_start or 0:.3f}",
-           "-t", f"{span.seconds:.3f}", "-map", "0:v:0", "-map", "0:a:0?", "-sn", "-dn",
-           "-c:v", "libx264", "-threads", "3", "-preset", "ultrafast", "-crf", "18", "-pix_fmt", "yuv420p",
-           "-c:a", "aac", "-b:a", "160k", str(directory / "video.mp4"), timeout=240)
+    # Keep complete segments and their source offset. The final editor can then
+    # seek to an exact frame without re-encoding the entire downloaded range.
+    file = directory / "video.mp4"
+    ffmpeg("-protocol_whitelist", "file,crypto,data", "-i", str(local), "-map", "0:v:0", "-map", "0:a:0?",
+           "-c", "copy", "-avoid_negative_ts", "make_zero", str(file), timeout=120)
+    return Range(source.key, first, first + min(total, video_duration(file)))
 
 
 class Downloads:
@@ -175,8 +177,8 @@ class Downloads:
         for index in self.directory.glob("*.section.json"):
             try:
                 span = Range(**read_json(index))
-                media = self.directory / f"{span.identity}.mp4"
-                if media.is_file() and index.name == f"{span.identity}.section.json":
+                media = index.with_name(index.name.removesuffix(".section.json") + ".mp4")
+                if media.is_file():
                     self.windows.setdefault(span.source, []).append((span, media))
             except (OSError, TypeError, ValueError):
                 continue
@@ -186,6 +188,8 @@ class Downloads:
         self.youtube_cookies = youtube_cookies
         self.full_limit = int(os.getenv("FULL_DOWNLOAD_MAX_SECONDS") or 3600)
         self.format = "bv*[height<=1080][ext=mp4]+ba[ext=m4a]/b[height<=1080][ext=mp4]/b[height<=1080]/b"
+        self.preview_format = ("bv*[height<=720][fps<=?30][ext=mp4]+ba[ext=m4a]/"
+                               "b[height<=720][ext=mp4]/b[height<=720]/" + self.format)
 
     def ytdlp(self, url: str, extra: list[str], *, timeout: int) -> str:
         source = source_url(url)
@@ -219,14 +223,21 @@ class Downloads:
             if len(source.anchors) >= 3:
                 break
 
-    def _fetch(self, source: Source, span: Range, whole: bool) -> Path:
+    def _fetch(self, source: Source, span: Range, whole: bool) -> tuple[Path, Range]:
         target = self.directory / f"{digest('whole', source.key) if whole else span.identity}.mp4"
+        index = target.with_suffix(".section.json")
         if target.exists():
-            return target
+            saved = read_json(index)
+            if whole or saved:
+                return target, Range(**saved) if saved else span
+        coverage = span
         with tempfile.TemporaryDirectory(dir=self.directory) as work:
             temporary = Path(work)
             native_youtube = whole and source.platform == "youtube"
-            media_format = "b[height<=1080][ext=mp4]/b[ext=mp4]/b" if native_youtube else self.format
+            long_preview = not whole and source.platform == "youtube" and span.seconds >= 120
+            media_format = self.preview_format if long_preview else self.format
+            if native_youtube:
+                media_format = "b[height<=1080][ext=mp4]/b[ext=mp4]/b"
             options = ["-f", media_format, "--merge-output-format", "mp4", "--remux-video", "mp4",
                        "-o", str(temporary / "video.%(ext)s")]
             if native_youtube:
@@ -234,8 +245,12 @@ class Downloads:
             if not whole:
                 options += ["--download-sections", f"*{span.start:.3f}-{span.end:.3f}", "--force-keyframes-at-cuts"]
             timeout = 75 if source.platform == "twitch-clip" else (420 if whole else 180)
-            if not whole and source.platform == "twitch-vod" and (source.recording or shutil.which("twitch-dl")):
-                twitch_replay_section(source, span, temporary, timeout)
+            if long_preview:
+                timeout = min(420, max(180, math.ceil(span.seconds * 1.2)))
+                options += ["--downloader-args", "ffmpeg_o:-threads 3 -preset ultrafast"]
+            local_segments = not whole and source.platform == "twitch-vod" and (source.recording or shutil.which("twitch-dl"))
+            if local_segments:
+                coverage = twitch_replay_section(source, span, temporary, timeout)
             else:
                 try:
                     self.ytdlp(source.url, options, timeout=timeout)
@@ -247,12 +262,16 @@ class Downloads:
             file = temporary / "video.mp4"
             if not file.is_file():
                 raise MediaError("Downloader did not return an MP4.")
-            if not whole:
+            if local_segments and coverage.end < span.end - .25:
+                raise MediaError("The downloaded Twitch replay ended before the requested range.")
+            if not whole and not local_segments:
                 length = video_duration(file)
                 if abs(length - span.seconds) > min(2, span.seconds * .15):
                     raise MediaError(f"Section download returned {length:.2f}s for the requested {span.seconds:.2f}s range.")
             file.replace(target)
-        return target
+        if not whole:
+            write_json(index, asdict(coverage))
+        return target, coverage
 
     def get(self, source: Source, span: Range) -> tuple[Path, float]:
         """Return a readable media path and the requested start relative to that file."""
@@ -269,13 +288,14 @@ class Downloads:
         if source.key in self.unreachable:
             raise MediaError(self.unreachable[source.key])
         if source.platform == "twitch-clip":
-            return self._fetch(source, span, whole=True), span.start
+            file, _ = self._fetch(source, span, whole=True)
+            return file, span.start
         coverage = (Range(span.source, math.floor(span.start), math.ceil(span.end))
                     if source.platform == "twitch-vod" else span)
         if coverage.identity in self.failed_windows:
             raise MediaError(self.failed_windows[coverage.identity])
         try:
-            file = self._fetch(source, coverage, whole=False)
+            file, downloaded = self._fetch(source, coverage, whole=False)
         except MediaError as section_failure:
             failure = str(section_failure).casefold()
             blocked = youtube_session_blocked(section_failure) or any(reason in failure for reason in (
@@ -288,13 +308,13 @@ class Downloads:
                     self.failed_windows[coverage.identity] = str(section_failure)
                 raise
             try:
-                return self._fetch(source, span, whole=True), span.start
+                file, _ = self._fetch(source, span, whole=True)
+                return file, span.start
             except MediaError as full_failure:
                 self.failed_windows[coverage.identity] = str(full_failure)
                 raise
-        self.windows.setdefault(source.key, []).append((coverage, file))
-        write_json(self.directory / f"{coverage.identity}.section.json", asdict(coverage))
-        return file, span.start - coverage.start
+        self.windows.setdefault(source.key, []).append((downloaded, file))
+        return file, span.start - downloaded.start
 
 
 def proxy(source_path: Path, start: float, length: float, destination: Path, *, fps: int = 8,
@@ -303,20 +323,25 @@ def proxy(source_path: Path, start: float, length: float, destination: Path, *, 
         return destination
     bitrate = max(68, min(500, int(87_000 / length) - 44))
     width = 640 if length <= 300 else 480
-    filters = f"scale='min({width},iw)':-2,fps={fps}"
+    filters = f"fps={fps},scale='min({width},iw)':-2"
     clock = destination.with_suffix(".time.srt")
     if timecode:
         clock.write_text("".join(f"{second + 1}\n{srt_time(second)} --> {srt_time(min(second + 1, length))}\n"
                                  f"{second}s\n\n" for second in range(math.ceil(length))), encoding="utf-8")
         filters += (f",subtitles={clock.name}:force_style='FontName=DejaVu Sans,FontSize=22,Alignment=7,"
                     "MarginL=10,MarginV=8,BorderStyle=3,Outline=2,BackColour=&H48000000'")
+    temporary = destination.with_suffix(".part.mp4")
     try:
         ffmpeg("-ss", f"{start:.3f}", "-i", str(source_path.resolve()), "-t", f"{length:.3f}",
                "-vf", filters, "-c:v", "libx264", "-threads", "2",
                "-preset", "veryfast", "-b:v", f"{bitrate}k", "-maxrate", f"{bitrate}k",
                "-bufsize", f"{bitrate * 2}k", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "40k",
-               "-ac", "1", "-movflags", "+faststart", str(destination.resolve()), cwd=destination.parent)
+               "-ac", "1", "-movflags", "+faststart", str(temporary.resolve()), cwd=destination.parent)
+        temporary.replace(destination)
+    except MediaError as error:
+        raise MediaError(f"Review preview: {error}") from None
     finally:
+        temporary.unlink(missing_ok=True)
         if timecode:
             clock.unlink(missing_ok=True)
     return destination

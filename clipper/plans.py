@@ -193,7 +193,7 @@ def sequence_cuts(reply: dict, window: Range, *, retry: bool = False) -> list[Cu
 
 
 def condensed_plan(gemini: Gemini, downloads: Downloads, sequence: Sequence, source: Source) -> Edit | None:
-    media = window_proxy(downloads, source, sequence.span, timecode=True)
+    media = window_proxy(downloads, source, sequence.span, fps=4, timecode=True)
     prompt = (
         f"Edit one complete chronological GTA VI sequence within this {sequence.span.seconds:.1f}s excerpt. "
         f"The initial scout's story was {sequence.story!r}; confirm and correct it using the source. "
@@ -223,8 +223,8 @@ def condensed_plan(gemini: Gemini, downloads: Downloads, sequence: Sequence, sou
 
 
 def plans(mode: str, gemini: Gemini, downloads: Downloads, catalog: dict, ledger: dict,
-          sources: dict[str, Source], report: list[str], rejected: dict):
-    earlier = previous_ranges(ledger, sources)
+          sources: dict[str, Source], report: list[str], rejected: dict, blocked: list[Range]):
+    earlier = [*previous_ranges(ledger, sources), *blocked]
     if mode == "condensed":
         sequences = [Sequence.from_dict(row) for row in catalog["sequences"] if row["span"]["source"] in sources
                      and is_new(Range(**row["span"]), earlier, sources)]
