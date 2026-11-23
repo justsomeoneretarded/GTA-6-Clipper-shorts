@@ -25,7 +25,8 @@ SCOUT = object_schema({
 })
 CLIP_SCOUT = object_schema({"clips": array(object_schema({"clip_id": TEXT, **SCOUT["properties"]}), 3)})
 ALT_CUT = object_schema({**TIMES, **IDEA, "time_to_hook": NUM, "confidence": NUM, "scores": SCORES})
-AUDITION = object_schema({"genuine": BOOL, "gta_vi_evidence": TEXT, "standout": BOOL, "cuts": array(ALT_CUT, 3)})
+AUDITION = object_schema({"genuine": BOOL, "gta_vi_evidence": TEXT, "standout": BOOL,
+                          "reason": TEXT, "cuts": array(ALT_CUT, 3)})
 SEQUENCE_EDIT = object_schema({"idea": TEXT, "story": TEXT,
                                "time_basis": {"type": "string", "enum": ["excerpt", "source"]},
                                "cuts": array(object_schema({**TIMES, "beat": TEXT}), 10)})
@@ -166,7 +167,7 @@ def scout(gemini: Gemini, downloads: Downloads, source: Source, window: Range, *
         if sequence_only else "Suggest up to five different 10–58s standalone moments."
     )
     prompt = (
-        f"Scout this {window.seconds:.1f}s excerpt at source time {timestamp(window.start)}. "
+        f"Scout this {window.seconds:.1f}s excerpt. "
         "Every start/end you report must be seconds FROM THE START OF THIS EXCERPT (0 = first frame provided). "
         f"Source metadata, for orientation only: {source.creator!r}, {source.title[:200]!r}. "
         f"{SUBJECT} {DISCUSSION} {HOOKS} {HIGHLIGHT_STANDARD} {assignment} "
@@ -229,6 +230,7 @@ def audition(gemini: Gemini, downloads: Downloads, source: Source, lead: Moment,
         f"{SUBJECT} Return genuine false if GTA VI cannot be confirmed and state the evidence in gta_vi_evidence. "
         f"{DISCUSSION} {HOOKS} {HIGHLIGHT_STANDARD} Set standout true only when the event itself delivers that value. "
         "If it is routine or the payoff is unclear, set standout false and return no cuts. "
+        "State your main reason in a short sentence and refer to what you observed. "
         "Find up to three alternative openings for the SAME event, for example the first action, "
         "a line that raises the stakes, or a quicker beginning. Each cut must contain the GTA VI evidence, the payoff, "
         "and enough context for cause and effect. Start spoken clips on a complete phrase and end after the thought lands. "
@@ -239,24 +241,30 @@ def audition(gemini: Gemini, downloads: Downloads, source: Source, lead: Moment,
     )
     reply = gemini.json(prompt, AUDITION, [gemini.video(media, fps=4)])
     options = []
-    if (reply["genuine"] is not True or reply["standout"] is not True
-            or not clean(reply["gta_vi_evidence"], 500)):
-        return None
+    reason = clean(reply.get("reason"), 180)
+    if reply["genuine"] is not True or not clean(reply["gta_vi_evidence"], 500):
+        raise ValueError(f"Audition could not verify GTA VI in this excerpt. {reason}".strip())
+    if reply["standout"] is not True:
+        raise ValueError(f"Audition found no standout moment. {reason}".strip())
+    failures: Counter[str] = Counter()
     for row in reply["cuts"]:
         try:
             span = bounded(row, source.key, window)
             score = score_cut(row, floor)
             if not 10 <= span.seconds <= 58 or overlap(span, lead.span) < .40:
-                continue
+                raise ValueError("Cut length or timestamp fell outside the proposed moment.")
             if not all(clean(row[field], 350) for field in ("hook", "setup", "payoff", "evidence")):
-                continue
+                raise ValueError("Cut lacked a specific hook, context, payoff, or evidence.")
             options.append(Moment(span, row["theme"], clean(row["hook"], 350), clean(row["setup"], 350),
                                   clean(row["payoff"], 350), clean(row["evidence"], 500), score,
                                   gta_vi_evidence=clean(reply["gta_vi_evidence"], 500)))
-        except (KeyError, TypeError, ValueError):
-            continue
+        except ValueError as error:
+            failures[str(error)] += 1
+        except (KeyError, TypeError):
+            failures["Gemini returned incomplete cut information."] += 1
     if not options:
-        return None
+        detail = failures.most_common(1)[0][0] if failures else reason
+        raise ValueError(f"Audition found no usable standalone cut. {detail}".strip())
     options.sort(key=lambda item: (item.score, -item.span.seconds), reverse=True)
     best = options[0]
     best.alternate_cuts = [item for item in options[1:] if abs(item.span.start - best.span.start) >= 1
