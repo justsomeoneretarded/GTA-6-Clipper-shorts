@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-26T01:20:14Z",
+  "generated_at": "2026-11-26T15:50:39Z",
   "scanned": {
     "d66f80f00ab35d8f5532": "2026-11-18T12:29:44Z",
     "4f8b3e763c3765bfbfdf": "2026-11-18T12:29:55Z",
@@ -392,24 +392,66 @@
     "3dba2ac683530d0bfcfb": "2026-11-26T01:13:45Z",
     "ef1107adb9f6bf3179ab": "2026-11-26T01:14:50Z",
     "1df34ca764f1785ef2d6": "2026-11-26T01:15:59Z",
-    "df06f9325b7b83eaee43": "2026-11-26T01:16:57Z"
+    "df06f9325b7b83eaee43": "2026-11-26T01:16:57Z",
+    "04d3bb02b05b9ea6d53d": "2026-11-26T15:30:16Z",
+    "b074328a04dafe64424e": "2026-11-26T15:30:16Z",
+    "9d7103c7502d95e4098c": "2026-11-26T15:30:16Z",
+    "b5f512490a1a3a28ea85": "2026-11-26T15:30:55Z",
+    "f33d83896905431ea10d": "2026-11-26T15:30:55Z",
+    "5a96c51a836f801c3734": "2026-11-26T15:30:55Z",
+    "79fcbb47440504722539": "2026-11-26T15:31:59Z",
+    "dca5c3b4ccfab77118d1": "2026-11-26T15:32:28Z",
+    "7d44d805f61f47720ac0": "2026-11-26T15:32:28Z",
+    "40d7b9e4ad6249502505": "2026-11-26T15:32:28Z",
+    "646df9fc48d4f262ed87": "2026-11-26T15:33:07Z",
+    "b24086f55e27d53669aa": "2026-11-26T15:33:07Z",
+    "3109a70d553946ca69f3": "2026-11-26T15:33:07Z",
+    "a0a32a28223171ee9920": "2026-11-26T15:34:11Z",
+    "c9622a6303bf55e4a590": "2026-11-26T15:34:58Z",
+    "a4e64c5a088286a3bbed": "2026-11-26T15:34:58Z",
+    "d29046f377283649833f": "2026-11-26T15:34:58Z",
+    "804030e8876e42ad2732": "2026-11-26T15:35:24Z",
+    "97c59400e08ad92f756b": "2026-11-26T15:35:24Z",
+    "33cea3eb5565e9b6e326": "2026-11-26T15:35:24Z",
+    "819940b3e46724a1ed07": "2026-11-26T15:36:48Z",
+    "9930d2687f0b6bbf6e59": "2026-11-26T15:37:16Z",
+    "0258ba4bc305dc2387d5": "2026-11-26T15:37:16Z",
+    "23355522e86226deff75": "2026-11-26T15:37:16Z",
+    "6a945eac2061ac276f03": "2026-11-26T15:37:50Z",
+    "e3e4fbd125c12fcedc83": "2026-11-26T15:37:50Z",
+    "4a8081ff6504edb1e39a": "2026-11-26T15:37:50Z",
+    "8295c1843182989a8d50": "2026-11-26T15:39:03Z",
+    "f4f15958ce7d2e488701": "2026-11-26T15:39:36Z",
+    "d27cde5f204db9239776": "2026-11-26T15:39:36Z",
+    "824ad3b8ed9884365b70": "2026-11-26T15:39:36Z",
+    "78b3ead68f577101441f": "2026-11-26T15:40:08Z",
+    "40b91686e5233936f7d7": "2026-11-26T15:40:08Z",
+    "67ff4fac622c3842c342": "2026-11-26T15:40:08Z",
+    "27e23d264edc3ae67158": "2026-11-26T15:40:46Z",
+    "cef2db3b27146086d3c8": "2026-11-26T15:41:11Z",
+    "f33fc6489f3cf2c5b7b7": "2026-11-26T15:41:11Z",
+    "d5b4ce96bc1675fa01ca": "2026-11-26T15:41:11Z",
+    "84fcb2402c144a7d2eac": "2026-11-26T15:41:18Z",
+    "7dd31d8b1539051d6bf4": "2026-11-26T15:42:06Z",
+    "05892fd3bac0fec2b285": "2026-11-26T15:42:47Z",
+    "6980fccbafc83fdc4203": "2026-11-26T15:46:26Z"
   },
   "sources": {
-    "twitch-clip:BlatantWimpySoymilkPrimeMe-8lBVgEuJ9jryDXOd": {
-      "key": "twitch-clip:BlatantWimpySoymilkPrimeMe-8lBVgEuJ9jryDXOd",
-      "url": "https://clips.twitch.tv/BlatantWimpySoymilkPrimeMe-8lBVgEuJ9jryDXOd",
+    "twitch-clip:HungryBenevolentCattleAMPTropPunch-qZ2RwOAOpoRfYyRl": {
+      "key": "twitch-clip:HungryBenevolentCattleAMPTropPunch-qZ2RwOAOpoRfYyRl",
+      "url": "https://clips.twitch.tv/HungryBenevolentCattleAMPTropPunch-qZ2RwOAOpoRfYyRl",
       "platform": "twitch-clip",
-      "title": "I TRIED TO HELP AN OLD LADY AND SHE KIDNAPPED ME?! 👵🏼🫨",
-      "creator": "Tminnzy",
-      "duration": 39.0,
-      "views": 36532,
-      "published": "2026-11-25T06:59:03Z",
+      "title": "GTA 6 - 100% Walkthrough | Livestream [No Commentary]",
+      "creator": "GTASeriesVideos",
+      "duration": 30.0,
+      "views": 1,
+      "published": "2026-11-26T15:02:05Z",
       "rights": "unspecified",
       "anchors": [],
-      "parent": "twitch-vod:2940095593",
-      "parent_offset": 6991.0,
+      "parent": "",
+      "parent_offset": null,
       "recording": false,
-      "recorded": "2026-11-25T06:58:45Z"
+      "recorded": ""
     },
     "twitch-vod:2932809277": {
       "key": "twitch-vod:2932809277",
@@ -491,37 +533,38 @@
       "recording": false,
       "recorded": ""
     },
-    "twitch-vod:2940095593": {
-      "key": "twitch-vod:2940095593",
-      "url": "https://www.twitch.tv/videos/2940095593",
+    "twitch-vod:2940322036": {
+      "key": "twitch-vod:2940322036",
+      "url": "https://www.twitch.tv/videos/2940322036",
       "platform": "twitch-vod",
-      "title": "GTA 6 🌴 CHAPTER 3 — DAY 2 IN VICE CITY, THINGS ARE GETTING SERIOUS 👀",
-      "creator": "Tminnzy",
-      "duration": 22180.0,
-      "views": 84651,
-      "published": "2026-11-25T05:02:14Z",
+      "title": "🔴[DROPS] GTA 6 FULL PLAYTHROUGH... *ALMOST DONE*🔴",
+      "creator": "ohnePixel",
+      "duration": 25110.0,
+      "views": 892317,
+      "published": "2026-11-25T13:36:43Z",
       "rights": "unspecified",
       "anchors": [
-        6991.0,
-        8036.0
+        11604.0,
+        19991.0,
+        16898.0
       ],
       "parent": "",
       "parent_offset": null,
       "recording": false,
       "recorded": ""
     },
-    "twitch-vod:2940304898": {
-      "key": "twitch-vod:2940304898",
-      "url": "https://www.twitch.tv/videos/2940304898",
+    "twitch-vod:2940407360": {
+      "key": "twitch-vod:2940407360",
+      "url": "https://www.twitch.tv/videos/2940407360",
       "platform": "twitch-vod",
-      "title": "GTA 6 BRAQUAGE DAY LIVE 676h NON-STOP!!",
-      "creator": "Squeezie",
-      "duration": 15146.0,
-      "views": 320930,
-      "published": "2026-11-25T13:07:14Z",
+      "title": "(!drops) DIA 8 GTA 6 MODO HISTORIA | REGALAN CODIGOS DEL JUEGO SÓLO POR VER EL DIRECTO AQUI Y EN LA VERDE",
+      "creator": "DjMaRiiO",
+      "duration": 32246.0,
+      "views": 270300,
+      "published": "2026-11-25T15:45:25Z",
       "rights": "unspecified",
       "anchors": [
-        12851.0
+        16704.0
       ],
       "parent": "",
       "parent_offset": null,
@@ -979,21 +1022,122 @@
   },
   "moments": [
     {
-      "id": "dbad7b6922fc478b0a95",
+      "id": "795a0f06394adb6fba0e",
       "span": {
-        "source": "twitch-vod:2940304898",
-        "start": 12799.5,
-        "end": 12812.5
+        "source": "twitch-vod:2940322036",
+        "start": 11549.0,
+        "end": 11561.5
       },
-      "theme": "driving",
-      "hook": "Player rushes to a parked silver sports car.",
-      "setup": "The player requests a car on the phone and runs out of the lobby to find the vehicle parked outside.",
-      "payoff": "The player drives down the street while a notification popup appears for the lawyer's office.",
-      "evidence": "The player runs to the silver Pfister car, enters it, and drives while receiving a notification from 'Cabinet d'avocats Lucia'.",
-      "score": 85.75,
-      "fingerprint": "75746467616c64f2.e038381d33e13119.0c4848cdd7b6ab73",
-      "gta_vi_evidence": "The in-game UI shows 'COMET (1988) DE LUCIA' and lawyer notification popups in Vice City.",
+      "theme": "chase",
+      "hook": "Lucia walks up to door 201 and opens it to reveal a surprise confrontation.",
+      "setup": "Jason and Lucia discover suspects inside an apartment unit and confront them.",
+      "payoff": "Jason shouts and gives chase down the stairs after the fleeing suspect.",
+      "evidence": "Lucia opens door 201, a fight breaks out, and Jason pursues the escaping suspect down the stairwell.",
+      "score": 88.0,
+      "fingerprint": "0121010101416060.e1736b6b6bea6840.74767c7870642060",
+      "gta_vi_evidence": "Jason and Lucia pursue suspects across apartment rooms and stairwells in high-fidelity gameplay matching Grand Theft Auto VI leaks.",
       "alternate_cuts": []
+    },
+    {
+      "id": "8e87f35ff626367eae81",
+      "span": {
+        "source": "twitch-clip:HungryBenevolentCattleAMPTropPunch-qZ2RwOAOpoRfYyRl",
+        "start": 17.5,
+        "end": 29.7
+      },
+      "theme": "chase",
+      "hook": "Lucia fights back against club patrons.",
+      "setup": "Lucia pummels an attacker on the floor and gets grabbed from behind.",
+      "payoff": "Another patron gets knocked down near the speaker stack while someone yells about a bat.",
+      "evidence": "A brawl intensifies near the large speakers with multiple combatants falling.",
+      "score": 87.83,
+      "fingerprint": "4824a4c0c0808092.c64e6f9b98b0324b.f131014145012121",
+      "gta_vi_evidence": "Melee combat animations and UI prompts confirm GTA VI gameplay mechanics.",
+      "alternate_cuts": [
+        {
+          "span": {
+            "source": "twitch-clip:HungryBenevolentCattleAMPTropPunch-qZ2RwOAOpoRfYyRl",
+            "start": 0.0,
+            "end": 17.5
+          },
+          "theme": "mission",
+          "hook": "A player holds a phone displaying social media in a crowded nightclub.",
+          "setup": "Lucia walks through a club where patrons are dancing and taunting speakers.",
+          "payoff": "A character is grabbed and knocked down onto the wooden floor in a brawl.",
+          "evidence": "Lucia navigates a club environment and gets into a fistfight.",
+          "score": 84.0,
+          "fingerprint": "4824a4c0c0808092.c64e6f9b98b0324b.f131014145012121",
+          "gta_vi_evidence": "Gameplay shows Lucia in a club setting with characteristic GTA VI HUD elements and dialogue referring to Leonida.",
+          "alternate_cuts": []
+        }
+      ]
+    },
+    {
+      "id": "be8ed0c9d10b9aab2c73",
+      "span": {
+        "source": "twitch-vod:2940322036",
+        "start": 11561.0,
+        "end": 11575.0
+      },
+      "theme": "chase",
+      "hook": "Jason gives chase down the staircase after a thief.",
+      "setup": "Jason runs down the stairs pursuing a masked suspect who just robbed their apartment.",
+      "payoff": "Jason bursts out into the street level and continues pursuing the target past construction barriers.",
+      "evidence": "Jason sprints down apartment stairs and exits into the alleyway.",
+      "score": 85.67,
+      "fingerprint": "1d1d5973f3f3ebeb.ded65646cece66e4.000c7bddcd2b2660",
+      "gta_vi_evidence": "Grand Theft Auto VI pursuit gameplay showing Jason navigating stairs and alleyways with mission text.",
+      "alternate_cuts": []
+    },
+    {
+      "id": "f7c35c5b2ae1811bae6f",
+      "span": {
+        "source": "twitch-vod:2940322036",
+        "start": 11683.5,
+        "end": 11700.5
+      },
+      "theme": "mission",
+      "hook": "Jason enters his apartment talking on the phone.",
+      "setup": "Jason checks if the bag and hard drive are still in the apartment.",
+      "payoff": "Jason opens the hard drive case and confirms to Lucia that everything is still there.",
+      "evidence": "Jason unzips the duffel bag and inspects the hard drive case on the floor.",
+      "score": 84.0,
+      "fingerprint": "0038280c0c0c1c38.0151111136123238.4068642726247040",
+      "gta_vi_evidence": "The sequence features character models of Jason and Lucia matching confirmed GTA VI leaks.",
+      "alternate_cuts": [
+        {
+          "span": {
+            "source": "twitch-vod:2940322036",
+            "start": 11688.5,
+            "end": 11701.0
+          },
+          "theme": "mission",
+          "hook": "Jason asks about the drive inside his apartment.",
+          "setup": "Jason kneels down to open the black case from the duffel bag.",
+          "payoff": "Jason tells Lucia on the phone that the hard drive and statue are still here.",
+          "evidence": "Jason speaks into his phone while kneeling beside the open case.",
+          "score": 77.5,
+          "fingerprint": "0038280c0c0c1c38.0151111136123238.4068642726247040",
+          "gta_vi_evidence": "The character and environment match Grand Theft Auto VI leaked footage.",
+          "alternate_cuts": []
+        },
+        {
+          "span": {
+            "source": "twitch-vod:2940322036",
+            "start": 11684.0,
+            "end": 11697.5
+          },
+          "theme": "mission",
+          "hook": "Jason returns to his apartment on the phone.",
+          "setup": "Jason asks about the drive after checking the bag.",
+          "payoff": "Jason opens the small black case to inspect its contents.",
+          "evidence": "Jason opens a hard drive case on the tiled floor.",
+          "score": 77.5,
+          "fingerprint": "0038280c0c0c1c38.0151111136123238.4068642726247040",
+          "gta_vi_evidence": "Gameplay and dialogue match known Grand Theft Auto VI developer leaks.",
+          "alternate_cuts": []
+        }
+      ]
     },
     {
       "id": "e86f74b71f2795466c44",
@@ -1013,20 +1157,87 @@
       "alternate_cuts": []
     },
     {
-      "id": "0e23a1025e5e83d5f2b8",
+      "id": "9a4c01155412c0a8d9d7",
       "span": {
-        "source": "twitch-clip:BlatantWimpySoymilkPrimeMe-8lBVgEuJ9jryDXOd",
-        "start": 20.0,
-        "end": 38.7
+        "source": "twitch-vod:2940407360",
+        "start": 16649.0,
+        "end": 16669.0
+      },
+      "theme": "discovery",
+      "hook": "Streamer uses binoculars to inspect a rooftop pool party.",
+      "setup": "The player pans across the rooftop observing NPCs relaxing and exercising without clothes.",
+      "payoff": "The camera zooms in closely on NPCs doing sit-ups and sitting by the pool while the streamer reacts.",
+      "evidence": "Binoculars framing a rooftop pool party with NPCs exercising naked.",
+      "score": 82.83,
+      "fingerprint": "610c1c66080c1646.4e0e67e743458787.6161010140493163",
+      "gta_vi_evidence": "Binoculars interface with Spanish control prompts matching GTA VI leaks showing NPCs without clothes.",
+      "alternate_cuts": [
+        {
+          "span": {
+            "source": "twitch-vod:2940407360",
+            "start": 16656.0,
+            "end": 16669.0
+          },
+          "theme": "discovery",
+          "hook": "Zooming directly into the pool group.",
+          "setup": "The player focuses on characters sitting in and around the hot tub.",
+          "payoff": "The camera pans over to a female NPC doing crunches on a green exercise mat.",
+          "evidence": "Close-up on hot tub occupants shifting into gym workout view.",
+          "score": 79.5,
+          "fingerprint": "610c1c66080c1646.4e0e67e743458787.6161010140493163",
+          "gta_vi_evidence": "Detailed character models and animations in a rooftop pool setting matching leaked GTA VI footage.",
+          "alternate_cuts": []
+        },
+        {
+          "span": {
+            "source": "twitch-vod:2940407360",
+            "start": 16651.0,
+            "end": 16669.0
+          },
+          "theme": "discovery",
+          "hook": "Closer inspection of the rooftop pool area begins.",
+          "setup": "The view centers on the pool where characters are gathered.",
+          "payoff": "The camera moves to the gym area showing characters exercising on mats without clothes.",
+          "evidence": "Camera panning from pool to gym area on a rooftop.",
+          "score": 79.5,
+          "fingerprint": "610c1c66080c1646.4e0e67e743458787.6161010140493163",
+          "gta_vi_evidence": "Rooftop gym area with NPCs working out without clothes viewed through camera interface.",
+          "alternate_cuts": []
+        }
+      ]
+    },
+    {
+      "id": "38b5ae55b24e3dd6f5d4",
+      "span": {
+        "source": "twitch-vod:2940407360",
+        "start": 16694.75,
+        "end": 16706.5
       },
       "theme": "mission",
-      "hook": "Lucia wakes up disoriented in a red-lit room under surveillance.",
-      "setup": "After being knocked out, Lucia regains consciousness inside a container.",
-      "payoff": "Lucia stands up and recovers while a mysterious voice tells her to focus.",
-      "evidence": "Lucia wakes up on the floor, stands up, and reacts to her captivity.",
-      "score": 82.0,
-      "fingerprint": "5757440d15131b0e.5777450d15131b0e.57774d14151b1f0e",
-      "gta_vi_evidence": "The scene displays Lucia waking up inside a surveillance-monitored enclosure matching GTA VI material.",
+      "hook": "The camera pans and zooms into the gym interior showing characters exercising.",
+      "setup": "The player moves the camera into the gym area where multiple characters are working out.",
+      "payoff": "The character doing pushups finishes and stands up, followed by commentary from the streamer.",
+      "evidence": "Player pans camera from the rooftop towards the gym window and zooms in on characters doing pushups.",
+      "score": 81.67,
+      "fingerprint": "173338383ca66747.6060e0f0a1284913.6062e2e0a0342407",
+      "gta_vi_evidence": "Spanish menu elements like CAPÍTULO 4 MONITOREO and camera overlay controls confirm GTA VI mission context.",
+      "alternate_cuts": []
+    },
+    {
+      "id": "34df4fd472e6d5ac1989",
+      "span": {
+        "source": "twitch-vod:2940407360",
+        "start": 16782.0,
+        "end": 16792.0
+      },
+      "theme": "mission",
+      "hook": "Surveillance camera tracks characters moving across the rooftop.",
+      "setup": "Jason and Karim monitor characters leaving the rooftop area.",
+      "payoff": "Jason announces he is taking the elevator while Karim instructs him to look out for Cisco's car.",
+      "evidence": "The camera follows the character to the elevator door on the rooftop.",
+      "score": 80.5,
+      "fingerprint": "45091a72cd810183.68321d479119262b.40160780303c4351",
+      "gta_vi_evidence": "Subtitle text 'Jason: Van a coger el ascensor' and audio dialogue confirming the mission actions.",
       "alternate_cuts": []
     }
   ],
