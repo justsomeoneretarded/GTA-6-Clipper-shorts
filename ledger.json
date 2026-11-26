@@ -25,6 +25,62 @@
         "0008080101213100.00808484060a0f08.10989c92736a6c00"
       ],
       "date": "2026-11-23T08:51:34Z"
+    },
+    {
+      "id": "83474a729124fb99272e",
+      "ranges": [
+        {
+          "source": "twitch-vod:2940322036",
+          "start": 11549.0,
+          "end": 11561.5
+        }
+      ],
+      "fingerprints": [
+        "0121010101416060.e1736b6b6bea6840.74767c7870642060"
+      ],
+      "date": "2026-11-26T15:51:41Z"
+    },
+    {
+      "id": "dd8829a860610c4f729f",
+      "ranges": [
+        {
+          "source": "twitch-clip:HungryBenevolentCattleAMPTropPunch-qZ2RwOAOpoRfYyRl",
+          "start": 17.5,
+          "end": 29.7
+        }
+      ],
+      "fingerprints": [
+        "4824a4c0c0808092.c64e6f9b98b0324b.f131014145012121"
+      ],
+      "date": "2026-11-26T15:52:32Z"
+    },
+    {
+      "id": "7d130524efb13704ed2d",
+      "ranges": [
+        {
+          "source": "twitch-vod:2940322036",
+          "start": 11561.0,
+          "end": 11575.0
+        }
+      ],
+      "fingerprints": [
+        "1d1d5973f3f3ebeb.ded65646cece66e4.000c7bddcd2b2660"
+      ],
+      "date": "2026-11-26T15:53:29Z"
+    },
+    {
+      "id": "60e7a618bd9a7d739d3a",
+      "ranges": [
+        {
+          "source": "twitch-vod:2940322036",
+          "start": 11688.5,
+          "end": 11701.0
+        }
+      ],
+      "fingerprints": [
+        "0038280c0c0c1c38.0151111136123238.4068642726247040"
+      ],
+      "date": "2026-11-26T15:58:57Z"
     }
   ],
   "rejected": [
@@ -144,6 +200,52 @@
           "source": "twitch-vod:2940095593",
           "start": 7011.0,
           "end": 7029.7
+        }
+      ]
+    },
+    {
+      "id": "fa7eb035f779b1f624c3",
+      "date": "2026-11-26T15:54:37Z",
+      "reason": "The finished edit lacks a standout payoff supported by the footage. The edit captures a humorous reaction to leaked Grand Theft Auto VI footage with clear visuals and audio."
+    },
+    {
+      "id": "798aff7734d290b39a47",
+      "date": "2026-11-26T15:55:27Z",
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The video contains unverified or modified gameplay (modded GTA V styled as GTA VI) rather than confirmed Grand Theft Auto VI footage.",
+      "other_game_ranges": [
+        {
+          "source": "twitch-vod:2940407360",
+          "start": 16694.75,
+          "end": 16706.5
+        }
+      ]
+    },
+    {
+      "id": "f26dd4267347bf35cce3",
+      "date": "2026-11-26T15:56:30Z",
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The footage features a fan-made or recreation video using character models that do not qualify as confirmed official Grand Theft Auto VI gameplay or source material."
+    },
+    {
+      "id": "aad835a5cda95a823a39",
+      "date": "2026-11-26T15:57:12Z",
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The footage is not actual Grand Theft Auto VI gameplay; it is a custom mod or recreation within another game engine (likely GTA V or similar), failing the strict authenticity requirements.",
+      "other_game_ranges": [
+        {
+          "source": "twitch-vod:2940407360",
+          "start": 16782.0,
+          "end": 16792.0
+        }
+      ]
+    },
+    {
+      "id": "d6aa2f09347fecb0ee4c",
+      "date": "2026-11-26T15:58:01Z",
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The video features GTA V modded gameplay rather than official GTA VI footage.",
+      "other_game_ranges": [
+        {
+          "source": "twitch-vod:2940407360",
+          "start": 16656.0,
+          "end": 16669.0
         }
       ]
     }
