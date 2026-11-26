@@ -122,6 +122,30 @@
       "id": "859edfa4d84e1b3b18f3",
       "date": "2026-11-23T16:49:08Z",
       "reason": "The finished edit lacked verifiable GTA VI evidence. The footage features 3D models resembling GTA VI characters recreated or animated in another engine or software, lacking official game interface, verified source gameplay, or accurate narrative context."
+    },
+    {
+      "id": "e7797e7c15c783484c71",
+      "date": "2026-11-26T01:21:07Z",
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The video uses GTA V modded content rather than official Grand Theft Auto VI gameplay.",
+      "other_game_ranges": [
+        {
+          "source": "twitch-vod:2940304898",
+          "start": 12799.5,
+          "end": 12812.5
+        }
+      ]
+    },
+    {
+      "id": "a5332fd7b0d4c418d6d0",
+      "date": "2026-11-26T01:21:48Z",
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The clip features unverified, fan-made or modded content rather than official Grand Theft Auto VI gameplay, making it unsuitable.",
+      "other_game_ranges": [
+        {
+          "source": "twitch-vod:2940095593",
+          "start": 7011.0,
+          "end": 7029.7
+        }
+      ]
     }
   ]
 }
