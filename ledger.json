@@ -81,6 +81,20 @@
         "0038280c0c0c1c38.0151111136123238.4068642726247040"
       ],
       "date": "2026-11-26T15:58:57Z"
+    },
+    {
+      "id": "63152100b23738521d62",
+      "ranges": [
+        {
+          "source": "twitch-vod:2940442678",
+          "start": 8028.0,
+          "end": 8042.0
+        }
+      ],
+      "fingerprints": [
+        "c84848484b6303cf.c84848484b6303cf.c84848494a6303cf"
+      ],
+      "date": "2026-11-27T01:23:29Z"
     }
   ],
   "rejected": [
@@ -248,6 +262,38 @@
           "end": 16669.0
         }
       ]
+    },
+    {
+      "id": "f790d805c173602c237b",
+      "date": "2026-11-27T01:18:57Z",
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The footage is from a game other than Grand Theft Auto VI, as confirmed by the visual style and UI prompts which do not match official GTA VI content."
+    },
+    {
+      "id": "fa36ca70502f68b22322",
+      "date": "2026-11-27T01:20:27Z",
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The video contains uncertain fan-made or modified gameplay footage rather than verified Grand Theft Auto VI content.",
+      "other_game_ranges": [
+        {
+          "source": "twitch-vod:2937449247",
+          "start": 12882.0,
+          "end": 12918.5
+        }
+      ]
+    },
+    {
+      "id": "1cb96e9fdbcf8201ac75",
+      "date": "2026-11-27T01:21:52Z",
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The edit includes a distracting streamer reaction overlay in the corner throughout the entire short, which interferes with clean viewing of the game scene."
+    },
+    {
+      "id": "981071e10225276f7821",
+      "date": "2026-11-27T01:22:24Z",
+      "reason": "The opening alone did not give a new viewer a reason to continue. Review observed The speaker stops mid-sentence and reacts with concern to his own phrasing regarding having a relationship with a child, creating sudden curiosity about wh"
+    },
+    {
+      "id": "c21fa1612a189d285e0f",
+      "date": "2026-11-27T01:22:56Z",
+      "reason": "The opening alone did not give a new viewer a reason to continue."
     }
   ]
 }
