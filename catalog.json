@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-27T01:17:57Z",
+  "generated_at": "2026-11-27T15:38:11Z",
   "scanned": {
     "d66f80f00ab35d8f5532": "2026-11-18T12:29:44Z",
     "4f8b3e763c3765bfbfdf": "2026-11-18T12:29:55Z",
@@ -478,24 +478,65 @@
     "46f92775ee552c6c57bd": "2026-11-27T01:13:10Z",
     "30560271f10fb700d01b": "2026-11-27T01:13:34Z",
     "7133b6dcbd8ce003e7ad": "2026-11-27T01:14:12Z",
-    "017df2ecce9982554d0a": "2026-11-27T01:15:00Z"
+    "017df2ecce9982554d0a": "2026-11-27T01:15:00Z",
+    "2b04a45e8f1c5d0eba39": "2026-11-27T15:23:35Z",
+    "a24697d5015a807d03c6": "2026-11-27T15:23:35Z",
+    "60f7805313988b2daae0": "2026-11-27T15:23:35Z",
+    "55e1e97bd78a60931d5e": "2026-11-27T15:24:07Z",
+    "bfea1e7c2390c9c2c179": "2026-11-27T15:24:07Z",
+    "ba708651ff2cf6625acc": "2026-11-27T15:24:07Z",
+    "b140d878399aac311479": "2026-11-27T15:25:11Z",
+    "7478f1cce1377b497d10": "2026-11-27T15:26:11Z",
+    "eaa628d3be8f661db204": "2026-11-27T15:26:11Z",
+    "fbc3c77822011211c8e0": "2026-11-27T15:26:11Z",
+    "740bfd61ad7aa3bc40b3": "2026-11-27T15:26:32Z",
+    "ed1bb58c0079ad66b47b": "2026-11-27T15:26:32Z",
+    "d612a031f3eaa0e967c9": "2026-11-27T15:26:32Z",
+    "683e772a2fb0ed4748d4": "2026-11-27T15:27:24Z",
+    "a5f0aa590d2f8eae993a": "2026-11-27T15:27:44Z",
+    "8f53e58dd91e04fe8a17": "2026-11-27T15:27:44Z",
+    "fe9136a1ebb6ed1357b1": "2026-11-27T15:27:44Z",
+    "e94a8d9766770d7692a2": "2026-11-27T15:28:08Z",
+    "6b75031b3bdc3323afa8": "2026-11-27T15:28:08Z",
+    "6c037a4f005af2eaf85b": "2026-11-27T15:28:08Z",
+    "64614f93c5c92a60e503": "2026-11-27T15:28:53Z",
+    "d97094f6b2bb5d09f874": "2026-11-27T15:29:18Z",
+    "983cb9a616e827321b00": "2026-11-27T15:29:18Z",
+    "3e040b7dbd6b2a3c0104": "2026-11-27T15:29:18Z",
+    "097b4c18a2450620f90e": "2026-11-27T15:29:48Z",
+    "915a652ebdf0556a111c": "2026-11-27T15:29:48Z",
+    "d64c9c07ef141dbb97a3": "2026-11-27T15:29:48Z",
+    "6d0ca57eda38d6277105": "2026-11-27T15:30:21Z",
+    "9c1418ced74f1bb9cfc0": "2026-11-27T15:30:38Z",
+    "ac2dc7c87b124ce9aec0": "2026-11-27T15:30:38Z",
+    "4de5701e21e1ba05f99f": "2026-11-27T15:30:38Z",
+    "24002c4369d189a9cc7e": "2026-11-27T15:30:54Z",
+    "a5b8ac3251a1073f8ebc": "2026-11-27T15:30:54Z",
+    "422d3c62d35c70eb477f": "2026-11-27T15:30:54Z",
+    "b6c398b73fd546e79ee9": "2026-11-27T15:31:21Z",
+    "84314c16e7653e6366cf": "2026-11-27T15:31:34Z",
+    "1f371b31799157ac126a": "2026-11-27T15:31:34Z",
+    "581ecf98e14134768e05": "2026-11-27T15:32:00Z",
+    "f95414928b0b20962b90": "2026-11-27T15:32:49Z",
+    "ac933b50cac2947ac331": "2026-11-27T15:33:14Z",
+    "db3225f97390430547c4": "2026-11-27T15:33:40Z"
   },
   "sources": {
-    "twitch-clip:AntsyPolishedKoupreyBibleThump-NHTlUqUqyb4BUNY3": {
-      "key": "twitch-clip:AntsyPolishedKoupreyBibleThump-NHTlUqUqyb4BUNY3",
-      "url": "https://clips.twitch.tv/AntsyPolishedKoupreyBibleThump-NHTlUqUqyb4BUNY3",
+    "twitch-clip:ConfidentSaltyTireDxAbomb-iIk3rDuqpzOYa8ji": {
+      "key": "twitch-clip:ConfidentSaltyTireDxAbomb-iIk3rDuqpzOYa8ji",
+      "url": "https://clips.twitch.tv/ConfidentSaltyTireDxAbomb-iIk3rDuqpzOYa8ji",
       "platform": "twitch-clip",
-      "title": "MANDY WALKED IN AND I FORGOT ABOUT THE MISSION 😳",
-      "creator": "Tminnzy",
-      "duration": 39.0,
-      "views": 495899,
-      "published": "2026-11-21T19:05:42Z",
+      "title": "[HAPPY THANKSGIVING!] A GREAT DAY of GTA 6! - !SubGift - !Beanie is BACK in the store! - PS5 Pro - !Emberville (Jan 7th!)",
+      "creator": "CohhCarnage",
+      "duration": 30.0,
+      "views": 3,
+      "published": "2026-11-26T15:22:06Z",
       "rights": "unspecified",
       "anchors": [],
-      "parent": "twitch-vod:2935827889",
-      "parent_offset": 10520.0,
+      "parent": "",
+      "parent_offset": null,
       "recording": false,
-      "recorded": "2026-11-21T08:12:25Z"
+      "recorded": ""
     },
     "twitch-clip:HungryBenevolentCattleAMPTropPunch-qZ2RwOAOpoRfYyRl": {
       "key": "twitch-clip:HungryBenevolentCattleAMPTropPunch-qZ2RwOAOpoRfYyRl",
@@ -513,21 +554,21 @@
       "recording": false,
       "recorded": ""
     },
-    "twitch-clip:SavageGleamingNuggetsDendiFace-fEWTOp3JBv3E_njD": {
-      "key": "twitch-clip:SavageGleamingNuggetsDendiFace-fEWTOp3JBv3E_njD",
-      "url": "https://clips.twitch.tv/SavageGleamingNuggetsDendiFace-fEWTOp3JBv3E_njD",
+    "twitch-clip:TacitBlushingPhoneBabyRage-OoHm5ExPmMg4sHBE": {
+      "key": "twitch-clip:TacitBlushingPhoneBabyRage-OoHm5ExPmMg4sHBE",
+      "url": "https://clips.twitch.tv/TacitBlushingPhoneBabyRage-OoHm5ExPmMg4sHBE",
       "platform": "twitch-clip",
-      "title": "GTAVI EP 6 PRIMEIRA VEZ EM VICE CITY - GTA RP CARROS NOVOS",
-      "creator": "Move_Mind",
-      "duration": 29.0,
-      "views": 653,
-      "published": "2026-11-26T03:30:13Z",
+      "title": "hello there",
+      "creator": "ironmouse",
+      "duration": 45.0,
+      "views": 21,
+      "published": "2026-11-26T15:42:12Z",
       "rights": "unspecified",
       "anchors": [],
-      "parent": "twitch-vod:2940556898",
-      "parent_offset": 31859.0,
+      "parent": "twitch-vod:2940912874",
+      "parent_offset": 51500.0,
       "recording": false,
-      "recorded": "2026-11-26T03:30:19Z"
+      "recorded": "2026-11-26T15:39:55Z"
     },
     "twitch-vod:2932809277": {
       "key": "twitch-vod:2932809277",
@@ -609,44 +650,6 @@
       "recording": false,
       "recorded": ""
     },
-    "twitch-vod:2935827889": {
-      "key": "twitch-vod:2935827889",
-      "url": "https://www.twitch.tv/videos/2935827889",
-      "platform": "twitch-vod",
-      "title": "#AD | GTA 6 IS FINALLY HERE 🥹 FIRST TIME PLAYING — $10K RUMBLE HEIST!",
-      "creator": "Tminnzy",
-      "duration": 49309.0,
-      "views": 373107,
-      "published": "2026-11-21T05:17:05Z",
-      "rights": "unspecified",
-      "anchors": [
-        10520.0,
-        35065.0,
-        33679.0
-      ],
-      "parent": "",
-      "parent_offset": null,
-      "recording": false,
-      "recorded": ""
-    },
-    "twitch-vod:2937449247": {
-      "key": "twitch-vod:2937449247",
-      "url": "https://www.twitch.tv/videos/2937449247",
-      "platform": "twitch-vod",
-      "title": "DOMINGOS DOMÍNGUEZ 🔥 DÍA 4/450 DE JUEGO 🚔 RUSHEADÓN 🚨 - Grand Theft Auto VI #4",
-      "creator": "IlloJuan",
-      "duration": 33730.0,
-      "views": 2482424,
-      "published": "2026-11-22T16:38:51Z",
-      "rights": "unspecified",
-      "anchors": [
-        12916.0
-      ],
-      "parent": "",
-      "parent_offset": null,
-      "recording": false,
-      "recorded": ""
-    },
     "twitch-vod:2940322036": {
       "key": "twitch-vod:2940322036",
       "url": "https://www.twitch.tv/videos/2940322036",
@@ -667,18 +670,18 @@
       "recording": false,
       "recorded": ""
     },
-    "twitch-vod:2940424560": {
-      "key": "twitch-vod:2940424560",
-      "url": "https://www.twitch.tv/videos/2940424560",
+    "twitch-vod:2940407360": {
+      "key": "twitch-vod:2940407360",
+      "url": "https://www.twitch.tv/videos/2940407360",
       "platform": "twitch-vod",
-      "title": "RUSHEADA 🗣️ CUIDAO QUE TE LO PASAS 🗣️ NO CORRAS 🗣️ MÁS LENTO JUAN 🗣️ - Grand Theft Auto VI #6",
-      "creator": "IlloJuan",
-      "duration": 35480.0,
-      "views": 1700601,
-      "published": "2026-11-25T16:06:56Z",
+      "title": "(!drops) DIA 8 GTA 6 MODO HISTORIA | REGALAN CODIGOS DEL JUEGO SÓLO POR VER EL DIRECTO AQUI Y EN LA VERDE",
+      "creator": "DjMaRiiO",
+      "duration": 32246.0,
+      "views": 270732,
+      "published": "2026-11-25T15:45:25Z",
       "rights": "unspecified",
       "anchors": [
-        34510.0
+        16694.0
       ],
       "parent": "",
       "parent_offset": null,
@@ -703,18 +706,20 @@
       "recording": false,
       "recorded": ""
     },
-    "twitch-vod:2940556898": {
-      "key": "twitch-vod:2940556898",
-      "url": "https://www.twitch.tv/videos/2940556898",
+    "twitch-vod:2941351061": {
+      "key": "twitch-vod:2941351061",
+      "url": "https://www.twitch.tv/videos/2941351061",
       "platform": "twitch-vod",
-      "title": "GTAVI EP 6 PRIMEIRA VEZ EM VICE CITY - GTA RP CARROS NOVOS",
-      "creator": "Move_Mind",
-      "duration": 40569.0,
-      "views": 75555,
-      "published": "2026-11-25T18:39:20Z",
+      "title": "GTA 6 ¡VICE CITY ES NUESTRA! #9",
+      "creator": "VEGETTA777",
+      "duration": 15349.0,
+      "views": 180099,
+      "published": "2026-11-26T14:46:14Z",
       "rights": "unspecified",
       "anchors": [
-        31859.0
+        3358.0,
+        1964.0,
+        11543.0
       ],
       "parent": "",
       "parent_offset": null,
@@ -1172,20 +1177,20 @@
   },
   "moments": [
     {
-      "id": "70ae5afccc4c563117c3",
+      "id": "aad12958afae7dce82bf",
       "span": {
-        "source": "twitch-vod:2940424560",
-        "start": 34475.0,
-        "end": 34492.0
+        "source": "twitch-clip:ConfidentSaltyTireDxAbomb-iIk3rDuqpzOYa8ji",
+        "start": 0.0,
+        "end": 20.0
       },
-      "theme": "mission",
-      "hook": "The player suddenly rolls off the boat into the dark water.",
-      "setup": "Jason dives into the ocean next to a boat at night and turns on a flashlight underwater.",
-      "payoff": "The player swims near the sunken boat, encounters the map boundary warning, and gets eliminated by the game.",
-      "evidence": "Jason falls off the boat into the water, turns on his flashlight underwater, and swims around a sunken wreck until the screen goes red and displays eLiMiNaDo.",
-      "score": 92.5,
-      "fingerprint": "81030347c7c10100.860ca247cfcf0f0e.87070747c7c70303",
-      "gta_vi_evidence": "On-screen prompts 'Detector de metales', 'Motor destruido', 'SUMERGIRSE L2', and 'ASCENDER X' confirm GTA VI.",
+      "theme": "comedy",
+      "hook": "Homeowner panics over unexpected package delivery in her garage.",
+      "setup": "Lucia drops off a box for a nervous homeowner trying to hide her illicit business from her husband.",
+      "payoff": "The homeowner declares she'd rather be shot in the face than have her husband find out.",
+      "evidence": "The entire dialogue exchange from the homeowner asking to put the boxes in quick to her final remark about being shot in the face.",
+      "score": 89.25,
+      "fingerprint": "e1c1e746662cac0c.3302666269600000.9880614362400100",
+      "gta_vi_evidence": "Grand Theft Auto VI gameplay featuring Lucia delivering a package and interacting with the homeowner.",
       "alternate_cuts": []
     },
     {
@@ -1240,20 +1245,20 @@
       ]
     },
     {
-      "id": "af4d5b49a67ed3ed4e5b",
+      "id": "67e4f6ddfb9f4817eaa1",
       "span": {
-        "source": "twitch-vod:2937449247",
-        "start": 12882.0,
-        "end": 12918.5
+        "source": "twitch-vod:2941351061",
+        "start": 3360.0,
+        "end": 3381.0
       },
-      "theme": "comedy",
-      "hook": "The streamer watches in disbelief as a lap dance plays out in close-up.",
-      "setup": "A character named Jason is receiving a lap dance from Aurora, with on-screen prompts to give a tip or move hands.",
-      "payoff": "The streamer throws his hands up and laughs in shock at the absurdity and detail of the interaction.",
-      "evidence": "The streamer sits in the webcam feed reacting, while gameplay shows the close-up lap dance scene with subtitles.",
-      "score": 87.0,
-      "fingerprint": "0002034bcbce000c.0100054dc5c62220.0001054dc5440000",
-      "gta_vi_evidence": "The Roman numeral VI logo appears on the menu screen alongside prompts like 'DAR PROPINA (50 $)' and 'ESTUDIO FOTOGRÁFICO'.",
+      "theme": "mission",
+      "hook": "Bailey hands out pendant tools to group members.",
+      "setup": "Bailey calls out Jenna and Lucia as new whispers.",
+      "payoff": "Lucia tries the eucalyptus whisper tool and reacts with delight.",
+      "evidence": "Bailey hands out the necklaces and explains their use.",
+      "score": 85.67,
+      "fingerprint": "fdfe7ffffe7efbff.606427665e3e2a68.dffff9fffefefbfb",
+      "gta_vi_evidence": "Characters discuss Cellerica and whisper tools with matching subtitles.",
       "alternate_cuts": []
     },
     {
@@ -1274,23 +1279,6 @@
       "alternate_cuts": []
     },
     {
-      "id": "b9ed4ac0b018c8ed8b14",
-      "span": {
-        "source": "twitch-clip:AntsyPolishedKoupreyBibleThump-NHTlUqUqyb4BUNY3",
-        "start": 0.0,
-        "end": 38.8
-      },
-      "theme": "comedy",
-      "hook": "Mandy talking about learning everything about a person from Snapmatic.",
-      "setup": "Jason fixing under the sink while Mandy stands nearby talking about social media and stalking.",
-      "payoff": "Mandy admits she keeps breaking appliances just to get Jason to come see her.",
-      "evidence": "Mandy says: I just want to know why I have to keep breaking appliances to get you to come see me.",
-      "score": 85.0,
-      "fingerprint": "098d8d0d495351ce.86f667e5f5b7e6eb.903839b9d4b6f6ec",
-      "gta_vi_evidence": "Characters Mandy and Jason discussing Snapmatic in a detailed domestic scene.",
-      "alternate_cuts": []
-    },
-    {
       "id": "e86f74b71f2795466c44",
       "span": {
         "source": "youtube:R97EoVD1nr4",
@@ -1308,54 +1296,54 @@
       "alternate_cuts": []
     },
     {
-      "id": "7caf6f2cffbb5870cd57",
+      "id": "32aa2a63afec7246d777",
+      "span": {
+        "source": "twitch-clip:TacitBlushingPhoneBabyRage-OoHm5ExPmMg4sHBE",
+        "start": 0.0,
+        "end": 12.5
+      },
+      "theme": "party",
+      "hook": "Lucia walks out of a room and checks behind a door into a party bedroom.",
+      "setup": "Lucia explores a house party environment, opening doors to see what is happening inside.",
+      "payoff": "A partygoer on the bed turns around and says Hi! to Lucia.",
+      "evidence": "Lucia walking down the hallway, opening a door, and encountering people on the bed who speak.",
+      "score": 83.33,
+      "fingerprint": "088ccc682c260f0f.8f8dc9db9b9b9991.eee67670a62775ed",
+      "gta_vi_evidence": "Grand Theft Auto VI gameplay featuring Lucia in a gold dress interacting inside a house party.",
+      "alternate_cuts": []
+    },
+    {
+      "id": "9f9fdb8405164d643294",
       "span": {
         "source": "twitch-vod:2940442678",
-        "start": 8027.0,
+        "start": 8028.0,
         "end": 8042.0
       },
       "theme": "comedy",
-      "hook": "The streamer calls out a ridiculous user review phrasing.",
-      "setup": "The streamer reads user reviews of Grand Theft Auto VI discussing relationships and children.",
-      "payoff": "The streamer breaks down laughing at the absurd wording of the review.",
-      "evidence": "The streamer says 'That phrasing seems like I'm saying having a relationship with a child... to be in a relationship and have a child with your...' and bursts out laughing.",
-      "score": 83.0,
+      "hook": "Highlighting a terrible sentence structure in a GTA VI user review.",
+      "setup": "Reviewing user score comments on Metacritic for Grand Theft Auto VI.",
+      "payoff": "The streamer cracks up laughing at the awkward implication.",
+      "evidence": "The streamer pauses, points, and laughs at the review text.",
+      "score": 82.0,
       "fingerprint": "c84848484b6303cf.c84848484b6303cf.c84848494a6303cf",
-      "gta_vi_evidence": "The browser window displays Metacritic user reviews for Grand Theft Auto VI.",
-      "alternate_cuts": [
-        {
-          "span": {
-            "source": "twitch-vod:2940442678",
-            "start": 8028.0,
-            "end": 8042.0
-          },
-          "theme": "comedy",
-          "hook": "Highlighting a terrible sentence structure in a GTA VI user review.",
-          "setup": "Reviewing user score comments on Metacritic for Grand Theft Auto VI.",
-          "payoff": "The streamer cracks up laughing at the awkward implication.",
-          "evidence": "The streamer pauses, points, and laughs at the review text.",
-          "score": 82.0,
-          "fingerprint": "c84848484b6303cf.c84848484b6303cf.c84848494a6303cf",
-          "gta_vi_evidence": "The Metacritic user overview page lists Grand Theft Auto VI.",
-          "alternate_cuts": []
-        }
-      ]
+      "gta_vi_evidence": "The Metacritic user overview page lists Grand Theft Auto VI.",
+      "alternate_cuts": []
     },
     {
-      "id": "fe32745400c08087588d",
+      "id": "4ee43ec0c999ee50f765",
       "span": {
-        "source": "twitch-clip:SavageGleamingNuggetsDendiFace-fEWTOp3JBv3E_njD",
-        "start": 16.5,
-        "end": 28.5
+        "source": "twitch-vod:2940407360",
+        "start": 16680.0,
+        "end": 16690.0
       },
-      "theme": "driving",
-      "hook": "The player runs along the boardwalk outside a restaurant.",
-      "setup": "The player sprints toward a yellow vintage car parked by the street.",
-      "payoff": "The player enters and drives away in the stolen car while pedestrians react.",
-      "evidence": "The player runs to the yellow vehicle, gets in, and drives off down the street.",
-      "score": 82.25,
-      "fingerprint": "c5d08ca53c969674.6967767f6deee779.928ecdf5cf27957a",
-      "gta_vi_evidence": "Grand Theft Auto VI radar and gameplay interface are visible on screen during the car theft.",
+      "theme": "discovery",
+      "hook": "The camera inspects characters around a rooftop pool area.",
+      "setup": "The player maneuvers the camera across the rooftop terrace.",
+      "payoff": "The camera zooms in on a character drinking from a can near the pool edge.",
+      "evidence": "The camera pans across the pool terrace and zooms into a character holding a beverage.",
+      "score": 79.0,
+      "fingerprint": "1931cbedf269f47a.0101c172f0f86671.1f113313f878f0c7",
+      "gta_vi_evidence": "The scene displays detailed character models and environment interactions characteristic of Grand Theft Auto VI gameplay.",
       "alternate_cuts": []
     },
     {
