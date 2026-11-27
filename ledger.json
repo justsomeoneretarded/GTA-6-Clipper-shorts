@@ -95,6 +95,34 @@
         "c84848484b6303cf.c84848484b6303cf.c84848494a6303cf"
       ],
       "date": "2026-11-27T01:23:29Z"
+    },
+    {
+      "id": "b85b58db28e0a17127a4",
+      "ranges": [
+        {
+          "source": "twitch-clip:ConfidentSaltyTireDxAbomb-iIk3rDuqpzOYa8ji",
+          "start": 0.0,
+          "end": 20.0
+        }
+      ],
+      "fingerprints": [
+        "e1c1e746662cac0c.3302666269600000.9880614362400100"
+      ],
+      "date": "2026-11-27T15:38:57Z"
+    },
+    {
+      "id": "0e2621cb83d547a19e09",
+      "ranges": [
+        {
+          "source": "twitch-clip:TacitBlushingPhoneBabyRage-OoHm5ExPmMg4sHBE",
+          "start": 0.0,
+          "end": 12.5
+        }
+      ],
+      "fingerprints": [
+        "088ccc682c260f0f.8f8dc9db9b9b9991.eee67670a62775ed"
+      ],
+      "date": "2026-11-27T15:40:09Z"
     }
   ],
   "rejected": [
@@ -294,6 +322,30 @@
       "id": "c21fa1612a189d285e0f",
       "date": "2026-11-27T01:22:56Z",
       "reason": "The opening alone did not give a new viewer a reason to continue."
+    },
+    {
+      "id": "69a51dde07ce9f084f39",
+      "date": "2026-11-27T15:39:39Z",
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The edit utilizes fan-made or unofficial animated content rather than confirmed Grand Theft Auto VI gameplay.",
+      "other_game_ranges": [
+        {
+          "source": "twitch-vod:2941351061",
+          "start": 3360.0,
+          "end": 3381.0
+        }
+      ]
+    },
+    {
+      "id": "88ab63a9a541653f89ec",
+      "date": "2026-11-27T15:40:37Z",
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The clip features modded content or uncertain gameplay rather than verified Grand Theft Auto VI material.",
+      "other_game_ranges": [
+        {
+          "source": "twitch-vod:2940407360",
+          "start": 16680.0,
+          "end": 16690.0
+        }
+      ]
     }
   ]
 }
