@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-11-27T15:38:11Z",
+  "generated_at": "2026-11-28T00:57:59Z",
   "scanned": {
     "d66f80f00ab35d8f5532": "2026-11-18T12:29:44Z",
     "4f8b3e763c3765bfbfdf": "2026-11-18T12:29:55Z",
@@ -519,7 +519,46 @@
     "581ecf98e14134768e05": "2026-11-27T15:32:00Z",
     "f95414928b0b20962b90": "2026-11-27T15:32:49Z",
     "ac933b50cac2947ac331": "2026-11-27T15:33:14Z",
-    "db3225f97390430547c4": "2026-11-27T15:33:40Z"
+    "db3225f97390430547c4": "2026-11-27T15:33:40Z",
+    "ddecad03da1072324f89": "2026-11-28T00:44:40Z",
+    "b3c371ac0b4b76231307": "2026-11-28T00:44:40Z",
+    "1fd01678564311de52c1": "2026-11-28T00:44:40Z",
+    "bcbcd3c570f8997b0af0": "2026-11-28T00:44:57Z",
+    "c24f283648f3436d2944": "2026-11-28T00:44:57Z",
+    "64286a71c0b60b35c371": "2026-11-28T00:44:57Z",
+    "ca770139853a0667fab5": "2026-11-28T00:45:46Z",
+    "835f5a28eb8c77833215": "2026-11-28T00:46:08Z",
+    "f3f0982b86b50d7e9c02": "2026-11-28T00:46:08Z",
+    "8f2b11d74b88416de990": "2026-11-28T00:46:08Z",
+    "848d52bbd7aa80d5dee1": "2026-11-28T00:46:41Z",
+    "c9bf0d56b787a09b0160": "2026-11-28T00:46:41Z",
+    "c725e94ce96d14e80705": "2026-11-28T00:46:41Z",
+    "150bf3ce424bfa8bfdaa": "2026-11-28T00:47:28Z",
+    "bbccac4a372b560aa865": "2026-11-28T00:47:55Z",
+    "7a2b521ec7067e7cbdec": "2026-11-28T00:47:55Z",
+    "49c58a4e19b9f8566962": "2026-11-28T00:47:55Z",
+    "a7c170993ba677919079": "2026-11-28T00:48:21Z",
+    "e65bd9dda0cbc7f0dd5c": "2026-11-28T00:48:21Z",
+    "c2520dada827b2601347": "2026-11-28T00:48:21Z",
+    "b57591395057932b2c38": "2026-11-28T00:49:03Z",
+    "f1338fdfbcdade0b4116": "2026-11-28T00:49:27Z",
+    "edbeb7ddb082225733a8": "2026-11-28T00:49:27Z",
+    "94163c9ea830360e5d14": "2026-11-28T00:49:27Z",
+    "3b11fe8bc9903606eb4d": "2026-11-28T00:49:55Z",
+    "72af78b4daee5cba7288": "2026-11-28T00:49:55Z",
+    "eb4b478f2726fd185895": "2026-11-28T00:49:55Z",
+    "bf5d0835bc89bcdb2ae2": "2026-11-28T00:50:19Z",
+    "f04801226ff47a7e3390": "2026-11-28T00:50:40Z",
+    "e2023b60207df3bdce20": "2026-11-28T00:50:40Z",
+    "a08d70680574b9a7d978": "2026-11-28T00:50:40Z",
+    "65245b049950671ca39f": "2026-11-28T00:50:53Z",
+    "948cd27eb6839e42934e": "2026-11-28T00:50:53Z",
+    "f3ee11996d704490c4aa": "2026-11-28T00:51:17Z",
+    "b3b85a1b8e30ad3e0698": "2026-11-28T00:51:42Z",
+    "ae0366467440dea19aee": "2026-11-28T00:52:28Z",
+    "82a2f53d7d7efa8f575c": "2026-11-28T00:52:49Z",
+    "ca4f6a542283b67848a1": "2026-11-28T00:53:13Z",
+    "b248ec78fc0d9f0b3cd2": "2026-11-28T00:53:56Z"
   },
   "sources": {
     "twitch-clip:ConfidentSaltyTireDxAbomb-iIk3rDuqpzOYa8ji": {
@@ -569,6 +608,22 @@
       "parent_offset": 51500.0,
       "recording": false,
       "recorded": "2026-11-26T15:39:55Z"
+    },
+    "twitch-clip:ThoughtfulWittyMartenSwiftRage-PAbpCfYqKPxZKeLv": {
+      "key": "twitch-clip:ThoughtfulWittyMartenSwiftRage-PAbpCfYqKPxZKeLv",
+      "url": "https://clips.twitch.tv/ThoughtfulWittyMartenSwiftRage-PAbpCfYqKPxZKeLv",
+      "platform": "twitch-clip",
+      "title": "Бигфут раскрыт",
+      "creator": "HappyDies",
+      "duration": 31.0,
+      "views": 2523,
+      "published": "2026-11-27T15:59:27Z",
+      "rights": "unspecified",
+      "anchors": [],
+      "parent": "twitch-vod:2939244497",
+      "parent_offset": 8828.0,
+      "recording": false,
+      "recorded": "2026-11-24T13:10:28Z"
     },
     "twitch-vod:2932809277": {
       "key": "twitch-vod:2932809277",
@@ -650,6 +705,24 @@
       "recording": false,
       "recorded": ""
     },
+    "twitch-vod:2939244497": {
+      "key": "twitch-vod:2939244497",
+      "url": "https://www.twitch.tv/videos/2939244497",
+      "platform": "twitch-vod",
+      "title": "ЖДЁМ СВЯЗЬ С НЛО🙂!ds !steam",
+      "creator": "HappyDies",
+      "duration": 14069.0,
+      "views": 5727,
+      "published": "2026-11-24T10:43:20Z",
+      "rights": "unspecified",
+      "anchors": [
+        8828.0
+      ],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false,
+      "recorded": ""
+    },
     "twitch-vod:2940322036": {
       "key": "twitch-vod:2940322036",
       "url": "https://www.twitch.tv/videos/2940322036",
@@ -670,24 +743,6 @@
       "recording": false,
       "recorded": ""
     },
-    "twitch-vod:2940407360": {
-      "key": "twitch-vod:2940407360",
-      "url": "https://www.twitch.tv/videos/2940407360",
-      "platform": "twitch-vod",
-      "title": "(!drops) DIA 8 GTA 6 MODO HISTORIA | REGALAN CODIGOS DEL JUEGO SÓLO POR VER EL DIRECTO AQUI Y EN LA VERDE",
-      "creator": "DjMaRiiO",
-      "duration": 32246.0,
-      "views": 270732,
-      "published": "2026-11-25T15:45:25Z",
-      "rights": "unspecified",
-      "anchors": [
-        16694.0
-      ],
-      "parent": "",
-      "parent_offset": null,
-      "recording": false,
-      "recorded": ""
-    },
     "twitch-vod:2940442678": {
       "key": "twitch-vod:2940442678",
       "url": "https://www.twitch.tv/videos/2940442678",
@@ -695,31 +750,45 @@
       "title": "Looking At Unhinged GTA 6 Metacritic User Reviews",
       "creator": "DarkViperAU",
       "duration": 40559.0,
-      "views": 180890,
+      "views": 181061,
       "published": "2026-11-25T16:30:21Z",
       "rights": "unspecified",
+      "anchors": [],
+      "parent": "",
+      "parent_offset": null,
+      "recording": false,
+      "recorded": ""
+    },
+    "twitch-vod:2941322278": {
+      "key": "twitch-vod:2941322278",
+      "url": "https://www.twitch.tv/videos/2941322278",
+      "platform": "twitch-vod",
+      "title": "🔴[DROPS] GTA 6 FULL PLAYTHROUGH *ALMOST DONE*🔴",
+      "creator": "ohnePixel",
+      "duration": 27670.0,
+      "views": 977212,
+      "published": "2026-11-26T14:00:16Z",
+      "rights": "unspecified",
       "anchors": [
-        8061.0
+        15380.0
       ],
       "parent": "",
       "parent_offset": null,
       "recording": false,
       "recorded": ""
     },
-    "twitch-vod:2941351061": {
-      "key": "twitch-vod:2941351061",
-      "url": "https://www.twitch.tv/videos/2941351061",
+    "twitch-vod:2941535822": {
+      "key": "twitch-vod:2941535822",
+      "url": "https://www.twitch.tv/videos/2941535822",
       "platform": "twitch-vod",
-      "title": "GTA 6 ¡VICE CITY ES NUESTRA! #9",
-      "creator": "VEGETTA777",
-      "duration": 15349.0,
-      "views": 180099,
-      "published": "2026-11-26T14:46:14Z",
+      "title": "🚉GTA6 VICE CITY CH4🚉DRAMA🚉CENKSGIVING!!!!🚉ARMY LEAD BOMB OVER IOWA🗽CHIRLA AND NILC DONOS MAKE ME BLOND!🗽 !donate",
+      "creator": "HasanAbi",
+      "duration": 26470.0,
+      "views": 585897,
+      "published": "2026-11-26T18:35:45Z",
       "rights": "unspecified",
       "anchors": [
-        3358.0,
-        1964.0,
-        11543.0
+        14686.0
       ],
       "parent": "",
       "parent_offset": null,
@@ -1177,6 +1246,40 @@
   },
   "moments": [
     {
+      "id": "d627f38c0ed352620e24",
+      "span": {
+        "source": "twitch-clip:ThoughtfulWittyMartenSwiftRage-PAbpCfYqKPxZKeLv",
+        "start": 0.0,
+        "end": 31.0
+      },
+      "theme": "discovery",
+      "hook": "Lucia enters a dark shack and spots a furry creature emitting green gas.",
+      "setup": "Lucia walks into the building with a weapon, finds a mysterious creature on the ground, and approaches it.",
+      "payoff": "Lucia gets knocked down, faints on the floor, and a large toad crawls onto her chest.",
+      "evidence": "Lucia enters the shack, kicks the creature, falls unconscious, and a toad sits on her chest.",
+      "score": 92.5,
+      "fingerprint": "70f0f05058180e07.bcf2f8dcd8d0c6db.062716060e04040c",
+      "gta_vi_evidence": "Lucia character model and distinctive gameplay scenario featuring a toad encounter in Grand Theft Auto VI.",
+      "alternate_cuts": [
+        {
+          "span": {
+            "source": "twitch-clip:ThoughtfulWittyMartenSwiftRage-PAbpCfYqKPxZKeLv",
+            "start": 2.2,
+            "end": 31.0
+          },
+          "theme": "discovery",
+          "hook": "Lucia says \"Твою мать, это он...\" upon spotting the furry creature.",
+          "setup": "Lucia inspects the mysterious creature inside the dimly lit shack.",
+          "payoff": "Lucia collapses on the floor and a large toad rests on her chest.",
+          "evidence": "Lucia reacts to the creature, collapses, and a toad climbs onto her.",
+          "score": 88.0,
+          "fingerprint": "70f0f05058180e07.bcf2f8dcd8d0c6db.062716060e04040c",
+          "gta_vi_evidence": "Lucia dialogue and character model in Grand Theft Auto VI.",
+          "alternate_cuts": []
+        }
+      ]
+    },
+    {
       "id": "aad12958afae7dce82bf",
       "span": {
         "source": "twitch-clip:ConfidentSaltyTireDxAbomb-iIk3rDuqpzOYa8ji",
@@ -1245,20 +1348,20 @@
       ]
     },
     {
-      "id": "67e4f6ddfb9f4817eaa1",
+      "id": "d023d534576ce93da6f4",
       "span": {
-        "source": "twitch-vod:2941351061",
-        "start": 3360.0,
-        "end": 3381.0
+        "source": "twitch-vod:2941535822",
+        "start": 14675.0,
+        "end": 14693.0
       },
       "theme": "mission",
-      "hook": "Bailey hands out pendant tools to group members.",
-      "setup": "Bailey calls out Jenna and Lucia as new whispers.",
-      "payoff": "Lucia tries the eucalyptus whisper tool and reacts with delight.",
-      "evidence": "Bailey hands out the necklaces and explains their use.",
-      "score": 85.67,
-      "fingerprint": "fdfe7ffffe7efbff.606427665e3e2a68.dffff9fffefefbfb",
-      "gta_vi_evidence": "Characters discuss Cellerica and whisper tools with matching subtitles.",
+      "hook": "Terre inspects the backyard brick oven while the group watches closely.",
+      "setup": "Terre asks about the pizza oven and insists it stays, leading Bones to joke about making dough before calling it delicious.",
+      "payoff": "Terre abruptly switches to Spanish and orders them to go to the car.",
+      "evidence": "Terre asks What's this? and then orders everyone to go to the car in Spanish.",
+      "score": 85.75,
+      "fingerprint": "0bc3b7151dedcec9.0f0c07a3d353a6a9.075d8f85b5363632",
+      "gta_vi_evidence": "Characters discuss the outdoor pizza oven in a rendered cinematic scene corresponding to Grand Theft Auto VI.",
       "alternate_cuts": []
     },
     {
@@ -1330,20 +1433,20 @@
       "alternate_cuts": []
     },
     {
-      "id": "4ee43ec0c999ee50f765",
+      "id": "aebef492cfb909265dbb",
       "span": {
-        "source": "twitch-vod:2940407360",
-        "start": 16680.0,
-        "end": 16690.0
+        "source": "twitch-vod:2941322278",
+        "start": 15333.0,
+        "end": 15346.0
       },
-      "theme": "discovery",
-      "hook": "The camera inspects characters around a rooftop pool area.",
-      "setup": "The player maneuvers the camera across the rooftop terrace.",
-      "payoff": "The camera zooms in on a character drinking from a can near the pool edge.",
-      "evidence": "The camera pans across the pool terrace and zooms into a character holding a beverage.",
-      "score": 79.0,
-      "fingerprint": "1931cbedf269f47a.0101c172f0f86671.1f113313f878f0c7",
-      "gta_vi_evidence": "The scene displays detailed character models and environment interactions characteristic of Grand Theft Auto VI gameplay.",
+      "theme": "mission",
+      "hook": "Jason approaches Lucia standing in the kitchen area.",
+      "setup": "Jason walks across the apartment room toward Lucia.",
+      "payoff": "Jason and Lucia embrace and share dialogue about messing around.",
+      "evidence": "Jason walks over to Lucia and embraces her by the window.",
+      "score": 80.5,
+      "fingerprint": "1c4d8d8d959338b0.c4849496a6a67298.987466424a2a3a92",
+      "gta_vi_evidence": "Confirmed GTA VI protagonist models Jason and Lucia interacting in an apartment.",
       "alternate_cuts": []
     },
     {
