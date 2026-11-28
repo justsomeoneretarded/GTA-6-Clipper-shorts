@@ -123,6 +123,20 @@
         "088ccc682c260f0f.8f8dc9db9b9b9991.eee67670a62775ed"
       ],
       "date": "2026-11-27T15:40:09Z"
+    },
+    {
+      "id": "aeea4276806722945f34",
+      "ranges": [
+        {
+          "source": "twitch-vod:2941322278",
+          "start": 15333.0,
+          "end": 15346.0
+        }
+      ],
+      "fingerprints": [
+        "1c4d8d8d959338b0.c4849496a6a67298.987466424a2a3a92"
+      ],
+      "date": "2026-11-28T01:01:08Z"
     }
   ],
   "rejected": [
@@ -346,6 +360,23 @@
           "end": 16690.0
         }
       ]
+    },
+    {
+      "id": "6e4ce1b2e891b6575a09",
+      "date": "2026-11-28T00:59:20Z",
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The edit contains modded GTA V footage presented as Grand Theft Auto VI, violating the core scope requirement.",
+      "other_game_ranges": [
+        {
+          "source": "twitch-vod:2939244497",
+          "start": 8828.0,
+          "end": 8859.0
+        }
+      ]
+    },
+    {
+      "id": "efb54d09568a044f19fa",
+      "date": "2026-11-28T00:59:59Z",
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The footage appears to be a roleplay mod or custom setup featuring a streamer overlay rather than verified official Grand Theft Auto VI game content."
     }
   ]
 }
