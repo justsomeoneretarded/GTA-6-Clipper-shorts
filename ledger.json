@@ -137,6 +137,20 @@
         "1c4d8d8d959338b0.c4849496a6a67298.987466424a2a3a92"
       ],
       "date": "2026-11-28T01:01:08Z"
+    },
+    {
+      "id": "b3d983959a6dcd1e75be",
+      "ranges": [
+        {
+          "source": "twitch-vod:2941175629",
+          "start": 205.0,
+          "end": 223.0
+        }
+      ],
+      "fingerprints": [
+        "060606040c0784c4.5e4f0c4c5ccd0820.cc4d5c7474656666"
+      ],
+      "date": "2026-11-28T14:46:36Z"
     }
   ],
   "rejected": [
@@ -377,6 +391,23 @@
       "id": "efb54d09568a044f19fa",
       "date": "2026-11-28T00:59:59Z",
       "reason": "The finished edit lacked verifiable GTA VI evidence. The footage appears to be a roleplay mod or custom setup featuring a streamer overlay rather than verified official Grand Theft Auto VI game content."
+    },
+    {
+      "id": "cfc78b2ec351c25f66d9",
+      "date": "2026-11-28T14:45:01Z",
+      "reason": "The opening alone did not give a new viewer a reason to continue. Review observed An in-game character in a green jacket is talking to a woman in a red cap while another woman sits nearby, and a streamer's facecam in the corner reacts to"
+    },
+    {
+      "id": "3374cf63f18f17a61d0c",
+      "date": "2026-11-28T14:45:40Z",
+      "reason": "The finished edit lacked verifiable GTA VI evidence. The footage features a modified GTA V roleplay server imitating GTA VI rather than authentic Grand Theft Auto VI gameplay.",
+      "other_game_ranges": [
+        {
+          "source": "twitch-vod:2942196441",
+          "start": 10171.5,
+          "end": 10186.0
+        }
+      ]
     }
   ]
 }
